@@ -5,7 +5,7 @@
 
 ### Objetivo
 
-1. Criar um clone do jogo Archon - The Light and the Dark em Pygame.
+1. Criar um clone do jogo [Archon - The Light and the Dark](https://www.c64-wiki.com/wiki/Archon) em Pygame.
 
 2. Em alternativa... do clássico x em Pygame.
 
@@ -33,7 +33,7 @@ Este será um jogo multijogador local para duas pessoas.
 
 ![UI](https://github.com/fpro-feup/public/blob/master/recitas/ui.png)
 
-A UI e as personagens vão ser desenhadas através do Aseprite [Aseprite](https://www.aseprite.org/) em pixel art e do pygame.draw (incluído no módulo Pygame).
+A UI e as personagens vão ser desenhadas através do [Aseprite](https://www.aseprite.org/) em pixel art e do pygame.draw (incluído no módulo Pygame).
 
 ### Pacotes
 
