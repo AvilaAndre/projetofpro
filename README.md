@@ -33,7 +33,7 @@ Este será um jogo multijogador local para duas pessoas.
 
 ![UI](https://github.com/fpro-feup/public/blob/master/recitas/ui.png)
 
-A UI e as personagens vão ser desenhadas através do Aseprite (https://www.aseprite.org/) em pixel art e do pygame.draw (incluído no módulo Pygame).
+A UI e as personagens vão ser desenhadas através do Aseprite [Aseprite](https://www.aseprite.org/) em pixel art e do pygame.draw (incluído no módulo Pygame).
 
 ### Pacotes
 
