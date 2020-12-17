@@ -13,9 +13,9 @@ option_font = pygame.font.SysFont("Comic Sans MS", 60)
 small_font = pygame.font.SysFont("Comic Sans MS", 15)
 debug_font = pygame.font.SysFont("lucidaconsole", 15)
 
-title_gm_font = pygame.font.Font(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\Resources\Fonts\Langar\Langar-Regular.ttf', 80)
-big_gm_font = pygame.font.Font(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\Resources\Fonts\Langar\Langar-Regular.ttf', 60)
-medium_gm_font = pygame.font.Font(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\Resources\Fonts\Langar\Langar-Regular.ttf', 40)
+title_gm_font = pygame.font.Font(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Fonts\Langar\Langar-Regular.ttf', 80)
+big_gm_font = pygame.font.Font(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Fonts\Langar\Langar-Regular.ttf', 60)
+medium_gm_font = pygame.font.Font(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Fonts\Langar\Langar-Regular.ttf', 40)
 
 pygame.display.set_caption(_GAMETITLE)
 
@@ -28,8 +28,14 @@ clock = pygame.time.Clock()
 
 current_scene = 'menu'
 playing = False
+"""
+~~~~CHARACTERS~~~~
+"""
 
 
+"""
+~~~~SCENES~~~~
+"""
 """ 
 ~~~~~~MENU~~~~~~
 The game's first page, here you can select "Start", "Rules" and "Exit";
@@ -113,7 +119,7 @@ _ENERGY_SQUARES = [(0, 4), (4,0), (4,4), (4,8), (8,4)]
 
 board_x = 256 + 128
 board_y = 64
-light_square = pygame.image.load(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\Resources\Sprites\Tiles\220220220LightTile.png')
+light_square = pygame.image.load(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Tiles\220220220LightTile.png')
 board_data = [[ _TILE_COLORS[5] ,_TILE_COLORS[0], _TILE_COLORS[5], 0, _TILE_COLORS[0], 0, _TILE_COLORS[5], _TILE_COLORS[0], _TILE_COLORS[5]], [_TILE_COLORS[0] , _TILE_COLORS[5],0, _TILE_COLORS[0], 0, _TILE_COLORS[0], 0, _TILE_COLORS[5], _TILE_COLORS[0]], [_TILE_COLORS[5] ,0,_TILE_COLORS[0], _TILE_COLORS[5], 0, _TILE_COLORS[5], _TILE_COLORS[0], 0, _TILE_COLORS[5]], [(220,220,220) , _TILE_COLORS[0], _TILE_COLORS[5], _TILE_COLORS[0], 0, _TILE_COLORS[0], _TILE_COLORS[5], _TILE_COLORS[0], 0], [0, 0, 0, 0, 0, 0, 0, 0, 0], [0 , _TILE_COLORS[5], _TILE_COLORS[0], _TILE_COLORS[5], 0, _TILE_COLORS[5], _TILE_COLORS[0], _TILE_COLORS[5], 0], [_TILE_COLORS[0] ,0,_TILE_COLORS[5], _TILE_COLORS[0], 0, _TILE_COLORS[0], _TILE_COLORS[5], 0, _TILE_COLORS[0]], [_TILE_COLORS[5] , _TILE_COLORS[0], 0, _TILE_COLORS[5], 0, _TILE_COLORS[5], 0, _TILE_COLORS[0], _TILE_COLORS[5]], [_TILE_COLORS[0] , _TILE_COLORS[5], _TILE_COLORS[0], 0, _TILE_COLORS[5], 0, _TILE_COLORS[0], _TILE_COLORS[5], _TILE_COLORS[0]]]
 turn = 0
 
@@ -131,7 +137,7 @@ turn_player = 0
 _PLAYERS_COLOR = [(255, 255, 255), (0,0,0)]
 
 ##ENERGY SQUARE ANIMATION##
-energy_square_frames = [pygame.image.load(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\Resources\Sprites\Tiles\EnergySquare\EnergySquareF1.png'), pygame.image.load(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\Resources\Sprites\Tiles\EnergySquare\EnergySquareF1.png'), pygame.image.load(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\Resources\Sprites\Tiles\EnergySquare\EnergySquareF1.png'), pygame.image.load(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\Resources\Sprites\Tiles\EnergySquare\EnergySquareF2.png'), pygame.image.load(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\Resources\Sprites\Tiles\EnergySquare\EnergySquareF2.png'), pygame.image.load(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\Resources\Sprites\Tiles\EnergySquare\EnergySquareF3.png'), pygame.image.load(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\Resources\Sprites\Tiles\EnergySquare\EnergySquareF3.png'), pygame.image.load(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\Resources\Sprites\Tiles\EnergySquare\EnergySquareF4.png'), pygame.image.load(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\Resources\Sprites\Tiles\EnergySquare\EnergySquareF4.png'), pygame.image.load(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\Resources\Sprites\Tiles\EnergySquare\EnergySquareF5.png'), pygame.image.load(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\Resources\Sprites\Tiles\EnergySquare\EnergySquareF5.png')]
+energy_square_frames = [pygame.image.load(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Tiles\EnergySquare\EnergySquareF1.png'), pygame.image.load(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Tiles\EnergySquare\EnergySquareF1.png'), pygame.image.load(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Tiles\EnergySquare\EnergySquareF1.png'), pygame.image.load(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Tiles\EnergySquare\EnergySquareF2.png'), pygame.image.load(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Tiles\EnergySquare\EnergySquareF2.png'), pygame.image.load(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Tiles\EnergySquare\EnergySquareF3.png'), pygame.image.load(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Tiles\EnergySquare\EnergySquareF3.png'), pygame.image.load(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Tiles\EnergySquare\EnergySquareF4.png'), pygame.image.load(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Tiles\EnergySquare\EnergySquareF4.png'), pygame.image.load(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Tiles\EnergySquare\EnergySquareF5.png'), pygame.image.load(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Tiles\EnergySquare\EnergySquareF5.png')]
 es_cur_anim = 0
 es_anim_cycle = 1
 ##ENERGY SQUARE ANIMATION##
