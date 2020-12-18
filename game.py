@@ -16,7 +16,7 @@ debug_font = pygame.font.SysFont("lucidaconsole", 15)
 title_gm_font = pygame.font.Font(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Fonts\Langar\Langar-Regular.ttf', 80)
 big_gm_font = pygame.font.Font(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Fonts\Langar\Langar-Regular.ttf', 60)
 medium_gm_font = pygame.font.Font(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Fonts\Langar\Langar-Regular.ttf', 40)
-
+small_gm_font = pygame.font.Font(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Fonts\Langar\Langar-Regular.ttf', 20)
 pygame.display.set_caption(_GAMETITLE)
 
 
@@ -75,8 +75,10 @@ def menu():
 In this page the player will learn the game's basics, it will also be
 possible to check the different characters' stats and abilities.
 """
-rules_buttons = [(840, 570, 140, 55)]
+rules_buttons = [(840, 570, 140, 55), (390, 194, 160, 32), (190, 194, 164, 32)]
 rules_sel = 0
+
+rules_screen = 0
 def rules():
     global rules_sel
     screen.fill((255,255,255))
@@ -88,23 +90,115 @@ def rules():
         rules_sel = 0
     #TEXT
     rules_title = medium_gm_font.render('Rules:', 1, (00, 00, 00))
+    light_chars_info_button = small_gm_font.render("See Light's Icons", 1, (00,00,00))
+    dark_chars_info_button = small_gm_font.render("See Dark's Icons", 1, (00,00,00))
     go_back_button = medium_gm_font.render('Back', 1, (00,00,00))
 
     #DRAW
 
     screen.blit(rules_title, (50, 50))
     screen.blit(go_back_button, (860, 580))
+    screen.blit(light_chars_info_button, (200, 200))
+    screen.blit(dark_chars_info_button, (400, 200))
     pygame.draw.rect(screen, (0,0,0) , Rect(rules_buttons[rules_sel][0], rules_buttons[rules_sel][1], rules_buttons[rules_sel][2], rules_buttons[rules_sel][3]), 4)
+
+"""CHARACTER VIEWER"""
+s_l_buttons = [(840, 570, 140, 55)]
+
+def see_light_chars():
+    screen.fill((255, 255, 153))
+    #DRAW
+
+s_d__buttons = [(840, 570, 140, 55)]
+def see_dark_chars():
+    screen.fill((0, 0, 77))
+    #DRAW
+
+"""CHARACTERS SHEETS"""
+#TODO: Add character description, sprite and details
+def char_viewer(side):
+    if side == 2:
+        screen.fill((255, 255, 153))
+        screen_info_c = (0,0,0)
+    elif side == 4:
+        screen.fill((0,0,77))
+        screen_info_c = (255, 255, 255)
+    else:
+        screen.fill((255, 0, 0))
+    print(screen_info_c)
+    #LOGIC
+##   picture = pygame.image.load(filename)
+##  picture = pygame.transform.scale(picture, (1280, 720))
+##  rect = rect.move((x, y))
+##  screen.blit(picture, rect)
+    #TODO: make description fit the screen
+    description = 'Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn.'
+
+    #TEXT
+    char_name = medium_gm_font.render('Unicorn', 1, screen_info_c)
+    description = small_gm_font.render(description, 1, screen_info_c)
+    stat1 = small_gm_font.render(f'Moving type: {"ground"}', 1, screen_info_c)
+    stat2 = small_gm_font.render(f'Speed: {"normal"}', 1, screen_info_c)
+    stat3 = small_gm_font.render(f'Attack type: {"energy bolts"}', 1, screen_info_c)
+    stat4 = small_gm_font.render(f'Attack strength: {"moderate"}', 1, screen_info_c)
+    stat5 = small_gm_font.render(f'Attack speed: {"fast"}', 1, screen_info_c)
+    stat6 = small_gm_font.render(f'Attack interval: {"short"}', 1, screen_info_c)
+    stat7 = small_gm_font.render(f'Life span: {"average"}', 1, screen_info_c)
+    stat8 = small_gm_font.render(f'Number of characters: {"2"}', 1, screen_info_c)
+
+    #DRAW
+    pygame.draw.rect(screen, screen_info_c, (50, 100, 400, 400), 4)
+    screen.blit(description, (500, 100))
+    screen.blit(stat1, (500, 340))
+    screen.blit(stat2, (500, 360))
+    screen.blit(stat3, (500, 380))
+    screen.blit(stat4, (500, 400))
+    screen.blit(stat5, (500, 420))
+    screen.blit(stat6, (500, 440))
+    screen.blit(stat7, (500, 460))
+    screen.blit(stat8, (500, 480))
+    screen.blit(char_name, (50, 50))
+
+"""
+NAME: unicorn
+DESCRIPTION: Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn.
+STATS:
+Moving type: ground - 4
+Speed: normal
+Attack type: energy bolts
+Attack strength: moderate
+Attack speed: fast
+Attack interval: short
+Life span: average
+Number of characters: 2
+"""
+
+
 """
 ~~~~~~~~~~~~~~~~
 """
 
-opts_buttons = [(200, 200)]
+opts_buttons = [(840, 570, 140, 55), (840, 270, 140, 55)]
 opts_sel = 0
 
+
 def options():
+    global opts_sel
+    #
+    
+    #LOGIC
+    if opts_sel > len(opts_buttons) -1:
+        opts_sel = len(opts_buttons) -1
+    if opts_sel < 0:
+        opts_sel = 0
+    #TEXT
+
+    go_back_button = medium_gm_font.render('Back', 1, (00,00,00))
+    
+    #DRAW
     screen.fill((255, 100, 100))
-    pygame.draw.rect(screen, (0,0,0) , Rect(opts_buttons[opts_sel][0], opts_buttons[opts_sel][1], 56, 56), 4)
+    screen.blit(go_back_button, (860, 580))
+    pygame.draw.rect(screen, (0,0,0) , Rect(opts_buttons[opts_sel][0], opts_buttons[opts_sel][1], opts_buttons[opts_sel][2], opts_buttons[opts_sel][3]), 4)
 
 """ 
 ~~~~~~~~GAME~~~~~~~~
@@ -215,6 +309,7 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
+            #menu keys
             if current_scene == 'menu':
                 if event.type == pygame.KEYDOWN:
                     if event.key == K_UP or event.key == K_w:
@@ -233,11 +328,13 @@ while running:
                             pygame.quit()
                 if event.type == pygame.KEYUP:
                     pass
+            #game menu keys
             elif current_scene == 'game' and not playing:
                  if event.type == pygame.KEYDOWN:
                     if event.key == K_UP or event.key == K_w:
                         playing = True
                         next_turn()
+            #game keys
             elif current_scene == 'game' and playing:
                 if event.type == pygame.KEYDOWN:
                     if event.key == K_UP or event.key == K_w:
@@ -248,15 +345,67 @@ while running:
                         move_on_board((0,-1))
                     if event.key == K_RIGHT or event.key == K_d:
                         move_on_board((0,1))
+            #rules keys
             elif current_scene == 'rules':
                 if event.type == pygame.KEYDOWN:
-                    if event.key == K_RETURN or event.key == K_SPACE:
-                        if rules_sel == 0:
-                            current_scene = 'menu'
+                    if rules_screen == 0 or rules_screen > 4:
+                        if event.key == K_RETURN or event.key == K_SPACE:
+                            if rules_sel == 0:
+                                current_scene = 'menu'
+                            if rules_sel == 1:
+                                rules_screen = 3
+                            if rules_sel == 2:
+                                rules_screen = 1
                         if event.key == K_UP or event.key == K_w:
-                            rules_sel -= 1
-                        elif event.key == K_DOWN or event.key == K_s:
                             rules_sel += 1
+                        elif event.key == K_DOWN or event.key == K_s:
+                            rules_sel -= 1
+                    elif rules_screen == 1:
+                        """
+                        if event.key == K_RETURN or event.key == K_SPACE:
+                            if rules_sel == 0:
+                                current_scene = 'menu'
+                            if rules_sel == 1:
+                                rules_screen = 1
+                            if rules_sel == 2:
+                                rules_screen = 3
+                        if event.key == K_UP or event.key == K_w:
+                            rules_sel += 1
+                        elif event.key == K_DOWN or event.key == K_s:
+                            rules_sel -= 1
+                        """
+                        rules_screen = 2
+                    elif rules_screen == 3:
+                        """
+                        if event.key == K_RETURN or event.key == K_SPACE:
+                            if rules_sel == 0:
+                                current_scene = 'menu'
+                            if rules_sel == 1:
+                                rules_screen = 1
+                            if rules_sel == 2:
+                                rules_screen = 3
+                        if event.key == K_UP or event.key == K_w:
+                            rules_sel += 1
+                        elif event.key == K_DOWN or event.key == K_s:
+                            rules_sel -= 1
+                        """
+                        rules_screen = 4
+                    elif rules_screen == 2 or rules_screen == 4:
+                        if rules_screen == 2:
+                            rules_screen = 3
+                        else:
+                            rules_screen = 1
+
+
+            elif current_scene == 'options':
+                if event.type == pygame.KEYDOWN:
+                    if event.key == K_RETURN or event.key == K_SPACE:
+                        if opts_sel == 0:
+                            current_scene = 'menu'
+                    if event.key == K_UP or event.key == K_w:
+                        opts_sel += 1
+                    elif event.key == K_DOWN or event.key == K_s:
+                        opts_sel -= 1
 
 
     #SCENE MANAGEMENT
@@ -269,7 +418,17 @@ while running:
         else:
             board()
     elif current_scene == "rules":
-        rules()
+        if rules_screen == 0:
+            rules()
+        elif rules_screen == 1:
+            see_light_chars()
+        elif rules_screen == 3:
+            see_dark_chars()
+        elif rules_screen == 2 or rules_screen == 4:
+            char_viewer(rules_screen)
+        else:
+            rules_screen = 0
+            rules()
     elif current_scene == 'options':
         options()
     else:
@@ -278,7 +437,7 @@ while running:
     build_warning = debug_font.render("UNDER DEVELOPMENT", 1, (255, 00, 00))
     screen.blit(build_warning, (0,0))
     pygame.display.update()
-    dt = clock.tick(30)
     es_handle_animation()
+    dt = clock.tick(30)
 
 pygame.quit()
