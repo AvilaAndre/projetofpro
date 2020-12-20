@@ -16,6 +16,7 @@ debug_font = pygame.font.SysFont("lucidaconsole", 15)
 title_gm_font = pygame.font.Font(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Fonts\Langar\Langar-Regular.ttf', 80)
 big_gm_font = pygame.font.Font(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Fonts\Langar\Langar-Regular.ttf', 60)
 medium_gm_font = pygame.font.Font(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Fonts\Langar\Langar-Regular.ttf', 40)
+small_medium_gm_font = pygame.font.Font(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Fonts\Langar\Langar-Regular.ttf', 30)
 small_gm_font = pygame.font.Font(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Fonts\Langar\Langar-Regular.ttf', 20)
 pygame.display.set_caption(_GAMETITLE)
 
@@ -31,8 +32,125 @@ playing = False
 """
 ~~~~CHARACTERS~~~~
 """
+class Knight():
+    name = "Knight"
+    description = "to be done" #TODO: Knight's description
+    s_moving_type = "ground - 3"
+    s_speed = "normal"
+    s_attack_type = "sword"
+    s_attack_strength = "low"
+    s_attack_speed = "instant"
+    s_attack_interval = "very short"
+    s_life_span = "short"
+    s_number_of_chars = "7"
 
+    def __init__(self):
+        print("Knight instantiated")
 
+class Unicorn():
+    name = "Unicorn"
+    description = "Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn." 
+    s_moving_type = "ground - 4"
+    s_speed = "normal"
+    s_attack_type = "energy bolts"
+    s_attack_strength = "moderate"
+    s_attack_speed = "fast"
+    s_attack_interval = "short"
+    s_life_span = "average"
+    s_number_of_chars = "2"
+    
+    def __init__(self):
+        print("Unicorn instantiated")
+
+class Valkyrie():
+    name = "Valkyrie"
+    description = "Valkyries are pretty, blonde warriors of the legion of Valhalla. Every one of it is equipped with two big talents: firstly the ability to walk through the air as if it was solid ground; and secondly a bewitched spear that after been thrown returns to its thrower." #TODO: Valkyrie's description 
+    s_moving_type = "air - 3"
+    s_speed = "normal"
+    s_attack_type = "spear"
+    s_attack_strength = "moderate"
+    s_attack_speed = "slow"
+    s_attack_interval = "average"
+    s_life_span = "average"
+    s_number_of_chars = "2"
+    
+    def __init__(self):
+        print("Valkyrie instantiated")
+
+class Unicorn():
+    name = "Unicorn"
+    description = "Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn." 
+    s_moving_type = "ground - 4"
+    s_speed = "normal"
+    s_attack_type = "energy bolts"
+    s_attack_strength = "moderate"
+    s_attack_speed = "fast"
+    s_attack_interval = "short"
+    s_life_span = "average"
+    s_number_of_chars = "2"
+    
+    def __init__(self):
+        print("Unicorn instantiated")
+
+class Unicorn():
+    name = "Unicorn"
+    description = "Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn." 
+    s_moving_type = "ground - 4"
+    s_speed = "normal"
+    s_attack_type = "energy bolts"
+    s_attack_strength = "moderate"
+    s_attack_speed = "fast"
+    s_attack_interval = "short"
+    s_life_span = "average"
+    s_number_of_chars = "2"
+    
+    def __init__(self):
+        print("Unicorn instantiated")
+
+class Unicorn():
+    name = "Unicorn"
+    description = "Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn." 
+    s_moving_type = "ground - 4"
+    s_speed = "normal"
+    s_attack_type = "energy bolts"
+    s_attack_strength = "moderate"
+    s_attack_speed = "fast"
+    s_attack_interval = "short"
+    s_life_span = "average"
+    s_number_of_chars = "2"
+    
+    def __init__(self):
+        print("Unicorn instantiated")
+
+class Unicorn():
+    name = "Unicorn"
+    description = "Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn." 
+    s_moving_type = "ground - 4"
+    s_speed = "normal"
+    s_attack_type = "energy bolts"
+    s_attack_strength = "moderate"
+    s_attack_speed = "fast"
+    s_attack_interval = "short"
+    s_life_span = "average"
+    s_number_of_chars = "2"
+    
+    def __init__(self):
+        print("Unicorn instantiated")
+
+class Unicorn():
+    name = "Unicorn"
+    description = "Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn." 
+    s_moving_type = "ground - 4"
+    s_speed = "normal"
+    s_attack_type = "energy bolts"
+    s_attack_strength = "moderate"
+    s_attack_speed = "fast"
+    s_attack_interval = "short"
+    s_life_span = "average"
+    s_number_of_chars = "2"
+    
+    def __init__(self):
+        print("Unicorn instantiated")
 """
 ~~~~SCENES~~~~
 """
@@ -103,18 +221,78 @@ def rules():
     pygame.draw.rect(screen, (0,0,0) , Rect(rules_buttons[rules_sel][0], rules_buttons[rules_sel][1], rules_buttons[rules_sel][2], rules_buttons[rules_sel][3]), 4)
 
 """CHARACTER VIEWER"""
-s_l_buttons = [(840, 570, 140, 55)]
+char_view_buttons = [(840, 570, 125, 55), (46, 440, 200, 50), (46, 390, 200, 50), (46, 340, 200, 50), (46, 290, 200, 50), (46, 240, 200, 50), (46, 190, 200, 50), (46, 140, 200, 50), (46, 90, 200, 50)]
+char_view_sel = 0
 
 def see_light_chars():
+    global char_view_sel
     screen.fill((255, 255, 153))
-    #DRAW
+    #LOGIC
+    if char_view_sel > len(char_view_buttons) -1:
+        char_view_sel = len(char_view_buttons) -1
+    if char_view_sel < 0:
+        char_view_sel = 0
+    #8 buttons
+    #TEXT
+    valkyrie = small_medium_gm_font.render("Valkyrie", 1, (0,0,0))
+    golem = small_medium_gm_font.render("Golem", 1, (0,0,0))
+    unicorn = small_medium_gm_font.render("Unicorn", 1, (0,0,0))
+    djinni = small_medium_gm_font.render("Djinni", 1, (0,0,0))
+    wizard = small_medium_gm_font.render("Wizard", 1, (0,0,0))
+    phoenix = small_medium_gm_font.render("Phoenix", 1, (0,0,0))
+    archer = small_medium_gm_font.render("Archer", 1, (0,0,0))
+    knight = small_medium_gm_font.render("Knight", 1, (0,0,0))
+    go_back_button = medium_gm_font.render('Back', 1, (0,0,0))
 
-s_d__buttons = [(840, 570, 140, 55)]
-def see_dark_chars():
-    screen.fill((0, 0, 77))
     #DRAW
+    screen.blit(valkyrie, (50, 100))
+    screen.blit(golem, (50, 150))
+    screen.blit(unicorn, (50, 200))
+    screen.blit(djinni, (50, 250))
+    screen.blit(wizard, (50, 300))
+    screen.blit(phoenix, (50, 350))
+    screen.blit(archer, (50, 400))
+    screen.blit(knight, (50, 450))
+    screen.blit(go_back_button, (860, 580))
+    pygame.draw.rect(screen, (0,0,0) , Rect(char_view_buttons[char_view_sel][0], char_view_buttons[char_view_sel][1], char_view_buttons[char_view_sel][2], char_view_buttons[char_view_sel][3]), 4)
+    pygame.draw.rect(screen, (0,0,0), (400, 400, 200, 200), 4)
+
+
+def see_dark_chars():
+    global char_view_sel
+    screen.fill((0, 0, 77))
+    #LOGIC
+    if char_view_sel > len(char_view_buttons) -1:
+        char_view_sel = len(char_view_buttons) -1
+    if char_view_sel < 0:
+        char_view_sel = 0
+    #8 buttons
+    #TEXT
+    banshee = small_medium_gm_font.render("Banshee", 1, (255, 255, 255))
+    troll = small_medium_gm_font.render("Troll", 1, (255, 255, 255))
+    basilisk = small_medium_gm_font.render("Basilisk", 1, (255, 255, 255))
+    shapeshifter = small_medium_gm_font.render("Shapeshifter", 1, (255, 255, 255))
+    sorceress = small_medium_gm_font.render("Sorceress", 1, (255, 255, 255))
+    dragon = small_medium_gm_font.render("Dragon", 1, (255, 255, 255))
+    manticore = small_medium_gm_font.render("Manticore", 1, (255, 255, 255))
+    goblin = small_medium_gm_font.render("Goblin", 1, (255, 255, 255))
+    go_back_button = medium_gm_font.render('Back', 1, (255, 255, 255))
+
+    #DRAW
+    screen.blit(banshee, (50, 100))
+    screen.blit(troll, (50, 150))
+    screen.blit(basilisk, (50, 200))
+    screen.blit(shapeshifter, (50, 250))
+    screen.blit(sorceress, (50, 300))
+    screen.blit(dragon, (50, 350))
+    screen.blit(manticore, (50, 400))
+    screen.blit(goblin, (50, 450))
+    screen.blit(go_back_button, (860, 580))
+    pygame.draw.rect(screen, (255, 255, 255) , Rect(char_view_buttons[char_view_sel][0], char_view_buttons[char_view_sel][1], char_view_buttons[char_view_sel][2], char_view_buttons[char_view_sel][3]), 4)
+    pygame.draw.rect(screen, (255, 255, 255), (400, 400, 200, 200), 4)
 
 """CHARACTERS SHEETS"""
+char_det = Knight()
 #TODO: Add character description, sprite and details
 def char_viewer(side):
     if side == 2:
@@ -125,40 +303,64 @@ def char_viewer(side):
         screen_info_c = (255, 255, 255)
     else:
         screen.fill((255, 0, 0))
-    print(screen_info_c)
     #LOGIC
 ##   picture = pygame.image.load(filename)
 ##  picture = pygame.transform.scale(picture, (1280, 720))
 ##  rect = rect.move((x, y))
 ##  screen.blit(picture, rect)
-    #TODO: make description fit the screen
-    description = 'Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn.'
+    description = char_det.description
 
     #TEXT
-    char_name = medium_gm_font.render('Unicorn', 1, screen_info_c)
-    description = small_gm_font.render(description, 1, screen_info_c)
-    stat1 = small_gm_font.render(f'Moving type: {"ground"}', 1, screen_info_c)
-    stat2 = small_gm_font.render(f'Speed: {"normal"}', 1, screen_info_c)
-    stat3 = small_gm_font.render(f'Attack type: {"energy bolts"}', 1, screen_info_c)
-    stat4 = small_gm_font.render(f'Attack strength: {"moderate"}', 1, screen_info_c)
-    stat5 = small_gm_font.render(f'Attack speed: {"fast"}', 1, screen_info_c)
-    stat6 = small_gm_font.render(f'Attack interval: {"short"}', 1, screen_info_c)
-    stat7 = small_gm_font.render(f'Life span: {"average"}', 1, screen_info_c)
-    stat8 = small_gm_font.render(f'Number of characters: {"2"}', 1, screen_info_c)
-
+    stats_tag = small_medium_gm_font.render(f'Stats:', 1, screen_info_c)
+    description_tag = small_medium_gm_font.render(f'Description:', 1, screen_info_c)
+    char_name = medium_gm_font.render(char_det.name, 1, screen_info_c)
+    stat1 = small_gm_font.render(f'Moving type: {char_det.s_moving_type}', 1, screen_info_c)
+    stat2 = small_gm_font.render(f'Speed: {char_det.s_speed}', 1, screen_info_c)
+    stat3 = small_gm_font.render(f'Attack type: {char_det.s_attack_type}', 1, screen_info_c)
+    stat4 = small_gm_font.render(f'Attack strength: {char_det.s_attack_strength}', 1, screen_info_c)
+    stat5 = small_gm_font.render(f'Attack speed: {char_det.s_attack_speed}', 1, screen_info_c)
+    stat6 = small_gm_font.render(f'Attack interval: {char_det.s_attack_interval}', 1, screen_info_c)
+    stat7 = small_gm_font.render(f'Life span: {char_det.s_life_span}', 1, screen_info_c)
+    stat8 = small_gm_font.render(f'Number of characters: {char_det.s_number_of_chars}', 1, screen_info_c)
+    description_list = fit_in_box(description, 500, 200, screen_info_c)
     #DRAW
+    screen.blit(description_tag, (475, 70))
+    for i in range(len(description_list)):
+        screen.blit(description_list[i], (500, 100 + 25*i))
     pygame.draw.rect(screen, screen_info_c, (50, 100, 400, 400), 4)
-    screen.blit(description, (500, 100))
-    screen.blit(stat1, (500, 340))
-    screen.blit(stat2, (500, 360))
-    screen.blit(stat3, (500, 380))
-    screen.blit(stat4, (500, 400))
-    screen.blit(stat5, (500, 420))
-    screen.blit(stat6, (500, 440))
-    screen.blit(stat7, (500, 460))
+    screen.blit(stats_tag, (475, 275))
+    screen.blit(stat1, (500, 305))
+    screen.blit(stat2, (500, 330))
+    screen.blit(stat3, (500, 355))
+    screen.blit(stat4, (500, 380))
+    screen.blit(stat5, (500, 405))
+    screen.blit(stat6, (500, 430))
+    screen.blit(stat7, (500, 455))
     screen.blit(stat8, (500, 480))
     screen.blit(char_name, (50, 50))
 
+
+def fit_in_box(text, width, height, color):
+    div_list = []
+    description_lines = []
+    split_text = text.split()
+    line = ""
+    test_line = ""
+    while len(split_text) > 0:
+        test_line = line
+        test_line += split_text[0] + " "
+        if not (small_gm_font.size(test_line)[0] > 500):
+            line += split_text[0] + " "
+            split_text.pop(0)
+        else:
+            div_list.append(line)
+            line = ""
+        text = "n"
+    if line != "":
+        div_list.append(line)
+    for j in range(0, len(div_list)):
+        description_lines.append(small_gm_font.render(div_list[j], 1, color))
+    return description_lines
 """
 NAME: unicorn
 DESCRIPTION: Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn.
@@ -218,10 +420,20 @@ board_data = [[ _TILE_COLORS[5] ,_TILE_COLORS[0], _TILE_COLORS[5], 0, _TILE_COLO
 turn = 0
 
 
-
+text_mod = 0
 def game_scene():
+    global text_mod
+    if text_mod < 47:
+        text_mod += 1
+    else:
+        text_mod = 0
     screen.fill((220,220,0))
 
+    #TEXT
+    press_start = small_medium_gm_font.render("Press any key to start the game.", 1, (255, 255, 255))
+    #DRAW
+    if text_mod < 40:
+        screen.blit(press_start, (300, 500))
 """
 |||    BOARD   |||
 """
@@ -261,6 +473,9 @@ def board():
         screen.blit(energy_square_frames[es_cur_anim], (board_x + (56*es_y), board_y + (56*es_x)))
 
     pygame.draw.rect(screen, _PLAYERS_COLOR[turn_player], Rect(board_x + (56*player_board_y), board_y + (56*player_board_x), 56, 56), 4)
+    pygame.draw.rect(screen, (80, 112, 188), Rect(25, 500, 320, 80), 0)
+    pygame.draw.rect(screen, (56, 74, 176), Rect(25, 500, 320, 80), 3)
+
 
 cur_color = 0
 cycle = 1
@@ -331,12 +546,13 @@ while running:
             #game menu keys
             elif current_scene == 'game' and not playing:
                  if event.type == pygame.KEYDOWN:
-                    if event.key == K_UP or event.key == K_w:
-                        playing = True
-                        next_turn()
+                    playing = True
+                    next_turn()
             #game keys
             elif current_scene == 'game' and playing:
                 if event.type == pygame.KEYDOWN:
+                    if event.key == K_RETURN or event.key == K_SPACE:
+                        next_turn()
                     if event.key == K_UP or event.key == K_w:
                         move_on_board((-1,0))
                     if event.key == K_DOWN or event.key == K_s:
@@ -361,40 +577,78 @@ while running:
                         elif event.key == K_DOWN or event.key == K_s:
                             rules_sel -= 1
                     elif rules_screen == 1:
-                        """
+                        
                         if event.key == K_RETURN or event.key == K_SPACE:
-                            if rules_sel == 0:
-                                current_scene = 'menu'
-                            if rules_sel == 1:
-                                rules_screen = 1
-                            if rules_sel == 2:
-                                rules_screen = 3
+                            if char_view_sel == 0:
+                                rules_screen = 0
+                            elif char_view_sel == 1:
+                                char_det = Knight()
+                                rules_screen = 2
+                            elif char_view_sel == 2:
+                                #do something
+                                rules_screen = 2
+                            elif char_view_sel == 3:
+                                #do something
+                                rules_screen = 2
+                            elif char_view_sel == 4:
+                                #do something
+                                rules_screen = 2
+                            elif char_view_sel == 5:
+                                #do something
+                                rules_screen = 2
+                            elif char_view_sel == 6:
+                                char_det = Unicorn()
+                                rules_screen = 2
+                            elif char_view_sel == 7:
+                                #do something
+                                rules_screen = 2
+                            elif char_view_sel == 8:
+                                #do something
+                                rules_screen = 2
+                            
                         if event.key == K_UP or event.key == K_w:
-                            rules_sel += 1
+                            char_view_sel += 1
                         elif event.key == K_DOWN or event.key == K_s:
-                            rules_sel -= 1
-                        """
-                        rules_screen = 2
+                            char_view_sel -= 1
+
                     elif rules_screen == 3:
-                        """
                         if event.key == K_RETURN or event.key == K_SPACE:
-                            if rules_sel == 0:
-                                current_scene = 'menu'
-                            if rules_sel == 1:
-                                rules_screen = 1
-                            if rules_sel == 2:
-                                rules_screen = 3
+                            if char_view_sel == 0:
+                                rules_screen = 0
+                            elif char_view_sel == 1:
+                                #do something
+                                rules_screen = 4
+                            elif char_view_sel == 2:
+                                #do something
+                                rules_screen = 4
+                            elif char_view_sel == 3:
+                                #do something
+                                rules_screen = 4
+                            elif char_view_sel == 4:
+                                #do something
+                                rules_screen = 4
+                            elif char_view_sel == 5:
+                                #do something
+                                rules_screen = 4
+                            elif char_view_sel == 6:
+                                #do something
+                                rules_screen = 4
+                            elif char_view_sel == 7:
+                                #do something
+                                rules_screen = 4
+                            elif char_view_sel == 8:
+                                #do something
+                                rules_screen = 4
+                            
                         if event.key == K_UP or event.key == K_w:
-                            rules_sel += 1
+                            char_view_sel += 1
                         elif event.key == K_DOWN or event.key == K_s:
-                            rules_sel -= 1
-                        """
-                        rules_screen = 4
+                            char_view_sel -= 1
                     elif rules_screen == 2 or rules_screen == 4:
                         if rules_screen == 2:
-                            rules_screen = 3
-                        else:
                             rules_screen = 1
+                        else:
+                            rules_screen = 3
 
 
             elif current_scene == 'options':
