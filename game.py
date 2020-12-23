@@ -33,8 +33,9 @@ playing = False
 ~~~~CHARACTERS~~~~
 """
 class Knight():
+    #STATS
     name = "Knight"
-    description = "to be done" #TODO: Knight's description
+    description = "The knights are soldiers going on foot that are armed and primed against enemies that are much bigger than they are. Although they cannot withstand more than one attack from many of their enemies, they are no cannon (or dragon) fodder. Provided that they are fast and intelligent their speed of their attacks gives them the chance to survive and to triumph."
     s_moving_type = "ground - 3"
     s_speed = "normal"
     s_attack_type = "sword"
@@ -45,6 +46,13 @@ class Knight():
     s_number_of_chars = "7"
 
     ##SPRITES
+    idle_animation = [r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Characters\Knight\Idle\Knight1.png', r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Characters\Knight\Idle\Knight2.png', r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Characters\Knight\Idle\Knight3.png', r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Characters\Knight\Idle\Knight4.png']
+    
+    
+    
+    #Animation Managing
+    current_sprite = idle_animation[0]
+    sprite = pygame.image.load(current_sprite)
     
     def __init__(self):
         print("Knight instantiated")
@@ -306,10 +314,8 @@ def char_viewer(side):
     else:
         screen.fill((255, 0, 0))
     #LOGIC
-##   picture = pygame.image.load(filename)
-##  picture = pygame.transform.scale(picture, (1280, 720))
-##  rect = rect.move((x, y))
-##  screen.blit(picture, rect)
+    picture = pygame.image.load(char_det.current_sprite)
+    picture = pygame.transform.scale(picture, (400, 400))
     description = char_det.description
 
     #TEXT
@@ -329,6 +335,7 @@ def char_viewer(side):
     screen.blit(description_tag, (475, 70))
     for i in range(len(description_list)):
         screen.blit(description_list[i], (500, 100 + 25*i))
+    screen.blit(picture, (50, 100))
     pygame.draw.rect(screen, screen_info_c, (50, 100, 400, 400), 4)
     screen.blit(stats_tag, (475, 275))
     screen.blit(stat1, (500, 305))
@@ -363,19 +370,6 @@ def fit_in_box(text, width, height, color):
     for j in range(0, len(div_list)):
         description_lines.append(small_gm_font.render(div_list[j], 1, color))
     return description_lines
-"""
-NAME: unicorn
-DESCRIPTION: Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn.
-STATS:
-Moving type: ground - 4
-Speed: normal
-Attack type: energy bolts
-Attack strength: moderate
-Attack speed: fast
-Attack interval: short
-Life span: average
-Number of characters: 2
-"""
 
 
 """
