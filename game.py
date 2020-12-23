@@ -44,6 +44,8 @@ class Knight():
     s_life_span = "short"
     s_number_of_chars = "7"
 
+    ##SPRITES
+    
     def __init__(self):
         print("Knight instantiated")
 
