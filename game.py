@@ -84,6 +84,16 @@ class Valkyrie():
     s_life_span = "average"
     s_number_of_chars = "2"
     
+    ##SPRITES
+    idle_animation = [r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Characters\Valkyrie\Idle\Valkyrie1.png', r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Characters\Valkyrie\Idle\Valkyrie2.png', r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Characters\Valkyrie\Idle\Valkyrie3.png', r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Characters\Valkyrie\Idle\Valkyrie4.png']
+    
+    
+    
+    #Animation Managing
+    current_sprite = idle_animation[0]
+    sprite = pygame.image.load(current_sprite)
+    
+    
     def __init__(self):
         print("Valkyrie instantiated")
 
@@ -102,20 +112,30 @@ class Unicorn():
     def __init__(self):
         print("Unicorn instantiated")
 
-class Unicorn():
-    name = "Unicorn"
-    description = "Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn." 
-    s_moving_type = "ground - 4"
+class Archer():
+    name = "Archer"
+    description = "The archers are fearless amazones, that can handle their bows with legendary skill. They are equipped with magical quivers that never get empty." 
+    s_moving_type = "ground - 3"
     s_speed = "normal"
-    s_attack_type = "energy bolts"
-    s_attack_strength = "moderate"
-    s_attack_speed = "fast"
-    s_attack_interval = "short"
-    s_life_span = "average"
+    s_attack_type = "arrow"
+    s_attack_strength = "low"
+    s_attack_speed = "middle"
+    s_attack_interval = "average"
+    s_life_span = "short"
     s_number_of_chars = "2"
+
+
+    #SPRITES
+    idle_animation = [r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Characters\Archer\Idle\Archer1.png', r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Characters\Archer\Idle\Archer2.png', r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Characters\Archer\Idle\Archer3.png', r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Characters\Archer\Idle\Archer4.png']
+    
+    
+    
+    #Animation Managing
+    current_sprite = idle_animation[0]
+    sprite = pygame.image.load(current_sprite)
     
     def __init__(self):
-        print("Unicorn instantiated")
+        print("Archer instantiated")
 
 class Unicorn():
     name = "Unicorn"
@@ -581,25 +601,25 @@ while running:
                                 char_det = Knight()
                                 rules_screen = 2
                             elif char_view_sel == 2:
-                                #do something
+                                char_det = Archer()
                                 rules_screen = 2
                             elif char_view_sel == 3:
-                                #do something
+                                #char_det = Phoenix()
                                 rules_screen = 2
                             elif char_view_sel == 4:
-                                #do something
+                                #char_det = Wizard()
                                 rules_screen = 2
                             elif char_view_sel == 5:
-                                #do something
+                                #char_det = Djinni()
                                 rules_screen = 2
                             elif char_view_sel == 6:
                                 char_det = Unicorn()
                                 rules_screen = 2
                             elif char_view_sel == 7:
-                                #do something
+                                #char_det = Golem()
                                 rules_screen = 2
                             elif char_view_sel == 8:
-                                #do something
+                                char_det = Valkyrie()
                                 rules_screen = 2
                             
                         if event.key == K_UP or event.key == K_w:
@@ -612,28 +632,28 @@ while running:
                             if char_view_sel == 0:
                                 rules_screen = 0
                             elif char_view_sel == 1:
-                                #do something
+                                #char_det = Goblin()
                                 rules_screen = 4
                             elif char_view_sel == 2:
-                                #do something
+                                #char_det = Manticore()
                                 rules_screen = 4
                             elif char_view_sel == 3:
-                                #do something
+                                #char_det = Dragon()
                                 rules_screen = 4
                             elif char_view_sel == 4:
-                                #do something
+                                #char_det = Sorceress()
                                 rules_screen = 4
                             elif char_view_sel == 5:
-                                #do something
+                                #char_det = Shapeshifter()
                                 rules_screen = 4
                             elif char_view_sel == 6:
-                                #do something
+                                #char_det = Basilisk()
                                 rules_screen = 4
                             elif char_view_sel == 7:
-                                #do something
+                                #char_det = Troll()
                                 rules_screen = 4
                             elif char_view_sel == 8:
-                                #do something
+                                #char_det = Banshee()
                                 rules_screen = 4
                             
                         if event.key == K_UP or event.key == K_w:
