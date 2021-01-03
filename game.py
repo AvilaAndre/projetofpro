@@ -20,7 +20,7 @@ small_medium_gm_font = pygame.font.Font(r'C:\Users\asus\uni\fpro\ProjetoFPRO\pro
 small_gm_font = pygame.font.Font(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Fonts\Langar\Langar-Regular.ttf', 20)
 pygame.display.set_caption(_GAMETITLE)
 
-
+_CHARS_SIZE = 128
 width, height = 64*16, 64*10
 screen=pygame.display.set_mode((width, height))
 
@@ -29,6 +29,8 @@ clock = pygame.time.Clock()
 
 current_scene = 'menu'
 playing = False
+animation_line = []
+
 """
 ~~~~CHARACTERS~~~~
 """
@@ -45,17 +47,36 @@ class Knight():
     s_life_span = "short"
     s_number_of_chars = "7"
 
+    alive = True
+
+    #Position
+    x = 0
+    y = 0
+
     ##SPRITES
     idle_animation = [r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Characters\Knight\Idle\Knight1.png', r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Characters\Knight\Idle\Knight2.png', r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Characters\Knight\Idle\Knight3.png', r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Characters\Knight\Idle\Knight4.png']
     
     
     
     #Animation Managing
+    cur_key = 0
     current_sprite = idle_animation[0]
+    current_animation = "idle"
     sprite = pygame.image.load(current_sprite)
+    texture = pygame.transform.scale(sprite,  (_CHARS_SIZE, _CHARS_SIZE))
+
+    def handle_animation(self):
+        if self.current_animation == "idle":
+            if self.cur_key+2 > len(self.idle_animation):
+                self.cur_key = 0
+            else: 
+                self.cur_key += 1
+            self.current_sprite = self.idle_animation[self.cur_key]
     
     def __init__(self):
         print("Knight instantiated")
+        animation_line.append(self)
+    
 
 class Unicorn():
     name = "Unicorn"
@@ -87,15 +108,30 @@ class Valkyrie():
     ##SPRITES
     idle_animation = [r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Characters\Valkyrie\Idle\Valkyrie1.png', r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Characters\Valkyrie\Idle\Valkyrie2.png', r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Characters\Valkyrie\Idle\Valkyrie3.png', r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Characters\Valkyrie\Idle\Valkyrie4.png']
     
+    #Position
+    x = 0
+    y = 0
     
     
     #Animation Managing
+    cur_key = 0
     current_sprite = idle_animation[0]
+    current_animation = "idle"
     sprite = pygame.image.load(current_sprite)
+    texture = pygame.transform.scale(sprite,  (_CHARS_SIZE, _CHARS_SIZE))
+    
+    def handle_animation(self):
+        if self.current_animation == "idle":
+            if self.cur_key+2 > len(self.idle_animation):
+                self.cur_key = 0
+            else: 
+                self.cur_key += 1
+            self.current_sprite = self.idle_animation[self.cur_key]
     
     
     def __init__(self):
         print("Valkyrie instantiated")
+        animation_line.append(self)
 
 class Unicorn():
     name = "Unicorn"
@@ -123,7 +159,11 @@ class Archer():
     s_attack_interval = "average"
     s_life_span = "short"
     s_number_of_chars = "2"
+    alive = True
 
+    #Position
+    x = 0
+    y = 0
 
     #SPRITES
     idle_animation = [r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Characters\Archer\Idle\Archer1.png', r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Characters\Archer\Idle\Archer2.png', r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Characters\Archer\Idle\Archer3.png', r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Characters\Archer\Idle\Archer4.png']
@@ -131,11 +171,23 @@ class Archer():
     
     
     #Animation Managing
+    cur_key = 0
     current_sprite = idle_animation[0]
+    current_animation = "idle"
     sprite = pygame.image.load(current_sprite)
+    texture = pygame.transform.scale(sprite,  (_CHARS_SIZE, _CHARS_SIZE))
+    
+    def handle_animation(self):
+        if self.current_animation == "idle":
+            if self.cur_key+2 > len(self.idle_animation):
+                self.cur_key = 0
+            else: 
+                self.cur_key += 1
+            self.current_sprite = self.idle_animation[self.cur_key]
     
     def __init__(self):
         print("Archer instantiated")
+        animation_line.append(self)
 
 class Unicorn():
     name = "Unicorn"
@@ -335,7 +387,7 @@ def char_viewer(side):
         screen.fill((255, 0, 0))
     #LOGIC
     picture = pygame.image.load(char_det.current_sprite)
-    picture = pygame.transform.scale(picture, (400, 400))
+    picture = pygame.transform.scale(picture,  (_CHARS_SIZE, _CHARS_SIZE))
     description = char_det.description
 
     #TEXT
@@ -475,7 +527,8 @@ def board():
     turn_number = medium_gm_font.render(f'Turn: {turn}', 1, (00, 00, 00))
 
     #LOGIC
-
+    if turn == 0:
+        character_entry()
 
     #DRAW
     screen.fill((112, 40, 0))
@@ -507,6 +560,8 @@ def board_color_switch():
             if not ((i,j) in _STATIC_TILES):
                 board_data[i][j] = _TILE_COLORS[cur_color]
 
+def character_entry():
+    pass
 def next_turn():
     global turn
     turn += 1
@@ -523,9 +578,33 @@ def move_on_board(direc):
 
 
 #---
+dueler1 = None
+dueler2 = None
+
+def start_duel(fighter1, fighter2):
+    global current_scene, dueler1, dueler2
+    current_scene = "arena"
+    dueler1 = fighter1
+    dueler2 = fighter2
+    print("Starting Duel")
+    print(current_scene)
+
+def finish_duel():
+    current_scene = "game"
+    
+fg_begun = False
 
 def arena():
-    pass
+    global dueler1, dueler2
+    screen.fill((255, 0, 0))
+    #Logic
+    if not dueler1.alive:
+        finish_duel()
+    if not dueler2.alive:
+        finish_duel()
+    #Draw
+    screen.blit(dueler1.texture, (dueler1.x, dueler1.y))
+    screen.blit(dueler2.texture, (dueler2.x, dueler2.y))
 
 """ 
 ~~~~~~~~~~~~~~~~~~
@@ -567,6 +646,8 @@ while running:
             #game keys
             elif current_scene == 'game' and playing:
                 if event.type == pygame.KEYDOWN:
+                    if turn == 2:
+                        start_duel(Archer(), Knight())
                     if event.key == K_RETURN or event.key == K_SPACE:
                         next_turn()
                     if event.key == K_UP or event.key == K_w:
@@ -679,7 +760,6 @@ while running:
 
 
     #SCENE MANAGEMENT
-
     if current_scene == 'menu':
         menu()
     elif current_scene == 'game':
@@ -701,6 +781,8 @@ while running:
             rules()
     elif current_scene == 'options':
         options()
+    elif current_scene == 'arena':
+        arena()
     else:
         menu()
         
@@ -709,5 +791,9 @@ while running:
     pygame.display.update()
     es_handle_animation()
     dt = clock.tick(30)
+
+    #Animation_handler
+    for char in animation_line:
+        char.handle_animation()
 
 pygame.quit()
