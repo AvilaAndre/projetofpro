@@ -13,11 +13,11 @@ option_font = pygame.font.SysFont("Comic Sans MS", 60)
 small_font = pygame.font.SysFont("Comic Sans MS", 15)
 debug_font = pygame.font.SysFont("lucidaconsole", 15)
 
-title_gm_font = pygame.font.Font(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Fonts\Langar\Langar-Regular.ttf', 80)
-big_gm_font = pygame.font.Font(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Fonts\Langar\Langar-Regular.ttf', 60)
-medium_gm_font = pygame.font.Font(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Fonts\Langar\Langar-Regular.ttf', 40)
-small_medium_gm_font = pygame.font.Font(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Fonts\Langar\Langar-Regular.ttf', 30)
-small_gm_font = pygame.font.Font(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Fonts\Langar\Langar-Regular.ttf', 20)
+title_gm_font = pygame.font.Font(r'Resources\Fonts\Langar\Langar-Regular.ttf', 80)
+big_gm_font = pygame.font.Font(r'Resources\Fonts\Langar\Langar-Regular.ttf', 60)
+medium_gm_font = pygame.font.Font(r'Resources\Fonts\Langar\Langar-Regular.ttf', 40)
+small_medium_gm_font = pygame.font.Font(r'Resources\Fonts\Langar\Langar-Regular.ttf', 30)
+small_gm_font = pygame.font.Font(r'Resources\Fonts\Langar\Langar-Regular.ttf', 20)
 pygame.display.set_caption(_GAMETITLE)
 
 _CHARS_SIZE = 128
@@ -47,32 +47,106 @@ class Knight():
     s_life_span = "short"
     s_number_of_chars = "7"
 
+    #STAT NUMBERS
+    speed = 5
+    atk_damage = 2
+    atk_speed = 3
+    atk_cooldown = 2
     alive = True
+    orientation = False
+    direction = (1,0)
+    performing_attack = False
 
     #Position
     x = 0
     y = 0
 
     ##SPRITES
-    idle_animation = [r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Characters\Knight\Idle\Knight1.png', r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Characters\Knight\Idle\Knight2.png', r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Characters\Knight\Idle\Knight3.png', r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Characters\Knight\Idle\Knight4.png']
+    idle_animation = [r'Resources\Sprites\Characters\Knight\Idle\Knight1.png', r'Resources\Sprites\Characters\Knight\Idle\Knight2.png', r'Resources\Sprites\Characters\Knight\Idle\Knight3.png', r'Resources\Sprites\Characters\Knight\Idle\Knight4.png']
     
+    run_animation = [r'Resources\Sprites\Characters\Knight\Run\Knight5.png', r'Resources\Sprites\Characters\Knight\Run\Knight6.png', r'Resources\Sprites\Characters\Knight\Run\Knight7.png', r'Resources\Sprites\Characters\Knight\Run\Knight8.png', r'Resources\Sprites\Characters\Knight\Run\Knight9.png', r'Resources\Sprites\Characters\Knight\Run\Knight10.png', r'Resources\Sprites\Characters\Knight\Run\Knight11.png', r'Resources\Sprites\Characters\Knight\Run\Knight12.png']
     
     
     #Animation Managing
     cur_key = 0
     current_sprite = idle_animation[0]
+    animation_change = "idle"
     current_animation = "idle"
     sprite = pygame.image.load(current_sprite)
     texture = pygame.transform.scale(sprite,  (_CHARS_SIZE, _CHARS_SIZE))
-
+    anim_clock = -1
     def handle_animation(self):
+        if self.animation_change != self.current_animation:
+            self.cur_key = -1
+            self.animation_change = self.current_animation
+
+        #CLOCK CHANGE
+        self.anim_clock += 1
+
         if self.current_animation == "idle":
             if self.cur_key+2 > len(self.idle_animation):
                 self.cur_key = 0
+                self.anim_clock = -1
             else: 
-                self.cur_key += 1
-            self.current_sprite = self.idle_animation[self.cur_key]
+                if self.anim_clock == 10:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.idle_animation[self.cur_key]
+        elif self.current_animation == "moving":
+            if self.cur_key+2 > len(self.run_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 4:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.run_animation[self.cur_key]
+        elif self.current_animation == "idle":
+            if self.cur_key+2 > len(self.idle_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock == 10:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.idle_animation[self.cur_key]
+        self.sprite = pygame.image.load(self.current_sprite)
+        self.texture = pygame.transform.scale(self.sprite,  (_CHARS_SIZE, _CHARS_SIZE))
     
+    #movement
+    def move(self, player):
+        keys = pygame.key.get_pressed()  #checking pressed keys
+        x, y = (0, 0)
+        if player == 1:
+            if keys[pygame.K_w]:
+                y += 1         
+            if keys[pygame.K_s]:
+                y -= 1
+            if keys[pygame.K_d]:
+                x += 1          
+            if keys[pygame.K_a]:
+                x -= 1              
+        elif player == 2:
+            if keys[pygame.K_UP]:
+                y += 1            
+            if keys[pygame.K_DOWN]:
+                y -= 1             
+            if keys[pygame.K_RIGHT]:
+                x += 1               
+            if keys[pygame.K_LEFT]:
+                x -= 1
+        if x > 0:
+            self.orientation = False
+        elif x <0:
+            self.orientation = True
+        self.x += x* self.speed
+        self.y -= y* self.speed
+        self.direction = (x, y)
+        if x != 0 or y != 0:
+            self.current_animation = "moving"
+        else:
+            self.current_animation = "idle"
+
     def __init__(self):
         print("Knight instantiated")
         animation_line.append(self)
@@ -106,7 +180,7 @@ class Valkyrie():
     s_number_of_chars = "2"
     
     ##SPRITES
-    idle_animation = [r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Characters\Valkyrie\Idle\Valkyrie1.png', r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Characters\Valkyrie\Idle\Valkyrie2.png', r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Characters\Valkyrie\Idle\Valkyrie3.png', r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Characters\Valkyrie\Idle\Valkyrie4.png']
+    idle_animation = [r'Resources\Sprites\Characters\Valkyrie\Idle\Valkyrie1.png', r'Resources\Sprites\Characters\Valkyrie\Idle\Valkyrie2.png', r'Resources\Sprites\Characters\Valkyrie\Idle\Valkyrie3.png', r'Resources\Sprites\Characters\Valkyrie\Idle\Valkyrie4.png']
     
     #Position
     x = 0
@@ -133,7 +207,7 @@ class Valkyrie():
         print("Valkyrie instantiated")
         animation_line.append(self)
 
-class Unicorn():
+class Golem():
     name = "Unicorn"
     description = "Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn." 
     s_moving_type = "ground - 4"
@@ -159,14 +233,19 @@ class Archer():
     s_attack_interval = "average"
     s_life_span = "short"
     s_number_of_chars = "2"
+
+    #STATS NUMBERS
     alive = True
+    speed = 6
+    orientation = False
+    direction = (1, 0)
 
     #Position
     x = 0
     y = 0
 
     #SPRITES
-    idle_animation = [r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Characters\Archer\Idle\Archer1.png', r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Characters\Archer\Idle\Archer2.png', r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Characters\Archer\Idle\Archer3.png', r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Characters\Archer\Idle\Archer4.png']
+    idle_animation = [r'Resources\Sprites\Characters\Archer\Idle\Archer1.png', r'Resources\Sprites\Characters\Archer\Idle\Archer2.png', r'Resources\Sprites\Characters\Archer\Idle\Archer3.png', r'Resources\Sprites\Characters\Archer\Idle\Archer4.png']
     
     
     
@@ -185,6 +264,36 @@ class Archer():
                 self.cur_key += 1
             self.current_sprite = self.idle_animation[self.cur_key]
     
+    #movement
+    def move(self, player):
+        keys = pygame.key.get_pressed()  #checking pressed keys
+        x, y = (0, 0)
+        if player == 1:
+            if keys[pygame.K_w]:
+                y += 1
+            if keys[pygame.K_s]:
+                y -= 1
+            if keys[pygame.K_d]:
+                x += 1
+            if keys[pygame.K_a]:
+                x -= 1
+        elif player == 2:
+            if keys[pygame.K_UP]:
+                y += 1
+            if keys[pygame.K_DOWN]:
+                y -= 1
+            if keys[pygame.K_RIGHT]:
+                x += 1
+            if keys[pygame.K_LEFT]:
+                x -= 1
+        if x > 0:
+            self.orientation = False
+        elif x <0:
+            self.orientation = True
+        self.x += x* self.speed
+        self.y -= y* self.speed
+        self.direction = (x, y)
+
     def __init__(self):
         print("Archer instantiated")
         animation_line.append(self)
@@ -483,10 +592,9 @@ _ENERGY_SQUARES = [(0, 4), (4,0), (4,4), (4,8), (8,4)]
 
 board_x = 256 + 128
 board_y = 64
-light_square = pygame.image.load(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Tiles\220220220LightTile.png')
+light_square = pygame.image.load(r'Resources\Sprites\Tiles\220220220LightTile.png')
 board_data = [[ _TILE_COLORS[5] ,_TILE_COLORS[0], _TILE_COLORS[5], 0, _TILE_COLORS[0], 0, _TILE_COLORS[5], _TILE_COLORS[0], _TILE_COLORS[5]], [_TILE_COLORS[0] , _TILE_COLORS[5],0, _TILE_COLORS[0], 0, _TILE_COLORS[0], 0, _TILE_COLORS[5], _TILE_COLORS[0]], [_TILE_COLORS[5] ,0,_TILE_COLORS[0], _TILE_COLORS[5], 0, _TILE_COLORS[5], _TILE_COLORS[0], 0, _TILE_COLORS[5]], [(220,220,220) , _TILE_COLORS[0], _TILE_COLORS[5], _TILE_COLORS[0], 0, _TILE_COLORS[0], _TILE_COLORS[5], _TILE_COLORS[0], 0], [0, 0, 0, 0, 0, 0, 0, 0, 0], [0 , _TILE_COLORS[5], _TILE_COLORS[0], _TILE_COLORS[5], 0, _TILE_COLORS[5], _TILE_COLORS[0], _TILE_COLORS[5], 0], [_TILE_COLORS[0] ,0,_TILE_COLORS[5], _TILE_COLORS[0], 0, _TILE_COLORS[0], _TILE_COLORS[5], 0, _TILE_COLORS[0]], [_TILE_COLORS[5] , _TILE_COLORS[0], 0, _TILE_COLORS[5], 0, _TILE_COLORS[5], 0, _TILE_COLORS[0], _TILE_COLORS[5]], [_TILE_COLORS[0] , _TILE_COLORS[5], _TILE_COLORS[0], 0, _TILE_COLORS[5], 0, _TILE_COLORS[0], _TILE_COLORS[5], _TILE_COLORS[0]]]
 turn = 0
-
 
 text_mod = 0
 def game_scene():
@@ -511,13 +619,17 @@ turn_player = 0
 _PLAYERS_COLOR = [(255, 255, 255), (0,0,0)]
 
 ##ENERGY SQUARE ANIMATION##
-energy_square_frames = [pygame.image.load(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Tiles\EnergySquare\EnergySquareF1.png'), pygame.image.load(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Tiles\EnergySquare\EnergySquareF1.png'), pygame.image.load(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Tiles\EnergySquare\EnergySquareF1.png'), pygame.image.load(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Tiles\EnergySquare\EnergySquareF2.png'), pygame.image.load(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Tiles\EnergySquare\EnergySquareF2.png'), pygame.image.load(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Tiles\EnergySquare\EnergySquareF3.png'), pygame.image.load(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Tiles\EnergySquare\EnergySquareF3.png'), pygame.image.load(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Tiles\EnergySquare\EnergySquareF4.png'), pygame.image.load(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Tiles\EnergySquare\EnergySquareF4.png'), pygame.image.load(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Tiles\EnergySquare\EnergySquareF5.png'), pygame.image.load(r'C:\Users\asus\uni\fpro\ProjetoFPRO\projfpro\projetofpro\Resources\Sprites\Tiles\EnergySquare\EnergySquareF5.png')]
+energy_square_frames = [pygame.image.load(r'Resources\Sprites\Tiles\EnergySquare\EnergySquareF1.png'), pygame.image.load(r'Resources\Sprites\Tiles\EnergySquare\EnergySquareF2.png'), pygame.image.load(r'Resources\Sprites\Tiles\EnergySquare\EnergySquareF3.png'), pygame.image.load(r'Resources\Sprites\Tiles\EnergySquare\EnergySquareF4.png'), pygame.image.load(r'Resources\Sprites\Tiles\EnergySquare\EnergySquareF5.png')]
 es_cur_anim = 0
 es_anim_cycle = 1
+es_clock = -1
 ##ENERGY SQUARE ANIMATION##
 def es_handle_animation():
-    global es_cur_anim, es_anim_cycle
-    es_cur_anim += 1 * es_anim_cycle
+    global es_cur_anim, es_anim_cycle, es_clock
+    es_clock += 1
+    if es_clock == 10:
+        es_cur_anim += 1 * es_anim_cycle
+        es_clock = -1
     if es_cur_anim == 0 or es_cur_anim == len(energy_square_frames)-1:
         es_anim_cycle *= -1
 
@@ -586,10 +698,9 @@ def start_duel(fighter1, fighter2):
     current_scene = "arena"
     dueler1 = fighter1
     dueler2 = fighter2
-    print("Starting Duel")
-    print(current_scene)
 
 def finish_duel():
+    global current_scene
     current_scene = "game"
     
 fg_begun = False
@@ -602,9 +713,11 @@ def arena():
         finish_duel()
     if not dueler2.alive:
         finish_duel()
+    dueler1.move(1)
+    dueler2.move(2)
     #Draw
-    screen.blit(dueler1.texture, (dueler1.x, dueler1.y))
-    screen.blit(dueler2.texture, (dueler2.x, dueler2.y))
+    screen.blit(pygame.transform.flip(dueler1.texture, dueler1.orientation, False), (dueler1.x, dueler1.y))
+    screen.blit(pygame.transform.flip(dueler2.texture, dueler2.orientation, False), (dueler2.x, dueler2.y))
 
 """ 
 ~~~~~~~~~~~~~~~~~~
@@ -614,7 +727,6 @@ es_mlsecs = 0
 running = True
 
 while running:
-    pygame.time.delay(100)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -757,7 +869,7 @@ while running:
                         opts_sel += 1
                     elif event.key == K_DOWN or event.key == K_s:
                         opts_sel -= 1
-
+            
 
     #SCENE MANAGEMENT
     if current_scene == 'menu':
@@ -790,7 +902,7 @@ while running:
     screen.blit(build_warning, (0,0))
     pygame.display.update()
     es_handle_animation()
-    dt = clock.tick(30)
+    dt = clock.tick(60)
 
     #Animation_handler
     for char in animation_line:
