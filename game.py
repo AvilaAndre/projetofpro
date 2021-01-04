@@ -298,7 +298,7 @@ class Archer():
         print("Archer instantiated")
         animation_line.append(self)
 
-class Unicorn():
+class Golem():
     name = "Unicorn"
     description = "Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn." 
     s_moving_type = "ground - 4"
@@ -313,7 +313,7 @@ class Unicorn():
     def __init__(self):
         print("Unicorn instantiated")
 
-class Unicorn():
+class Phoenix():
     name = "Unicorn"
     description = "Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn." 
     s_moving_type = "ground - 4"
@@ -328,7 +328,7 @@ class Unicorn():
     def __init__(self):
         print("Unicorn instantiated")
 
-class Unicorn():
+class Djinni():
     name = "Unicorn"
     description = "Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn." 
     s_moving_type = "ground - 4"
@@ -718,6 +718,7 @@ def arena():
     #Draw
     screen.blit(pygame.transform.flip(dueler1.texture, dueler1.orientation, False), (dueler1.x, dueler1.y))
     screen.blit(pygame.transform.flip(dueler2.texture, dueler2.orientation, False), (dueler2.x, dueler2.y))
+    pygame.draw.rect(screen, (155,155,155) , Rect(dueler2.x + 19*2.6, dueler2.y+ 17*2.6, 12*2.6, 19*2.6), 0) #hitbox
 
 """ 
 ~~~~~~~~~~~~~~~~~~
