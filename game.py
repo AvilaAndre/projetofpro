@@ -718,7 +718,7 @@ def arena():
     #Draw
     screen.blit(pygame.transform.flip(dueler1.texture, dueler1.orientation, False), (dueler1.x, dueler1.y))
     screen.blit(pygame.transform.flip(dueler2.texture, dueler2.orientation, False), (dueler2.x, dueler2.y))
-    pygame.draw.rect(screen, (155,155,155) , Rect(dueler2.x + 19*2.6, dueler2.y+ 17*2.6, 12*2.6, 19*2.6), 0) #hitbox
+  #  pygame.draw.rect(screen, (155,155,155) , Rect(dueler2.x + 19*2.6, dueler2.y+ 17*2.6, 12*2.6, 19*2.6), 0) #hitbox
 
 """ 
 ~~~~~~~~~~~~~~~~~~
