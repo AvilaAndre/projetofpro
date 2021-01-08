@@ -1,7 +1,7 @@
-import pygame, sys, time
+import pygame, sys, time, os
 from pygame.locals import *
 
-
+_DEBUG = False
 _GAMETITLE = 'Archon Type Game!'
 pygame.init()
 pygame.font.init()
@@ -30,6 +30,11 @@ clock = pygame.time.Clock()
 current_scene = 'menu'
 playing = False
 animation_line = []
+def get_sprites(character, directory):
+    spritesheet = []
+    for sprite in os.listdir(r"Resources\Sprites\Characters\{0}\{1}".format(character, directory)):
+        spritesheet.append(f'Resources\Sprites\Characters\{character}\{directory}\{sprite}')
+    return spritesheet
 
 """
 ~~~~CHARACTERS~~~~
@@ -56,15 +61,19 @@ class Knight():
     orientation = False
     direction = (1,0)
     performing_attack = False
-
+    char_x_offset = 18
+    char_y_offset = 17
+    char_width = 12 #TODO: get character dimensions
+    char_height = 19
     #Position
     x = 0
     y = 0
 
     ##SPRITES
-    idle_animation = [r'Resources\Sprites\Characters\Knight\Idle\Knight1.png', r'Resources\Sprites\Characters\Knight\Idle\Knight2.png', r'Resources\Sprites\Characters\Knight\Idle\Knight3.png', r'Resources\Sprites\Characters\Knight\Idle\Knight4.png']
+    print(os.listdir(r"Resources\Sprites\Characters\Knight\Idle"))
+    idle_animation = get_sprites(name, 'Idle')
     
-    run_animation = [r'Resources\Sprites\Characters\Knight\Run\Knight5.png', r'Resources\Sprites\Characters\Knight\Run\Knight6.png', r'Resources\Sprites\Characters\Knight\Run\Knight7.png', r'Resources\Sprites\Characters\Knight\Run\Knight8.png', r'Resources\Sprites\Characters\Knight\Run\Knight9.png', r'Resources\Sprites\Characters\Knight\Run\Knight10.png', r'Resources\Sprites\Characters\Knight\Run\Knight11.png', r'Resources\Sprites\Characters\Knight\Run\Knight12.png']
+    run_animation = get_sprites(name, 'Run')
     
     
     #Animation Managing
@@ -75,6 +84,9 @@ class Knight():
     sprite = pygame.image.load(current_sprite)
     texture = pygame.transform.scale(sprite,  (_CHARS_SIZE, _CHARS_SIZE))
     anim_clock = -1
+
+    #Masks use the opaque pixels, ignoring the transparent
+    #hitbox = pygame.mask.from_surface(texture, 127)
     def handle_animation(self):
         if self.animation_change != self.current_animation:
             self.cur_key = -1
@@ -113,6 +125,16 @@ class Knight():
         self.sprite = pygame.image.load(self.current_sprite)
         self.texture = pygame.transform.scale(self.sprite,  (_CHARS_SIZE, _CHARS_SIZE))
     
+    #collision
+    def hitbox(self):
+        return pygame.Rect(self.x + self.char_x_offset *2.6 , self.y + self.char_y_offset *2.6, self.char_width *2.6, self.char_height*2.6)
+    
+    def check_arena_collision(self):
+        colliding = False
+        if not arena_ground.contains(self.hitbox()):
+            colliding = True
+        return colliding
+
     #movement
     def move(self, player):
         keys = pygame.key.get_pressed()  #checking pressed keys
@@ -140,7 +162,13 @@ class Knight():
         elif x <0:
             self.orientation = True
         self.x += x* self.speed
+        if self.check_arena_collision():
+            self.x -= x * self.speed
+            x = 0
         self.y -= y* self.speed
+        if self.check_arena_collision():
+            self.y += y * self.speed
+            x = 0
         self.direction = (x, y)
         if x != 0 or y != 0:
             self.current_animation = "moving"
@@ -234,56 +262,107 @@ class Archer():
     s_life_span = "short"
     s_number_of_chars = "2"
 
-    #STATS NUMBERS
+    #STAT NUMBERS
+    speed = 5
+    atk_damage = 2
+    atk_speed = 3
+    atk_cooldown = 2
     alive = True
-    speed = 6
     orientation = False
-    direction = (1, 0)
-
+    direction = (1,0)
+    performing_attack = False
+    char_x_offset = 18
+    char_y_offset = 17
+    char_width = 12 #TODO: get character dimensions
+    char_height = 19
     #Position
     x = 0
     y = 0
 
-    #SPRITES
-    idle_animation = [r'Resources\Sprites\Characters\Archer\Idle\Archer1.png', r'Resources\Sprites\Characters\Archer\Idle\Archer2.png', r'Resources\Sprites\Characters\Archer\Idle\Archer3.png', r'Resources\Sprites\Characters\Archer\Idle\Archer4.png']
+    ##SPRITES
+    idle_animation = [r'Resources\Sprites\Characters\Knight\Idle\Knight1.png', r'Resources\Sprites\Characters\Knight\Idle\Knight2.png', r'Resources\Sprites\Characters\Knight\Idle\Knight3.png', r'Resources\Sprites\Characters\Knight\Idle\Knight4.png']
     
+    run_animation = [r'Resources\Sprites\Characters\Knight\Run\Knight5.png', r'Resources\Sprites\Characters\Knight\Run\Knight6.png', r'Resources\Sprites\Characters\Knight\Run\Knight7.png', r'Resources\Sprites\Characters\Knight\Run\Knight8.png', r'Resources\Sprites\Characters\Knight\Run\Knight9.png', r'Resources\Sprites\Characters\Knight\Run\Knight10.png', r'Resources\Sprites\Characters\Knight\Run\Knight11.png', r'Resources\Sprites\Characters\Knight\Run\Knight12.png']
     
     
     #Animation Managing
     cur_key = 0
     current_sprite = idle_animation[0]
+    animation_change = "idle"
     current_animation = "idle"
     sprite = pygame.image.load(current_sprite)
     texture = pygame.transform.scale(sprite,  (_CHARS_SIZE, _CHARS_SIZE))
-    
+    anim_clock = -1
+
+    #Masks use the opaque pixels, ignoring the transparent
+    #hitbox = pygame.mask.from_surface(texture, 127)
     def handle_animation(self):
+        if self.animation_change != self.current_animation:
+            self.cur_key = -1
+            self.animation_change = self.current_animation
+
+        #CLOCK CHANGE
+        self.anim_clock += 1
+
         if self.current_animation == "idle":
             if self.cur_key+2 > len(self.idle_animation):
                 self.cur_key = 0
+                self.anim_clock = -1
             else: 
-                self.cur_key += 1
-            self.current_sprite = self.idle_animation[self.cur_key]
+                if self.anim_clock == 10:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.idle_animation[self.cur_key]
+        elif self.current_animation == "moving":
+            if self.cur_key+2 > len(self.run_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 4:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.run_animation[self.cur_key]
+        elif self.current_animation == "idle":
+            if self.cur_key+2 > len(self.idle_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock == 10:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.idle_animation[self.cur_key]
+        self.sprite = pygame.image.load(self.current_sprite)
+        self.texture = pygame.transform.scale(self.sprite,  (_CHARS_SIZE, _CHARS_SIZE))
     
+    #collision
+    def hitbox(self):
+        return pygame.Rect(self.x + self.char_x_offset *2.6 , self.y + self.char_y_offset *2.6, self.char_width *2.6, self.char_height*2.6)
+    
+    def check_arena_collision(self):
+        colliding = False
+        if not arena_ground.contains(self.hitbox()):
+            colliding = True
+        return colliding
     #movement
     def move(self, player):
         keys = pygame.key.get_pressed()  #checking pressed keys
         x, y = (0, 0)
         if player == 1:
             if keys[pygame.K_w]:
-                y += 1
+                y += 1         
             if keys[pygame.K_s]:
                 y -= 1
             if keys[pygame.K_d]:
-                x += 1
+                x += 1          
             if keys[pygame.K_a]:
-                x -= 1
+                x -= 1              
         elif player == 2:
             if keys[pygame.K_UP]:
-                y += 1
+                y += 1            
             if keys[pygame.K_DOWN]:
-                y -= 1
+                y -= 1             
             if keys[pygame.K_RIGHT]:
-                x += 1
+                x += 1               
             if keys[pygame.K_LEFT]:
                 x -= 1
         if x > 0:
@@ -291,8 +370,16 @@ class Archer():
         elif x <0:
             self.orientation = True
         self.x += x* self.speed
+        if self.check_arena_collision():
+            self.x -= x * self.speed
         self.y -= y* self.speed
+        if self.check_arena_collision():
+            self.y += y * self.speed
         self.direction = (x, y)
+        if x != 0 or y != 0:
+            self.current_animation = "moving"
+        else:
+            self.current_animation = "idle"
 
     def __init__(self):
         print("Archer instantiated")
@@ -579,6 +666,9 @@ def options():
     screen.blit(go_back_button, (860, 580))
     pygame.draw.rect(screen, (0,0,0) , Rect(opts_buttons[opts_sel][0], opts_buttons[opts_sel][1], opts_buttons[opts_sel][2], opts_buttons[opts_sel][3]), 4)
 
+
+
+
 """ 
 ~~~~~~~~GAME~~~~~~~~
 In this page the player will learn the game's basics, it will also be
@@ -698,12 +788,16 @@ def start_duel(fighter1, fighter2):
     current_scene = "arena"
     dueler1 = fighter1
     dueler2 = fighter2
+    dueler2.x = 180 - dueler2.char_x_offset *2.16
+    dueler2.y = 280 - dueler2.char_y_offset * 2.16
+    #TODO: Spawnpoint for dueler 1
 
 def finish_duel():
     global current_scene
     current_scene = "game"
     
 fg_begun = False
+arena_ground = pygame.Rect(160, 20, 704, 600)
 
 def arena():
     global dueler1, dueler2
@@ -716,9 +810,11 @@ def arena():
     dueler1.move(1)
     dueler2.move(2)
     #Draw
+    pygame.draw.rect(screen, (100, 155, 155), arena_ground, 0)
     screen.blit(pygame.transform.flip(dueler1.texture, dueler1.orientation, False), (dueler1.x, dueler1.y))
     screen.blit(pygame.transform.flip(dueler2.texture, dueler2.orientation, False), (dueler2.x, dueler2.y))
-  #  pygame.draw.rect(screen, (155,155,155) , Rect(dueler2.x + 19*2.6, dueler2.y+ 17*2.6, 12*2.6, 19*2.6), 0) #hitbox
+    if _DEBUG:
+        pygame.draw.rect(screen, (155,155,155) , dueler2.hitbox(), 0) #hitbox
 
 """ 
 ~~~~~~~~~~~~~~~~~~
