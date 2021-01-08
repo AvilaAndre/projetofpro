@@ -1,7 +1,7 @@
 import pygame, sys, time, os
 from pygame.locals import *
 
-_DEBUG = False
+_DEBUG = True
 _GAMETITLE = 'Archon Type Game!'
 pygame.init()
 pygame.font.init()
@@ -26,10 +26,10 @@ screen=pygame.display.set_mode((width, height))
 
 clock = pygame.time.Clock()
 
-
 current_scene = 'menu'
 playing = False
 animation_line = []
+
 def get_sprites(character, directory):
     spritesheet = []
     for sprite in os.listdir(r"Resources\Sprites\Characters\{0}\{1}".format(character, directory)):
@@ -230,6 +230,7 @@ class Valkyrie():
 
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
+    print(idle_animation)
     
     run_animation = get_sprites(name, 'Run')
     
@@ -237,6 +238,7 @@ class Valkyrie():
     #Animation Managing
     cur_key = 0
     current_sprite = idle_animation[0]
+    print(current_sprite)
     animation_change = "idle"
     current_animation = "idle"
     sprite = pygame.image.load(current_sprite)
@@ -792,16 +794,6 @@ In this page the player will learn the game's basics, it will also be
 possible to check the different characters' stats and abilities.
 """
 #50 static tiles
-_STATIC_TILES = [(0,0), (0,1), (0,2), (0,4), (0,6), (0,7), (0,8), (1,0), (1,1), (1,3), (1,5), (1,7), (1,8), (2,0), (2,2), (2,3), (2,5), (2,6), (2,8), (3,1), (3,2), (3,3), (3,5), (3,6), (3,7), (5,1), (5,2), (5,3), (5,5), (5,6), (5,7), (6,0), (6,2), (6,3), (6,5), (6,6), (6,8), (7,0), (7,1), (7,3), (7,5), (7,7), (7,8), (8,0), (8,1), (8,2), (8,4), (8,6), (8,7), (8,8)]
-                                ##LIGHT --> DARK##
-_TILE_COLORS = [(164, 200, 252), (124,156,220), (80,112,188), (56, 74, 176), (48, 32, 152), (0, 44, 92)]
-_ENERGY_SQUARES = [(0, 4), (4,0), (4,4), (4,8), (8,4)]
-
-board_x = 256 + 128
-board_y = 64
-light_square = pygame.image.load(r'Resources\Sprites\Tiles\220220220LightTile.png')
-board_data = [[ _TILE_COLORS[5] ,_TILE_COLORS[0], _TILE_COLORS[5], 0, _TILE_COLORS[0], 0, _TILE_COLORS[5], _TILE_COLORS[0], _TILE_COLORS[5]], [_TILE_COLORS[0] , _TILE_COLORS[5],0, _TILE_COLORS[0], 0, _TILE_COLORS[0], 0, _TILE_COLORS[5], _TILE_COLORS[0]], [_TILE_COLORS[5] ,0,_TILE_COLORS[0], _TILE_COLORS[5], 0, _TILE_COLORS[5], _TILE_COLORS[0], 0, _TILE_COLORS[5]], [(220,220,220) , _TILE_COLORS[0], _TILE_COLORS[5], _TILE_COLORS[0], 0, _TILE_COLORS[0], _TILE_COLORS[5], _TILE_COLORS[0], 0], [0, 0, 0, 0, 0, 0, 0, 0, 0], [0 , _TILE_COLORS[5], _TILE_COLORS[0], _TILE_COLORS[5], 0, _TILE_COLORS[5], _TILE_COLORS[0], _TILE_COLORS[5], 0], [_TILE_COLORS[0] ,0,_TILE_COLORS[5], _TILE_COLORS[0], 0, _TILE_COLORS[0], _TILE_COLORS[5], 0, _TILE_COLORS[0]], [_TILE_COLORS[5] , _TILE_COLORS[0], 0, _TILE_COLORS[5], 0, _TILE_COLORS[5], 0, _TILE_COLORS[0], _TILE_COLORS[5]], [_TILE_COLORS[0] , _TILE_COLORS[5], _TILE_COLORS[0], 0, _TILE_COLORS[5], 0, _TILE_COLORS[0], _TILE_COLORS[5], _TILE_COLORS[0]]]
-turn = 0
 
 text_mod = 0
 def game_scene():
@@ -820,80 +812,137 @@ def game_scene():
 """
 |||    BOARD   |||
 """
-player_board_x = 0
-player_board_y = 0
-turn_player = 0
-_PLAYERS_COLOR = [(255, 255, 255), (0,0,0)]
 
-##ENERGY SQUARE ANIMATION##
-energy_square_frames = [pygame.image.load(r'Resources\Sprites\Tiles\EnergySquare\EnergySquareF1.png'), pygame.image.load(r'Resources\Sprites\Tiles\EnergySquare\EnergySquareF2.png'), pygame.image.load(r'Resources\Sprites\Tiles\EnergySquare\EnergySquareF3.png'), pygame.image.load(r'Resources\Sprites\Tiles\EnergySquare\EnergySquareF4.png'), pygame.image.load(r'Resources\Sprites\Tiles\EnergySquare\EnergySquareF5.png')]
-es_cur_anim = 0
-es_anim_cycle = 1
-es_clock = -1
-##ENERGY SQUARE ANIMATION##
-def es_handle_animation():
-    global es_cur_anim, es_anim_cycle, es_clock
-    es_clock += 1
-    if es_clock == 10:
-        es_cur_anim += 1 * es_anim_cycle
-        es_clock = -1
-    if es_cur_anim == 0 or es_cur_anim == len(energy_square_frames)-1:
-        es_anim_cycle *= -1
+class GameBoard:
+    _PIECE_SIZE = 80
+    #Pieces
+    piece2 = Valkyrie()
+    Knight_Piece1 = (Knight(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
+    Knight_Piece2 = (Knight(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
+    Knight_Piece3 = (Knight(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
+    Knight_Piece4 = (Knight(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
+    Knight_Piece5 = (Knight(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
+    Knight_Piece6 = (Knight(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
+    Knight_Piece7 = (Knight(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
+    Valkyrie_Piece1 = (Valkyrie(), pygame.transform.scale(pygame.image.load(piece2.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
+    Valkyrie_Piece2 = (Valkyrie(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
+    Valkyrie_Piece1 = (Valkyrie(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
+    _PLAYERS_COLOR = [(255, 255, 255), (0,0,0)]
+    _STATIC_TILES = [(0,0), (0,1), (0,2), (0,4), (0,6), (0,7), (0,8), (1,0), (1,1), (1,3), (1,5), (1,7), (1,8), (2,0), (2,2), (2,3), (2,5), (2,6), (2,8), (3,1), (3,2), (3,3), (3,5), (3,6), (3,7), (5,1), (5,2), (5,3), (5,5), (5,6), (5,7), (6,0), (6,2), (6,3), (6,5), (6,6), (6,8), (7,0), (7,1), (7,3), (7,5), (7,7), (7,8), (8,0), (8,1), (8,2), (8,4), (8,6), (8,7), (8,8)]
+                                ##LIGHT --> DARK##
+    _TILE_COLORS = [(164, 200, 252), (124,156,220), (80,112,188), (56, 74, 176), (48, 32, 152), (0, 44, 92)]
+    _ENERGY_SQUARES = [(0, 4), (4,0), (4,4), (4,8), (8,4)]
 
-_start = True
+    board_x = 256 + 128
+    board_y = 64
+    light_square = pygame.image.load(r'Resources\Sprites\Tiles\220220220LightTile.png')
+    board_color_data = [[ _TILE_COLORS[5] ,_TILE_COLORS[0], _TILE_COLORS[5], 0, _TILE_COLORS[0], 0, _TILE_COLORS[5], _TILE_COLORS[0], _TILE_COLORS[5]], [_TILE_COLORS[0] , _TILE_COLORS[5],0, _TILE_COLORS[0], 0, _TILE_COLORS[0], 0, _TILE_COLORS[5], _TILE_COLORS[0]], [_TILE_COLORS[5] ,0,_TILE_COLORS[0], _TILE_COLORS[5], 0, _TILE_COLORS[5], _TILE_COLORS[0], 0, _TILE_COLORS[5]], [(220,220,220) , _TILE_COLORS[0], _TILE_COLORS[5], _TILE_COLORS[0], 0, _TILE_COLORS[0], _TILE_COLORS[5], _TILE_COLORS[0], 0], [0, 0, 0, 0, 0, 0, 0, 0, 0], [0 , _TILE_COLORS[5], _TILE_COLORS[0], _TILE_COLORS[5], 0, _TILE_COLORS[5], _TILE_COLORS[0], _TILE_COLORS[5], 0], [_TILE_COLORS[0] ,0,_TILE_COLORS[5], _TILE_COLORS[0], 0, _TILE_COLORS[0], _TILE_COLORS[5], 0, _TILE_COLORS[0]], [_TILE_COLORS[5] , _TILE_COLORS[0], 0, _TILE_COLORS[5], 0, _TILE_COLORS[5], 0, _TILE_COLORS[0], _TILE_COLORS[5]], [_TILE_COLORS[0] , _TILE_COLORS[5], _TILE_COLORS[0], 0, _TILE_COLORS[5], 0, _TILE_COLORS[0], _TILE_COLORS[5], _TILE_COLORS[0]]]
+    board_data = [[Valkyrie_Piece1 , None, None, None, None, None, None, None, None], [None, Knight_Piece1 , Knight_Piece2, Knight_Piece3, Knight_Piece4, Knight_Piece5, Knight_Piece6, Knight_Piece7, None], [None , None, None, None, None, None, None, None, None], [None, None, None, None, None, None, None, None, None], [None, None, None, None, None, None, None, None, None], [None , None, None, None, None, None, None, None, None], [None ,None ,None, None, None, None, None, None, None], [None , None, None, None, None, None, None, None, None], [None , None, None, None, None, None, None, None, None]]
+    turn = 0
+
+
+    player_board_x = 0
+    player_board_y = 0
+    turn_player = 0
+    selected_sq = ()
+
+    ##ENERGY SQUARE ANIMATION##
+    energy_square_frames = [pygame.image.load(r'Resources\Sprites\Tiles\EnergySquare\EnergySquareF1.png'), pygame.image.load(r'Resources\Sprites\Tiles\EnergySquare\EnergySquareF2.png'), pygame.image.load(r'Resources\Sprites\Tiles\EnergySquare\EnergySquareF3.png'), pygame.image.load(r'Resources\Sprites\Tiles\EnergySquare\EnergySquareF4.png'), pygame.image.load(r'Resources\Sprites\Tiles\EnergySquare\EnergySquareF5.png')]
+    es_cur_anim = 0
+    es_anim_cycle = 1
+    es_clock = -1
+    ##ENERGY SQUARE ANIMATION##
+    def es_handle_animation(self):
+        self.es_clock += 1
+        if self.es_clock == 10:
+            self.es_cur_anim += 1 * self.es_anim_cycle
+            self.es_clock = -1
+        if self.es_cur_anim == 0 or self.es_cur_anim == len(self.energy_square_frames)-1:
+            self.es_anim_cycle *= -1
+
+    _start = True
+
+    def draw_board(self):
+        print(self.Valkyrie_Piece1[0].current_sprite)
+        for i in range(0, 9):
+            for j in range(0,9):
+                if self.board_color_data[i][j] != None:
+                    pygame.draw.rect(screen, self.board_color_data[i][j], Rect(self.board_x + (56*i), self.board_y + 56*(j), 56, 56), 0)
+        for es_sq in self._ENERGY_SQUARES:
+            es_x, es_y = es_sq
+            screen.blit(self.energy_square_frames[self.es_cur_anim], (self.board_x + (56*es_y), self.board_y + (56*es_x)))
+        if self.selected_sq != ():
+            self.move_selected_piece()
+        for i in range(0, 9):
+            for j in range(0,9):
+                if self.board_data[i][j] != None:
+                    if self.selected_sq == ():
+                        screen.blit(pygame.transform.flip(self.board_data[i][j][1],self.board_data[i][j][0].orientation, False), (self.board_x + (56*i) - self.board_data[i][j][0].char_x_offset, self.board_y + 56*(j) - self.board_data[i][j][0].char_y_offset))
+                    elif self.selected_sq[0] != self.board_data[i][j]:
+                        screen.blit(pygame.transform.flip(self.board_data[i][j][1],self.board_data[i][j][0].orientation, False), (self.board_x + (56*i) - self.board_data[i][j][0].char_x_offset, self.board_y + 56*(j) - self.board_data[i][j][0].char_y_offset))
+                    
+    cur_color = 0
+    cycle = 1
+
+    def board_color_switch(self):
+        self.cur_color += self.cycle
+        if (self.cur_color == 5) or (self.cur_color == 0):
+            self.cycle *= -1
+        for i in range(0, 9):
+            for j in range(0,9):
+                if not ((i,j) in self._STATIC_TILES):
+                    self.board_color_data[i][j] = self._TILE_COLORS[self.cur_color]
+
+    def character_entry(self):
+        pass
+
+    def next_turn(self):
+        self.turn += 1
+        self.board_color_switch()
+
+    def select(self):
+        #sq is for square
+        if self.selected_sq == ():
+            if self.board_data[self.player_board_y][self.player_board_x] != None:
+                self.selected_sq = (self.board_data[self.player_board_y][self.player_board_x],(self.player_board_x, self.player_board_y))
+        else:
+            print(self.selected_sq[0][0].orientation)
+            if self.board_data[self.player_board_y][self.player_board_x] == None:
+                self.board_data[self.player_board_y][self.player_board_x] = self.selected_sq[0]
+                self.board_data[self.selected_sq[1][1]][self.selected_sq[1][0]] = None
+            elif not self.board_data[self.player_board_y][self.player_board_x] == self.selected_sq[0]:
+                start_duel(self.selected_sq[0][0], self.board_data[self.player_board_y][self.player_board_x][0])
+            self.selected_sq = ()
+
+    def move_on_board(self, direc):
+        x, y = direc
+        if self.player_board_x + x > -1 and self.player_board_x + x < 9:
+            self.player_board_x += x
+        if self.player_board_y + y > -1 and self.player_board_y + y < 9:
+            self.player_board_y += y
+        
+    
+    def move_selected_piece(self):
+        screen.blit(pygame.transform.flip(self.selected_sq[0][1],self.selected_sq[0][0].orientation, False), (self.board_x + (56*self.player_board_y) - self.selected_sq[0][0].char_x_offset, self.board_y + (56*self.player_board_x) - self.selected_sq[0][0].char_y_offset))
+
+_MAIN_BOARD = GameBoard()
+
 def board():
-    global es_cur_anim
-    turn_number = medium_gm_font.render(f'Turn: {turn}', 1, (00, 00, 00))
+    turn_number = medium_gm_font.render(f'Turn: {_MAIN_BOARD.turn}', 1, (00, 00, 00))
 
     #LOGIC
-    if turn == 0:
-        character_entry()
+    if _MAIN_BOARD.turn == 0:
+        _MAIN_BOARD.character_entry()
 
     #DRAW
     screen.fill((112, 40, 0))
-    for i in range(0, 9):
-        for j in range(0,9):
-            if board_data[i][j] != None:
-                pygame.draw.rect(screen, board_data[i][j], Rect(board_x + (56*i), board_y + 56*(j), 56, 56), 0)
+    _MAIN_BOARD.draw_board()
     screen.blit(turn_number, (50, 50))
-    for es_sq in _ENERGY_SQUARES:
-        es_x, es_y = es_sq
-        screen.blit(energy_square_frames[es_cur_anim], (board_x + (56*es_y), board_y + (56*es_x)))
+    
 
-    pygame.draw.rect(screen, _PLAYERS_COLOR[turn_player], Rect(board_x + (56*player_board_y), board_y + (56*player_board_x), 56, 56), 4)
+    pygame.draw.rect(screen, _MAIN_BOARD._PLAYERS_COLOR[_MAIN_BOARD.turn_player], Rect(_MAIN_BOARD.board_x + (56*_MAIN_BOARD.player_board_y), _MAIN_BOARD.board_y + (56*_MAIN_BOARD.player_board_x), 56, 56), 4)
     pygame.draw.rect(screen, (80, 112, 188), Rect(25, 500, 320, 80), 0)
     pygame.draw.rect(screen, (56, 74, 176), Rect(25, 500, 320, 80), 3)
-
-
-cur_color = 0
-cycle = 1
-
-def board_color_switch():
-    global cur_color
-    global cycle
-    cur_color += cycle
-    if (cur_color == 5) or (cur_color == 0):
-        cycle *= -1
-    for i in range(0, 9):
-        for j in range(0,9):
-            if not ((i,j) in _STATIC_TILES):
-                board_data[i][j] = _TILE_COLORS[cur_color]
-
-def character_entry():
-    pass
-def next_turn():
-    global turn
-    turn += 1
-    board_color_switch()
-    
-def move_on_board(direc):
-    x, y = direc
-    global player_board_x
-    global player_board_y
-    if player_board_x + x > -1 and player_board_x + x < 9:
-        player_board_x += x
-    if player_board_y + y > -1 and player_board_y + y < 9:
-        player_board_y += y
 
 
 #---
@@ -910,6 +959,7 @@ def start_duel(fighter1, fighter2):
     dueler2.y = 280 - dueler2.char_y_offset * 2.16
     dueler1.x = 804 - dueler1.char_x_offset * 2.16
     dueler1.y = 280 - dueler1.char_y_offset * 2.16
+    dueler1.orientation = True
     arena_collisions.append(dueler1)
     arena_collisions.append(dueler2)
 
@@ -972,22 +1022,24 @@ while running:
             elif current_scene == 'game' and not playing:
                  if event.type == pygame.KEYDOWN:
                     playing = True
-                    next_turn()
+                    _MAIN_BOARD.next_turn()
             #game keys
             elif current_scene == 'game' and playing:
                 if event.type == pygame.KEYDOWN:
-                    if turn == 2:
+                    if _MAIN_BOARD.turn == 2:
                         start_duel(Valkyrie(), Knight())
                     if event.key == K_RETURN or event.key == K_SPACE:
-                        next_turn()
+                        #_MAIN_BOARD.next_turn()
+                        _MAIN_BOARD.select()
                     if event.key == K_UP or event.key == K_w:
-                        move_on_board((-1,0))
+                        _MAIN_BOARD.move_on_board((-1,0))
                     if event.key == K_DOWN or event.key == K_s:
-                        move_on_board((1,0))
+                        _MAIN_BOARD.move_on_board((1,0))
                     if event.key == K_LEFT or event.key == K_a:
-                        move_on_board((0,-1))
+                        _MAIN_BOARD.move_on_board((0,-1))
                     if event.key == K_RIGHT or event.key == K_d:
-                        move_on_board((0,1))
+                        _MAIN_BOARD.move_on_board((0,1))
+
             #rules keys
             elif current_scene == 'rules':
                 if event.type == pygame.KEYDOWN:
@@ -1119,7 +1171,7 @@ while running:
     build_warning = debug_font.render("UNDER DEVELOPMENT", 1, (255, 00, 00))
     screen.blit(build_warning, (0,0))
     pygame.display.update()
-    es_handle_animation()
+    _MAIN_BOARD.es_handle_animation()
     dt = clock.tick(60)
 
     #Animation_handler
