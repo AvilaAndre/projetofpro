@@ -1,7 +1,7 @@
 import pygame, sys, time, os
 from pygame.locals import *
 
-_DEBUG = True
+_DEBUG = False
 _GAMETITLE = 'Archon Type Game!'
 pygame.init()
 pygame.font.init()
@@ -180,7 +180,7 @@ class Knight():
             self.current_animation = "idle"
 
     def __init__(self):
-        print("Knight instantiated")
+        print(f"{self.name} instantiated")
         animation_line.append(self)
     
 
@@ -196,8 +196,136 @@ class Unicorn():
     s_life_span = "average"
     s_number_of_chars = "2"
     
+    #STAT NUMBERS
+    speed = 5
+    atk_damage = 2
+    atk_speed = 3
+    atk_cooldown = 2
+    alive = True
+    orientation = False
+    direction = (1,0)
+    performing_attack = False
+    char_x_offset = 18
+    char_y_offset = 17
+    char_width = 12 #TODO: get character dimensions
+    char_height = 19
+    #Position
+    x = 0
+    y = 0
+
+    ##SPRITES
+    idle_animation = get_sprites(name, 'Idle')
+    
+    run_animation = get_sprites(name, 'Run')
+    
+    
+    #Animation Managing
+    cur_key = 0
+    current_sprite = idle_animation[0]
+    animation_change = "idle"
+    current_animation = "idle"
+    sprite = pygame.image.load(current_sprite)
+    texture = pygame.transform.scale(sprite,  (_CHARS_SIZE, _CHARS_SIZE))
+    anim_clock = -1
+
+    #Masks use the opaque pixels, ignoring the transparent
+    #hitbox = pygame.mask.from_surface(texture, 127)
+    def handle_animation(self):
+        if self.animation_change != self.current_animation:
+            self.cur_key = -1
+            self.animation_change = self.current_animation
+
+        #CLOCK CHANGE
+        self.anim_clock += 1
+
+        if self.current_animation == "idle":
+            if self.cur_key+2 > len(self.idle_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock == 10:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.idle_animation[self.cur_key]
+        elif self.current_animation == "moving":
+            if self.cur_key+2 > len(self.run_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 4:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.run_animation[self.cur_key]
+        elif self.current_animation == "idle":
+            if self.cur_key+2 > len(self.idle_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock == 10:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.idle_animation[self.cur_key]
+        self.sprite = pygame.image.load(self.current_sprite)
+        self.texture = pygame.transform.scale(self.sprite,  (_CHARS_SIZE, _CHARS_SIZE))
+    
+    #collision
+    def hitbox(self):
+        return pygame.Rect(self.x + self.char_x_offset *2.6 , self.y + self.char_y_offset *2.6, self.char_width *2.6, self.char_height*2.6)
+    
+    def check_arena_collision(self):
+        colliding = False
+        if not arena_ground.contains(self.hitbox()):
+            colliding = True
+        for rect in arena_collisions:
+            if rect != self:
+                if self.hitbox().colliderect(rect.hitbox()):
+                    colliding = True
+
+        return colliding
+
+    #movement
+    def move(self, player):
+        keys = pygame.key.get_pressed()  #checking pressed keys
+        x, y = (0, 0)
+        if player == 1:
+            if keys[pygame.K_w]:
+                y += 1         
+            if keys[pygame.K_s]:
+                y -= 1
+            if keys[pygame.K_d]:
+                x += 1          
+            if keys[pygame.K_a]:
+                x -= 1              
+        elif player == 2:
+            if keys[pygame.K_UP]:
+                y += 1            
+            if keys[pygame.K_DOWN]:
+                y -= 1             
+            if keys[pygame.K_RIGHT]:
+                x += 1               
+            if keys[pygame.K_LEFT]:
+                x -= 1
+        if x > 0:
+            self.orientation = False
+        elif x <0:
+            self.orientation = True
+        self.x += x* self.speed
+        if self.check_arena_collision():
+            self.x -= x * self.speed
+            x = 0
+        self.y -= y* self.speed
+        if self.check_arena_collision():
+            self.y += y * self.speed
+            x = 0
+        self.direction = (x, y)
+        if x != 0 or y != 0:
+            self.current_animation = "moving"
+        else:
+            self.current_animation = "idle"
+
     def __init__(self):
-        print("Unicorn instantiated")
+        print(f"{self.name} instantiated")
+        animation_line.append(self)
 
 class Valkyrie():
     name = "Valkyrie"
@@ -341,23 +469,151 @@ class Valkyrie():
             self.current_animation = "idle"
     
     def __init__(self):
-        print("Valkyrie instantiated")
+        print(f"{self.name} instantiated")
         animation_line.append(self)
 
-class Golem():
-    name = "Unicorn"
+class Djinni():
+    name = "Djinni"
     description = "Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn." 
     s_moving_type = "ground - 4"
     s_speed = "normal"
-    s_attack_type = "energy bolts"
+    s_attack_type = "energy bolts" #TODO:Djinni's description
     s_attack_strength = "moderate"
     s_attack_speed = "fast"
     s_attack_interval = "short"
     s_life_span = "average"
     s_number_of_chars = "2"
     
+        #STAT NUMBERS
+    speed = 5
+    atk_damage = 2
+    atk_speed = 3
+    atk_cooldown = 2
+    alive = True
+    orientation = False
+    direction = (1,0)
+    performing_attack = False
+    char_x_offset = 18
+    char_y_offset = 17
+    char_width = 12 #TODO: get character dimensions
+    char_height = 19
+    #Position
+    x = 0
+    y = 0
+
+    ##SPRITES
+    idle_animation = get_sprites(name, 'Idle')
+    
+    run_animation = get_sprites(name, 'Run')
+    
+    
+    #Animation Managing
+    cur_key = 0
+    current_sprite = idle_animation[0]
+    animation_change = "idle"
+    current_animation = "idle"
+    sprite = pygame.image.load(current_sprite)
+    texture = pygame.transform.scale(sprite,  (_CHARS_SIZE, _CHARS_SIZE))
+    anim_clock = -1
+
+    #Masks use the opaque pixels, ignoring the transparent
+    #hitbox = pygame.mask.from_surface(texture, 127)
+    def handle_animation(self):
+        if self.animation_change != self.current_animation:
+            self.cur_key = -1
+            self.animation_change = self.current_animation
+
+        #CLOCK CHANGE
+        self.anim_clock += 1
+
+        if self.current_animation == "idle":
+            if self.cur_key+2 > len(self.idle_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock == 10:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.idle_animation[self.cur_key]
+        elif self.current_animation == "moving":
+            if self.cur_key+2 > len(self.run_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 4:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.run_animation[self.cur_key]
+        elif self.current_animation == "idle":
+            if self.cur_key+2 > len(self.idle_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock == 10:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.idle_animation[self.cur_key]
+        self.sprite = pygame.image.load(self.current_sprite)
+        self.texture = pygame.transform.scale(self.sprite,  (_CHARS_SIZE, _CHARS_SIZE))
+    
+    #collision
+    def hitbox(self):
+        return pygame.Rect(self.x + self.char_x_offset *2.6 , self.y + self.char_y_offset *2.6, self.char_width *2.6, self.char_height*2.6)
+    
+    def check_arena_collision(self):
+        colliding = False
+        if not arena_ground.contains(self.hitbox()):
+            colliding = True
+        for rect in arena_collisions:
+            if rect != self:
+                if self.hitbox().colliderect(rect.hitbox()):
+                    colliding = True
+
+        return colliding
+
+    #movement
+    def move(self, player):
+        keys = pygame.key.get_pressed()  #checking pressed keys
+        x, y = (0, 0)
+        if player == 1:
+            if keys[pygame.K_w]:
+                y += 1         
+            if keys[pygame.K_s]:
+                y -= 1
+            if keys[pygame.K_d]:
+                x += 1          
+            if keys[pygame.K_a]:
+                x -= 1              
+        elif player == 2:
+            if keys[pygame.K_UP]:
+                y += 1            
+            if keys[pygame.K_DOWN]:
+                y -= 1             
+            if keys[pygame.K_RIGHT]:
+                x += 1               
+            if keys[pygame.K_LEFT]:
+                x -= 1
+        if x > 0:
+            self.orientation = False
+        elif x <0:
+            self.orientation = True
+        self.x += x* self.speed
+        if self.check_arena_collision():
+            self.x -= x * self.speed
+            x = 0
+        self.y -= y* self.speed
+        if self.check_arena_collision():
+            self.y += y * self.speed
+            x = 0
+        self.direction = (x, y)
+        if x != 0 or y != 0:
+            self.current_animation = "moving"
+        else:
+            self.current_animation = "idle"
+
     def __init__(self):
-        print("Unicorn instantiated")
+        print(f"{self.name} instantiated")
+        animation_line.append(self)
 
 class Archer():
     name = "Archer"
@@ -499,26 +755,154 @@ class Archer():
             self.current_animation = "idle"
 
     def __init__(self):
-        print("Archer instantiated")
+        print(f"{self.name} instantiated")
         animation_line.append(self)
 
 class Golem():
-    name = "Unicorn"
+    name = "Golem"
     description = "Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn." 
     s_moving_type = "ground - 4"
     s_speed = "normal"
     s_attack_type = "energy bolts"
-    s_attack_strength = "moderate"
+    s_attack_strength = "moderate" #TODO: GOLEM's description
     s_attack_speed = "fast"
     s_attack_interval = "short"
     s_life_span = "average"
     s_number_of_chars = "2"
     
+        #STAT NUMBERS
+    speed = 5
+    atk_damage = 2
+    atk_speed = 3
+    atk_cooldown = 2
+    alive = True
+    orientation = False
+    direction = (1,0)
+    performing_attack = False
+    char_x_offset = 18
+    char_y_offset = 17
+    char_width = 12 #TODO: get character dimensions
+    char_height = 19
+    #Position
+    x = 0
+    y = 0
+
+    ##SPRITES
+    idle_animation = get_sprites(name, 'Idle')
+    
+    run_animation = get_sprites(name, 'Run')
+    
+    
+    #Animation Managing
+    cur_key = 0
+    current_sprite = idle_animation[0]
+    animation_change = "idle"
+    current_animation = "idle"
+    sprite = pygame.image.load(current_sprite)
+    texture = pygame.transform.scale(sprite,  (_CHARS_SIZE, _CHARS_SIZE))
+    anim_clock = -1
+
+    #Masks use the opaque pixels, ignoring the transparent
+    #hitbox = pygame.mask.from_surface(texture, 127)
+    def handle_animation(self):
+        if self.animation_change != self.current_animation:
+            self.cur_key = -1
+            self.animation_change = self.current_animation
+
+        #CLOCK CHANGE
+        self.anim_clock += 1
+
+        if self.current_animation == "idle":
+            if self.cur_key+2 > len(self.idle_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock == 10:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.idle_animation[self.cur_key]
+        elif self.current_animation == "moving":
+            if self.cur_key+2 > len(self.run_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 4:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.run_animation[self.cur_key]
+        elif self.current_animation == "idle":
+            if self.cur_key+2 > len(self.idle_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock == 10:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.idle_animation[self.cur_key]
+        self.sprite = pygame.image.load(self.current_sprite)
+        self.texture = pygame.transform.scale(self.sprite,  (_CHARS_SIZE, _CHARS_SIZE))
+    
+    #collision
+    def hitbox(self):
+        return pygame.Rect(self.x + self.char_x_offset *2.6 , self.y + self.char_y_offset *2.6, self.char_width *2.6, self.char_height*2.6)
+    
+    def check_arena_collision(self):
+        colliding = False
+        if not arena_ground.contains(self.hitbox()):
+            colliding = True
+        for rect in arena_collisions:
+            if rect != self:
+                if self.hitbox().colliderect(rect.hitbox()):
+                    colliding = True
+
+        return colliding
+
+    #movement
+    def move(self, player):
+        keys = pygame.key.get_pressed()  #checking pressed keys
+        x, y = (0, 0)
+        if player == 1:
+            if keys[pygame.K_w]:
+                y += 1         
+            if keys[pygame.K_s]:
+                y -= 1
+            if keys[pygame.K_d]:
+                x += 1          
+            if keys[pygame.K_a]:
+                x -= 1              
+        elif player == 2:
+            if keys[pygame.K_UP]:
+                y += 1            
+            if keys[pygame.K_DOWN]:
+                y -= 1             
+            if keys[pygame.K_RIGHT]:
+                x += 1               
+            if keys[pygame.K_LEFT]:
+                x -= 1
+        if x > 0:
+            self.orientation = False
+        elif x <0:
+            self.orientation = True
+        self.x += x* self.speed
+        if self.check_arena_collision():
+            self.x -= x * self.speed
+            x = 0
+        self.y -= y* self.speed
+        if self.check_arena_collision():
+            self.y += y * self.speed
+            x = 0
+        self.direction = (x, y)
+        if x != 0 or y != 0:
+            self.current_animation = "moving"
+        else:
+            self.current_animation = "idle"
+
     def __init__(self):
-        print("Unicorn instantiated")
+        print(f"{self.name} instantiated")
+        animation_line.append(self)
 
 class Phoenix():
-    name = "Unicorn"
+    name = "Phoenix"
     description = "Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn." 
     s_moving_type = "ground - 4"
     s_speed = "normal"
@@ -529,11 +913,139 @@ class Phoenix():
     s_life_span = "average"
     s_number_of_chars = "2"
     
-    def __init__(self):
-        print("Unicorn instantiated")
+        #STAT NUMBERS
+    speed = 5
+    atk_damage = 2
+    atk_speed = 3
+    atk_cooldown = 2
+    alive = True
+    orientation = False
+    direction = (1,0)
+    performing_attack = False
+    char_x_offset = 18
+    char_y_offset = 17
+    char_width = 12 #TODO: get character dimensions
+    char_height = 19
+    #Position
+    x = 0
+    y = 0
 
-class Djinni():
-    name = "Unicorn"
+    ##SPRITES
+    idle_animation = get_sprites(name, 'Idle')
+    
+    run_animation = get_sprites(name, 'Run')
+    
+    
+    #Animation Managing
+    cur_key = 0
+    current_sprite = idle_animation[0]
+    animation_change = "idle"
+    current_animation = "idle"
+    sprite = pygame.image.load(current_sprite)
+    texture = pygame.transform.scale(sprite,  (_CHARS_SIZE, _CHARS_SIZE))
+    anim_clock = -1
+
+    #Masks use the opaque pixels, ignoring the transparent
+    #hitbox = pygame.mask.from_surface(texture, 127)
+    def handle_animation(self):
+        if self.animation_change != self.current_animation:
+            self.cur_key = -1
+            self.animation_change = self.current_animation
+
+        #CLOCK CHANGE
+        self.anim_clock += 1
+
+        if self.current_animation == "idle":
+            if self.cur_key+2 > len(self.idle_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock == 10:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.idle_animation[self.cur_key]
+        elif self.current_animation == "moving":
+            if self.cur_key+2 > len(self.run_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 4:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.run_animation[self.cur_key]
+        elif self.current_animation == "idle":
+            if self.cur_key+2 > len(self.idle_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock == 10:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.idle_animation[self.cur_key]
+        self.sprite = pygame.image.load(self.current_sprite)
+        self.texture = pygame.transform.scale(self.sprite,  (_CHARS_SIZE, _CHARS_SIZE))
+    
+    #collision
+    def hitbox(self):
+        return pygame.Rect(self.x + self.char_x_offset *2.6 , self.y + self.char_y_offset *2.6, self.char_width *2.6, self.char_height*2.6)
+    
+    def check_arena_collision(self):
+        colliding = False
+        if not arena_ground.contains(self.hitbox()):
+            colliding = True
+        for rect in arena_collisions:
+            if rect != self:
+                if self.hitbox().colliderect(rect.hitbox()):
+                    colliding = True
+
+        return colliding
+
+    #movement
+    def move(self, player):
+        keys = pygame.key.get_pressed()  #checking pressed keys
+        x, y = (0, 0)
+        if player == 1:
+            if keys[pygame.K_w]:
+                y += 1         
+            if keys[pygame.K_s]:
+                y -= 1
+            if keys[pygame.K_d]:
+                x += 1          
+            if keys[pygame.K_a]:
+                x -= 1              
+        elif player == 2:
+            if keys[pygame.K_UP]:
+                y += 1            
+            if keys[pygame.K_DOWN]:
+                y -= 1             
+            if keys[pygame.K_RIGHT]:
+                x += 1               
+            if keys[pygame.K_LEFT]:
+                x -= 1
+        if x > 0:
+            self.orientation = False
+        elif x <0:
+            self.orientation = True
+        self.x += x* self.speed
+        if self.check_arena_collision():
+            self.x -= x * self.speed
+            x = 0
+        self.y -= y* self.speed
+        if self.check_arena_collision():
+            self.y += y * self.speed
+            x = 0
+        self.direction = (x, y)
+        if x != 0 or y != 0:
+            self.current_animation = "moving"
+        else:
+            self.current_animation = "idle"
+
+    def __init__(self):
+        print(f"{self.name} instantiated")
+        animation_line.append(self)
+
+class Wizard():
+    name = "Wizard"
     description = "Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn." 
     s_moving_type = "ground - 4"
     s_speed = "normal"
@@ -544,8 +1056,136 @@ class Djinni():
     s_life_span = "average"
     s_number_of_chars = "2"
     
+        #STAT NUMBERS
+    speed = 5
+    atk_damage = 2
+    atk_speed = 3
+    atk_cooldown = 2
+    alive = True
+    orientation = False
+    direction = (1,0)
+    performing_attack = False
+    char_x_offset = 18
+    char_y_offset = 17
+    char_width = 12 #TODO: get character dimensions
+    char_height = 19
+    #Position
+    x = 0
+    y = 0
+
+    ##SPRITES
+    idle_animation = get_sprites(name, 'Idle')
+    
+    run_animation = get_sprites(name, 'Run')
+    
+    
+    #Animation Managing
+    cur_key = 0
+    current_sprite = idle_animation[0]
+    animation_change = "idle"
+    current_animation = "idle"
+    sprite = pygame.image.load(current_sprite)
+    texture = pygame.transform.scale(sprite,  (_CHARS_SIZE, _CHARS_SIZE))
+    anim_clock = -1
+
+    #Masks use the opaque pixels, ignoring the transparent
+    #hitbox = pygame.mask.from_surface(texture, 127)
+    def handle_animation(self):
+        if self.animation_change != self.current_animation:
+            self.cur_key = -1
+            self.animation_change = self.current_animation
+
+        #CLOCK CHANGE
+        self.anim_clock += 1
+
+        if self.current_animation == "idle":
+            if self.cur_key+2 > len(self.idle_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock == 10:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.idle_animation[self.cur_key]
+        elif self.current_animation == "moving":
+            if self.cur_key+2 > len(self.run_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 4:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.run_animation[self.cur_key]
+        elif self.current_animation == "idle":
+            if self.cur_key+2 > len(self.idle_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock == 10:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.idle_animation[self.cur_key]
+        self.sprite = pygame.image.load(self.current_sprite)
+        self.texture = pygame.transform.scale(self.sprite,  (_CHARS_SIZE, _CHARS_SIZE))
+    
+    #collision
+    def hitbox(self):
+        return pygame.Rect(self.x + self.char_x_offset *2.6 , self.y + self.char_y_offset *2.6, self.char_width *2.6, self.char_height*2.6)
+    
+    def check_arena_collision(self):
+        colliding = False
+        if not arena_ground.contains(self.hitbox()):
+            colliding = True
+        for rect in arena_collisions:
+            if rect != self:
+                if self.hitbox().colliderect(rect.hitbox()):
+                    colliding = True
+
+        return colliding
+
+    #movement
+    def move(self, player):
+        keys = pygame.key.get_pressed()  #checking pressed keys
+        x, y = (0, 0)
+        if player == 1:
+            if keys[pygame.K_w]:
+                y += 1         
+            if keys[pygame.K_s]:
+                y -= 1
+            if keys[pygame.K_d]:
+                x += 1          
+            if keys[pygame.K_a]:
+                x -= 1              
+        elif player == 2:
+            if keys[pygame.K_UP]:
+                y += 1            
+            if keys[pygame.K_DOWN]:
+                y -= 1             
+            if keys[pygame.K_RIGHT]:
+                x += 1               
+            if keys[pygame.K_LEFT]:
+                x -= 1
+        if x > 0:
+            self.orientation = False
+        elif x <0:
+            self.orientation = True
+        self.x += x* self.speed
+        if self.check_arena_collision():
+            self.x -= x * self.speed
+            x = 0
+        self.y -= y* self.speed
+        if self.check_arena_collision():
+            self.y += y * self.speed
+            x = 0
+        self.direction = (x, y)
+        if x != 0 or y != 0:
+            self.current_animation = "moving"
+        else:
+            self.current_animation = "idle"
+
     def __init__(self):
-        print("Unicorn instantiated")
+        print(f"{self.name} instantiated")
+        animation_line.append(self)
 """
 ~~~~SCENES~~~~
 """
@@ -816,7 +1456,9 @@ def game_scene():
 class GameBoard:
     _PIECE_SIZE = 80
     #Pieces
-    piece2 = Valkyrie()
+ 
+    Golem_Piece1 = (Golem(), pygame.transform.scale(pygame.image.load(Golem.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
+    Golem_Piece2 = (Golem(), pygame.transform.scale(pygame.image.load(Golem.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
     Knight_Piece1 = (Knight(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
     Knight_Piece2 = (Knight(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
     Knight_Piece3 = (Knight(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
@@ -824,9 +1466,16 @@ class GameBoard:
     Knight_Piece5 = (Knight(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
     Knight_Piece6 = (Knight(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
     Knight_Piece7 = (Knight(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
-    Valkyrie_Piece1 = (Valkyrie(), pygame.transform.scale(pygame.image.load(piece2.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
-    Valkyrie_Piece2 = (Valkyrie(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
-    Valkyrie_Piece1 = (Valkyrie(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
+    Archer_Piece1 = (Archer(), pygame.transform.scale(pygame.image.load(Archer.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
+    Archer_Piece2 = (Archer(), pygame.transform.scale(pygame.image.load(Archer.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
+    Djinni_Piece1 = (Djinni(), pygame.transform.scale(pygame.image.load(Djinni.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
+    Wizard_Piece1 = (Wizard(), pygame.transform.scale(pygame.image.load(Wizard.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
+    Unicorn_Piece1 = (Unicorn(), pygame.transform.scale(pygame.image.load(Unicorn.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
+    Unicorn_Piece2 = (Unicorn(), pygame.transform.scale(pygame.image.load(Unicorn.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
+    Phoenix_Piece1 = (Phoenix(), pygame.transform.scale(pygame.image.load(Phoenix.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
+    Valkyrie_Piece1 = (Valkyrie(), pygame.transform.scale(pygame.image.load(Valkyrie.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
+    Valkyrie_Piece2 = (Valkyrie(), pygame.transform.scale(pygame.image.load(Valkyrie.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
+    
     _PLAYERS_COLOR = [(255, 255, 255), (0,0,0)]
     _STATIC_TILES = [(0,0), (0,1), (0,2), (0,4), (0,6), (0,7), (0,8), (1,0), (1,1), (1,3), (1,5), (1,7), (1,8), (2,0), (2,2), (2,3), (2,5), (2,6), (2,8), (3,1), (3,2), (3,3), (3,5), (3,6), (3,7), (5,1), (5,2), (5,3), (5,5), (5,6), (5,7), (6,0), (6,2), (6,3), (6,5), (6,6), (6,8), (7,0), (7,1), (7,3), (7,5), (7,7), (7,8), (8,0), (8,1), (8,2), (8,4), (8,6), (8,7), (8,8)]
                                 ##LIGHT --> DARK##
@@ -837,7 +1486,7 @@ class GameBoard:
     board_y = 64
     light_square = pygame.image.load(r'Resources\Sprites\Tiles\220220220LightTile.png')
     board_color_data = [[ _TILE_COLORS[5] ,_TILE_COLORS[0], _TILE_COLORS[5], 0, _TILE_COLORS[0], 0, _TILE_COLORS[5], _TILE_COLORS[0], _TILE_COLORS[5]], [_TILE_COLORS[0] , _TILE_COLORS[5],0, _TILE_COLORS[0], 0, _TILE_COLORS[0], 0, _TILE_COLORS[5], _TILE_COLORS[0]], [_TILE_COLORS[5] ,0,_TILE_COLORS[0], _TILE_COLORS[5], 0, _TILE_COLORS[5], _TILE_COLORS[0], 0, _TILE_COLORS[5]], [(220,220,220) , _TILE_COLORS[0], _TILE_COLORS[5], _TILE_COLORS[0], 0, _TILE_COLORS[0], _TILE_COLORS[5], _TILE_COLORS[0], 0], [0, 0, 0, 0, 0, 0, 0, 0, 0], [0 , _TILE_COLORS[5], _TILE_COLORS[0], _TILE_COLORS[5], 0, _TILE_COLORS[5], _TILE_COLORS[0], _TILE_COLORS[5], 0], [_TILE_COLORS[0] ,0,_TILE_COLORS[5], _TILE_COLORS[0], 0, _TILE_COLORS[0], _TILE_COLORS[5], 0, _TILE_COLORS[0]], [_TILE_COLORS[5] , _TILE_COLORS[0], 0, _TILE_COLORS[5], 0, _TILE_COLORS[5], 0, _TILE_COLORS[0], _TILE_COLORS[5]], [_TILE_COLORS[0] , _TILE_COLORS[5], _TILE_COLORS[0], 0, _TILE_COLORS[5], 0, _TILE_COLORS[0], _TILE_COLORS[5], _TILE_COLORS[0]]]
-    board_data = [[Valkyrie_Piece1 , None, None, None, None, None, None, None, None], [None, Knight_Piece1 , Knight_Piece2, Knight_Piece3, Knight_Piece4, Knight_Piece5, Knight_Piece6, Knight_Piece7, None], [None , None, None, None, None, None, None, None, None], [None, None, None, None, None, None, None, None, None], [None, None, None, None, None, None, None, None, None], [None , None, None, None, None, None, None, None, None], [None ,None ,None, None, None, None, None, None, None], [None , None, None, None, None, None, None, None, None], [None , None, None, None, None, None, None, None, None]]
+    board_data = [[Valkyrie_Piece1 , Golem_Piece1, Unicorn_Piece2, Djinni_Piece1, Wizard_Piece1, Phoenix_Piece1, Unicorn_Piece1, Golem_Piece2, Valkyrie_Piece2], [Archer_Piece1, Knight_Piece1 , Knight_Piece2, Knight_Piece3, Knight_Piece4, Knight_Piece5, Knight_Piece6, Knight_Piece7, Archer_Piece2], [None , None, None, None, None, None, None, None, None], [None, None, None, None, None, None, None, None, None], [None, None, None, None, None, None, None, None, None], [None , None, None, None, None, None, None, None, None], [None ,None ,None, None, None, None, None, None, None], [None , None, None, None, None, None, None, None, None], [None , None, None, None, None, None, None, None, None]]
     turn = 0
 
 
@@ -1067,19 +1716,19 @@ while running:
                                 char_det = Archer()
                                 rules_screen = 2
                             elif char_view_sel == 3:
-                                #char_det = Phoenix()
+                                char_det = Phoenix()
                                 rules_screen = 2
                             elif char_view_sel == 4:
-                                #char_det = Wizard()
+                                char_det = Wizard()
                                 rules_screen = 2
                             elif char_view_sel == 5:
-                                #char_det = Djinni()
+                                char_det = Djinni()
                                 rules_screen = 2
                             elif char_view_sel == 6:
                                 char_det = Unicorn()
                                 rules_screen = 2
                             elif char_view_sel == 7:
-                                #char_det = Golem()
+                                char_det = Golem()
                                 rules_screen = 2
                             elif char_view_sel == 8:
                                 char_det = Valkyrie()
