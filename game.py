@@ -1186,6 +1186,153 @@ class Wizard():
     def __init__(self):
         print(f"{self.name} instantiated")
         animation_line.append(self)
+#DARK#
+
+
+class Sorceress():
+    #TODO: Sorceress info
+    name = "Sorceress"
+    description = "Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn." 
+    s_moving_type = "ground - 4"
+    s_speed = "normal"
+    s_attack_type = "energy bolts"
+    s_attack_strength = "moderate"
+    s_attack_speed = "fast"
+    s_attack_interval = "short"
+    s_life_span = "average"
+    s_number_of_chars = "2"
+    
+        #STAT NUMBERS
+    speed = 5
+    atk_damage = 2
+    atk_speed = 3
+    atk_cooldown = 2
+    alive = True
+    orientation = True
+    direction = (1,0)
+    performing_attack = False
+    char_x_offset = 18
+    char_y_offset = 17
+    char_width = 12 #TODO: get character dimensions
+    char_height = 19
+    #Position
+    x = 0
+    y = 0
+
+    ##SPRITES
+    idle_animation = get_sprites(name, 'Idle')
+    
+    run_animation = get_sprites(name, 'Run')
+    
+    
+    #Animation Managing
+    cur_key = 0
+    current_sprite = idle_animation[0]
+    animation_change = "idle"
+    current_animation = "idle"
+    sprite = pygame.image.load(current_sprite)
+    texture = pygame.transform.scale(sprite,  (_CHARS_SIZE, _CHARS_SIZE))
+    anim_clock = -1
+
+    #Masks use the opaque pixels, ignoring the transparent
+    #hitbox = pygame.mask.from_surface(texture, 127)
+    def handle_animation(self):
+        if self.animation_change != self.current_animation:
+            self.cur_key = -1
+            self.animation_change = self.current_animation
+
+        #CLOCK CHANGE
+        self.anim_clock += 1
+
+        if self.current_animation == "idle":
+            if self.cur_key+2 > len(self.idle_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock == 10:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.idle_animation[self.cur_key]
+        elif self.current_animation == "moving":
+            if self.cur_key+2 > len(self.run_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 4:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.run_animation[self.cur_key]
+        elif self.current_animation == "idle":
+            if self.cur_key+2 > len(self.idle_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock == 10:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.idle_animation[self.cur_key]
+        self.sprite = pygame.image.load(self.current_sprite)
+        self.texture = pygame.transform.scale(self.sprite,  (_CHARS_SIZE, _CHARS_SIZE))
+    
+    #collision
+    def hitbox(self):
+        return pygame.Rect(self.x + self.char_x_offset *2.6 , self.y + self.char_y_offset *2.6, self.char_width *2.6, self.char_height*2.6)
+    
+    def check_arena_collision(self):
+        colliding = False
+        if not arena_ground.contains(self.hitbox()):
+            colliding = True
+        for rect in arena_collisions:
+            if rect != self:
+                if self.hitbox().colliderect(rect.hitbox()):
+                    colliding = True
+
+        return colliding
+
+    #movement
+    def move(self, player):
+        keys = pygame.key.get_pressed()  #checking pressed keys
+        x, y = (0, 0)
+        if player == 1:
+            if keys[pygame.K_w]:
+                y += 1         
+            if keys[pygame.K_s]:
+                y -= 1
+            if keys[pygame.K_d]:
+                x += 1          
+            if keys[pygame.K_a]:
+                x -= 1              
+        elif player == 2:
+            if keys[pygame.K_UP]:
+                y += 1            
+            if keys[pygame.K_DOWN]:
+                y -= 1             
+            if keys[pygame.K_RIGHT]:
+                x += 1               
+            if keys[pygame.K_LEFT]:
+                x -= 1
+        if x > 0:
+            self.orientation = False
+        elif x <0:
+            self.orientation = True
+        self.x += x* self.speed
+        if self.check_arena_collision():
+            self.x -= x * self.speed
+            x = 0
+        self.y -= y* self.speed
+        if self.check_arena_collision():
+            self.y += y * self.speed
+            x = 0
+        self.direction = (x, y)
+        if x != 0 or y != 0:
+            self.current_animation = "moving"
+        else:
+            self.current_animation = "idle"
+
+    def __init__(self):
+        print(f"{self.name} instantiated")
+        animation_line.append(self)
+
 """
 ~~~~SCENES~~~~
 """
@@ -1475,6 +1622,7 @@ class GameBoard:
     Phoenix_Piece1 = (Phoenix(), pygame.transform.scale(pygame.image.load(Phoenix.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
     Valkyrie_Piece1 = (Valkyrie(), pygame.transform.scale(pygame.image.load(Valkyrie.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
     Valkyrie_Piece2 = (Valkyrie(), pygame.transform.scale(pygame.image.load(Valkyrie.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
+    Sorceress_Piece1 = (Sorceress(), pygame.transform.scale(pygame.image.load(Sorceress.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
     
     _PLAYERS_COLOR = [(255, 255, 255), (0,0,0)]
     _STATIC_TILES = [(0,0), (0,1), (0,2), (0,4), (0,6), (0,7), (0,8), (1,0), (1,1), (1,3), (1,5), (1,7), (1,8), (2,0), (2,2), (2,3), (2,5), (2,6), (2,8), (3,1), (3,2), (3,3), (3,5), (3,6), (3,7), (5,1), (5,2), (5,3), (5,5), (5,6), (5,7), (6,0), (6,2), (6,3), (6,5), (6,6), (6,8), (7,0), (7,1), (7,3), (7,5), (7,7), (7,8), (8,0), (8,1), (8,2), (8,4), (8,6), (8,7), (8,8)]
@@ -1486,7 +1634,7 @@ class GameBoard:
     board_y = 64
     light_square = pygame.image.load(r'Resources\Sprites\Tiles\220220220LightTile.png')
     board_color_data = [[ _TILE_COLORS[5] ,_TILE_COLORS[0], _TILE_COLORS[5], 0, _TILE_COLORS[0], 0, _TILE_COLORS[5], _TILE_COLORS[0], _TILE_COLORS[5]], [_TILE_COLORS[0] , _TILE_COLORS[5],0, _TILE_COLORS[0], 0, _TILE_COLORS[0], 0, _TILE_COLORS[5], _TILE_COLORS[0]], [_TILE_COLORS[5] ,0,_TILE_COLORS[0], _TILE_COLORS[5], 0, _TILE_COLORS[5], _TILE_COLORS[0], 0, _TILE_COLORS[5]], [(220,220,220) , _TILE_COLORS[0], _TILE_COLORS[5], _TILE_COLORS[0], 0, _TILE_COLORS[0], _TILE_COLORS[5], _TILE_COLORS[0], 0], [0, 0, 0, 0, 0, 0, 0, 0, 0], [0 , _TILE_COLORS[5], _TILE_COLORS[0], _TILE_COLORS[5], 0, _TILE_COLORS[5], _TILE_COLORS[0], _TILE_COLORS[5], 0], [_TILE_COLORS[0] ,0,_TILE_COLORS[5], _TILE_COLORS[0], 0, _TILE_COLORS[0], _TILE_COLORS[5], 0, _TILE_COLORS[0]], [_TILE_COLORS[5] , _TILE_COLORS[0], 0, _TILE_COLORS[5], 0, _TILE_COLORS[5], 0, _TILE_COLORS[0], _TILE_COLORS[5]], [_TILE_COLORS[0] , _TILE_COLORS[5], _TILE_COLORS[0], 0, _TILE_COLORS[5], 0, _TILE_COLORS[0], _TILE_COLORS[5], _TILE_COLORS[0]]]
-    board_data = [[Valkyrie_Piece1 , Golem_Piece1, Unicorn_Piece2, Djinni_Piece1, Wizard_Piece1, Phoenix_Piece1, Unicorn_Piece1, Golem_Piece2, Valkyrie_Piece2], [Archer_Piece1, Knight_Piece1 , Knight_Piece2, Knight_Piece3, Knight_Piece4, Knight_Piece5, Knight_Piece6, Knight_Piece7, Archer_Piece2], [None , None, None, None, None, None, None, None, None], [None, None, None, None, None, None, None, None, None], [None, None, None, None, None, None, None, None, None], [None , None, None, None, None, None, None, None, None], [None ,None ,None, None, None, None, None, None, None], [None , None, None, None, None, None, None, None, None], [None , None, None, None, None, None, None, None, None]]
+    board_data = [[Valkyrie_Piece1 , Golem_Piece1, Unicorn_Piece2, Djinni_Piece1, Wizard_Piece1, Phoenix_Piece1, Unicorn_Piece1, Golem_Piece2, Valkyrie_Piece2], [Archer_Piece1, Knight_Piece1 , Knight_Piece2, Knight_Piece3, Knight_Piece4, Knight_Piece5, Knight_Piece6, Knight_Piece7, Archer_Piece2], [None , None, None, None, None, None, None, None, None], [None, None, None, None, None, None, None, None, None], [None, None, None, None, None, None, None, None, None], [None , None, None, None, None, None, None, None, None], [None ,None ,None, None, None, None, None, None, None], [None , None, None, None, None, None, None, None, None], [None , None, None, None, Sorceress_Piece1, None, None, None, None]]
     turn = 0
 
 
@@ -1512,7 +1660,6 @@ class GameBoard:
     _start = True
 
     def draw_board(self):
-        print(self.Valkyrie_Piece1[0].current_sprite)
         for i in range(0, 9):
             for j in range(0,9):
                 if self.board_color_data[i][j] != None:
@@ -1555,7 +1702,6 @@ class GameBoard:
             if self.board_data[self.player_board_y][self.player_board_x] != None:
                 self.selected_sq = (self.board_data[self.player_board_y][self.player_board_x],(self.player_board_x, self.player_board_y))
         else:
-            print(self.selected_sq[0][0].orientation)
             if self.board_data[self.player_board_y][self.player_board_x] == None:
                 self.board_data[self.player_board_y][self.player_board_x] = self.selected_sq[0]
                 self.board_data[self.selected_sq[1][1]][self.selected_sq[1][0]] = None
@@ -1570,6 +1716,14 @@ class GameBoard:
         if self.player_board_y + y > -1 and self.player_board_y + y < 9:
             self.player_board_y += y
         
+    def get_info(self):
+        if self.selected_sq != ():
+            return self.selected_sq[0][0].name + ' - ' + self.selected_sq[0][0].s_moving_type
+        character = self.board_data[self.player_board_y][self.player_board_x]
+        if character == None:
+            return ''
+        else:
+            return character[0].name + ' - ' + character[0].s_moving_type
     
     def move_selected_piece(self):
         screen.blit(pygame.transform.flip(self.selected_sq[0][1],self.selected_sq[0][0].orientation, False), (self.board_x + (56*self.player_board_y) - self.selected_sq[0][0].char_x_offset, self.board_y + (56*self.player_board_x) - self.selected_sq[0][0].char_y_offset))
@@ -1577,21 +1731,25 @@ class GameBoard:
 _MAIN_BOARD = GameBoard()
 
 def board():
-    turn_number = medium_gm_font.render(f'Turn: {_MAIN_BOARD.turn}', 1, (00, 00, 00))
 
     #LOGIC
+    turn_number = medium_gm_font.render(f'Turn: {_MAIN_BOARD.turn}', 1, (00, 00, 00))
+    player_info = small_gm_font.render(_MAIN_BOARD.get_info(), 1, (00, 00, 00))
     if _MAIN_BOARD.turn == 0:
         _MAIN_BOARD.character_entry()
 
+
     #DRAW
     screen.fill((112, 40, 0))
-    _MAIN_BOARD.draw_board()
     screen.blit(turn_number, (50, 50))
+
     
 
+    _MAIN_BOARD.draw_board()
     pygame.draw.rect(screen, _MAIN_BOARD._PLAYERS_COLOR[_MAIN_BOARD.turn_player], Rect(_MAIN_BOARD.board_x + (56*_MAIN_BOARD.player_board_y), _MAIN_BOARD.board_y + (56*_MAIN_BOARD.player_board_x), 56, 56), 4)
     pygame.draw.rect(screen, (80, 112, 188), Rect(25, 500, 320, 80), 0)
     pygame.draw.rect(screen, (56, 74, 176), Rect(25, 500, 320, 80), 3)
+    screen.blit(player_info, (95, 530))
 
 
 #---
@@ -1609,6 +1767,7 @@ def start_duel(fighter1, fighter2):
     dueler1.x = 804 - dueler1.char_x_offset * 2.16
     dueler1.y = 280 - dueler1.char_y_offset * 2.16
     dueler1.orientation = True
+    dueler2.orientation = False
     arena_collisions.append(dueler1)
     arena_collisions.append(dueler2)
 
@@ -1753,7 +1912,7 @@ while running:
                                 #char_det = Dragon()
                                 rules_screen = 4
                             elif char_view_sel == 4:
-                                #char_det = Sorceress()
+                                char_det = Sorceress()
                                 rules_screen = 4
                             elif char_view_sel == 5:
                                 #char_det = Shapeshifter()
