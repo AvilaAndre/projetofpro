@@ -1782,6 +1782,8 @@ def arena():
     global dueler1, dueler2
     screen.fill((255, 0, 0))
     #Logic
+    dueler1_name = small_gm_font.render(dueler1.name, 1, (00, 00, 00))
+    dueler2_name = small_gm_font.render(dueler2.name, 1, (00, 00, 00))
     if not dueler1.alive:
         finish_duel()
     if not dueler2.alive:
@@ -1790,6 +1792,13 @@ def arena():
     dueler2.move(2)
     #Draw
     pygame.draw.rect(screen, (100, 155, 155), arena_ground, 0)
+    ##dueler's stats
+    pygame.draw.rect(screen, (89, 89, 89), (10,10, 140, 620), 0)
+    pygame.draw.rect(screen, (0, 0, 0), (15 , 15, 130, 610), 1)
+    screen.blit(dueler2_name, (20, 40))
+    pygame.draw.rect(screen, (89, 89, 89), (874, 10, 140, 620), 0)
+    pygame.draw.rect(screen, (0, 0, 0), (879 , 15, 130, 610), 1)
+    screen.blit(dueler1_name, (886, 40))
     screen.blit(pygame.transform.flip(dueler1.texture, dueler1.orientation, False), (dueler1.x, dueler1.y))
     screen.blit(pygame.transform.flip(dueler2.texture, dueler2.orientation, False), (dueler2.x, dueler2.y))
     if _DEBUG:
