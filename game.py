@@ -1699,6 +1699,252 @@ class Sorceress():
         print(f"{self.name} instantiated")
         animation_line.append(self)
 
+class Manticore():
+    name = "Manticore"
+    description = "The archers are fearless amazones, that can handle their bows with legendary skill. They are equipped with magical quivers that never get empty." 
+    s_moving_type = "ground - 3"
+    s_speed = "normal"
+    s_attack_type = "arrow"
+    s_attack_strength = "low"
+    s_attack_speed = "middle"
+    s_attack_interval = "average"
+    s_life_span = "short"
+    s_number_of_chars = "2"
+
+    #STAT NUMBERS
+    speed = 5
+    atk_damage = 2
+    atk_speed = 8
+    atk_cooldown = 2
+    alive = True
+    orientation = True
+    direction = (1,0)
+    performing_attack = False
+    char_x_offset = 18
+    char_y_offset = 17
+    char_width = 12 #TODO: get character dimensions
+    char_height = 19
+    #Position
+    x = 0
+    y = 0
+
+    #projectile
+    proj_dir = (0,0)
+    proj_size = 30
+                    #Corrections #TODO:Get it right
+    proj_correction = [
+    (15,7), #RightAttackFront
+    (14,-3), #RightAttackUp
+    (17,-3), #RightAttackFrontUp
+    (16,15), #RightAttackFrontDown
+    (6,16), #RightAttackDown
+    (-9,7), #LeftAttackFront
+    (-6,-3), #LeftAttackUp
+    (-11,-3), #LeftAttackFrontUp
+    (-8,15), #LeftAttackFrontDown
+    (-6,16)  #LeftAttackDown #    AQUI
+    ]
+    ##SPRITES
+    idle_animation = get_sprites(name, 'Idle')
+    
+    run_animation = get_sprites(name, 'Run')
+    
+    attack_front_animation = get_sprites(name, 'AttackFront')
+    attack_front_up_animation = get_sprites(name, 'AttackFrontUp')
+    attack_front_down_animation = get_sprites(name, 'AttackFrontDown')
+    attack_up_animation = get_sprites(name, 'AttackUp')
+    attack_down_animation = get_sprites(name, 'AttackDown')
+
+    #Animation Managing
+    cur_key = 0
+    current_sprite = idle_animation[0]
+    animation_change = "idle"
+    current_animation = "idle"
+    sprite = pygame.image.load(current_sprite)
+    texture = pygame.transform.scale(sprite,  (_CHARS_SIZE, _CHARS_SIZE))
+    anim_clock = -1
+
+    #Masks use the opaque pixels, ignoring the transparent
+    #hitbox = pygame.mask.from_surface(texture, 127)
+    def handle_animation(self):
+        if self.animation_change != self.current_animation:
+            self.cur_key = -1
+            self.animation_change = self.current_animation
+
+        #CLOCK CHANGE
+        self.anim_clock += 1
+
+        if self.current_animation == "idle":
+            if self.cur_key+2 > len(self.idle_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock == 10:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.idle_animation[self.cur_key]
+        elif self.current_animation == "moving":
+            if self.cur_key+2 > len(self.run_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 4:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.run_animation[self.cur_key]
+        elif self.current_animation == "AttackFront":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_attack = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock == 10:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_front_animation[self.cur_key]
+        elif self.current_animation == "AttackFrontUp":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_attack = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock == 10:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_front_up_animation[self.cur_key]
+        elif self.current_animation == "AttackFrontDown":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_attack = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock == 10:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_front_down_animation[self.cur_key]
+        elif self.current_animation == "AttackUp":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_attack = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock == 10:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_up_animation[self.cur_key]
+        elif self.current_animation == "AttackDown":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_attack = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock == 10:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_down_animation[self.cur_key]
+        self.sprite = pygame.image.load(self.current_sprite)
+        self.texture = pygame.transform.scale(self.sprite,  (_CHARS_SIZE, _CHARS_SIZE))
+    
+    #collision
+    def hitbox(self):
+        return pygame.Rect(self.x + self.char_x_offset *2.6 , self.y + self.char_y_offset *2.6, self.char_width *2.6, self.char_height*2.6)
+    
+    def check_arena_collision(self):
+        colliding = False
+        if not arena_ground.contains(self.hitbox()):
+            colliding = True
+        for rect in arena_collisions:
+            if rect != self:
+                if self.hitbox().colliderect(rect.hitbox()):
+                    colliding = True
+
+        return colliding
+    
+    def attack(self, x, y):
+        self.proj_dir = (x, y)
+        attack_anim = "Attack"
+        if x==0 and y == 0:
+            return
+        self.performing_attack = True
+        if x != 0:
+            attack_anim += "Front"
+        if y == -1:
+            attack_anim += "Up"
+        elif y == 1:
+            attack_anim += "Down"
+        self.current_animation = attack_anim
+    
+    def shoot(self):
+        Projectile((self.proj_dir[0], self.proj_dir[1]), self)
+    
+    def take_damage(self):
+        pass
+
+    #movement
+    def move(self, player):
+        keys = pygame.key.get_pressed()  #checking pressed keys
+        x, y = (0, 0)
+        if not self.performing_attack:
+            if player == 1:
+                if keys[pygame.K_w]:
+                    y += 1         
+                if keys[pygame.K_s]:
+                    y -= 1
+                if keys[pygame.K_d]:
+                    x += 1          
+                if keys[pygame.K_a]:
+                    x -= 1              
+                if keys[pygame.K_LSHIFT]:
+                    self.attack(x, -y)
+            elif player == 2:
+                if keys[pygame.K_UP]:
+                    y += 1            
+                if keys[pygame.K_DOWN]:
+                    y -= 1             
+                if keys[pygame.K_RIGHT]:
+                    x += 1               
+                if keys[pygame.K_LEFT]:
+                    x -= 1
+                if keys[pygame.K_RETURN]:
+                    self.attack(x, -y)
+        if x > 0:
+            self.orientation = False
+        elif x <0:
+            self.orientation = True
+        self.x += x* self.speed
+        if self.check_arena_collision():
+            self.x -= x * self.speed
+            x = 0
+        self.y -= y* self.speed
+        if self.check_arena_collision():
+            self.y += y * self.speed
+            x = 0
+        self.direction = (x, y)
+        if not self.performing_attack:
+            if x != 0 or y != 0:
+                self.current_animation = "moving"
+            else:
+                self.current_animation = "idle"
+
+    def __init__(self):
+        print(f"{self.name} instantiated")
+        animation_line.append(self)
+
 """
 ~~~~SCENES~~~~
 """
@@ -1989,7 +2235,8 @@ class GameBoard:
     Valkyrie_Piece1 = (Valkyrie(), pygame.transform.scale(pygame.image.load(Valkyrie.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
     Valkyrie_Piece2 = (Valkyrie(), pygame.transform.scale(pygame.image.load(Valkyrie.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
     Sorceress_Piece1 = (Sorceress(), pygame.transform.scale(pygame.image.load(Sorceress.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
-    
+    Manticore_Piece1 = (Manticore(), pygame.transform.scale(pygame.image.load(Manticore.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
+    Manticore_Piece2 = (Manticore(), pygame.transform.scale(pygame.image.load(Manticore.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
     _PLAYERS_COLOR = [(255, 255, 255), (0,0,0)]
     _STATIC_TILES = [(0,0), (0,1), (0,2), (0,4), (0,6), (0,7), (0,8), (1,0), (1,1), (1,3), (1,5), (1,7), (1,8), (2,0), (2,2), (2,3), (2,5), (2,6), (2,8), (3,1), (3,2), (3,3), (3,5), (3,6), (3,7), (5,1), (5,2), (5,3), (5,5), (5,6), (5,7), (6,0), (6,2), (6,3), (6,5), (6,6), (6,8), (7,0), (7,1), (7,3), (7,5), (7,7), (7,8), (8,0), (8,1), (8,2), (8,4), (8,6), (8,7), (8,8)]
                                 ##LIGHT --> DARK##
@@ -2000,7 +2247,7 @@ class GameBoard:
     board_y = 64
     light_square = pygame.image.load(r'Resources\Sprites\Tiles\220220220LightTile.png')
     board_color_data = [[ _TILE_COLORS[5] ,_TILE_COLORS[0], _TILE_COLORS[5], 0, _TILE_COLORS[0], 0, _TILE_COLORS[5], _TILE_COLORS[0], _TILE_COLORS[5]], [_TILE_COLORS[0] , _TILE_COLORS[5],0, _TILE_COLORS[0], 0, _TILE_COLORS[0], 0, _TILE_COLORS[5], _TILE_COLORS[0]], [_TILE_COLORS[5] ,0,_TILE_COLORS[0], _TILE_COLORS[5], 0, _TILE_COLORS[5], _TILE_COLORS[0], 0, _TILE_COLORS[5]], [(220,220,220) , _TILE_COLORS[0], _TILE_COLORS[5], _TILE_COLORS[0], 0, _TILE_COLORS[0], _TILE_COLORS[5], _TILE_COLORS[0], 0], [0, 0, 0, 0, 0, 0, 0, 0, 0], [0 , _TILE_COLORS[5], _TILE_COLORS[0], _TILE_COLORS[5], 0, _TILE_COLORS[5], _TILE_COLORS[0], _TILE_COLORS[5], 0], [_TILE_COLORS[0] ,0,_TILE_COLORS[5], _TILE_COLORS[0], 0, _TILE_COLORS[0], _TILE_COLORS[5], 0, _TILE_COLORS[0]], [_TILE_COLORS[5] , _TILE_COLORS[0], 0, _TILE_COLORS[5], 0, _TILE_COLORS[5], 0, _TILE_COLORS[0], _TILE_COLORS[5]], [_TILE_COLORS[0] , _TILE_COLORS[5], _TILE_COLORS[0], 0, _TILE_COLORS[5], 0, _TILE_COLORS[0], _TILE_COLORS[5], _TILE_COLORS[0]]]
-    board_data = [[Valkyrie_Piece1 , Golem_Piece1, Unicorn_Piece2, Djinni_Piece1, Wizard_Piece1, Phoenix_Piece1, Unicorn_Piece1, Golem_Piece2, Valkyrie_Piece2], [Archer_Piece1, Knight_Piece1 , Knight_Piece2, Knight_Piece3, Knight_Piece4, Knight_Piece5, Knight_Piece6, Knight_Piece7, Archer_Piece2], [None , None, None, None, None, None, None, None, None], [None, None, None, None, None, None, None, None, None], [None, None, None, None, None, None, None, None, None], [None , None, None, None, None, None, None, None, None], [None ,None ,None, None, None, None, None, None, None], [None , None, None, None, None, None, None, None, None], [None , None, None, None, Sorceress_Piece1, None, None, None, None]]
+    board_data = [[Valkyrie_Piece1 , Golem_Piece1, Unicorn_Piece2, Djinni_Piece1, Wizard_Piece1, Phoenix_Piece1, Unicorn_Piece1, Golem_Piece2, Valkyrie_Piece2], [Archer_Piece1, Knight_Piece1 , Knight_Piece2, Knight_Piece3, Knight_Piece4, Knight_Piece5, Knight_Piece6, Knight_Piece7, Archer_Piece2], [None , None, None, None, None, None, None, None, None], [None, None, None, None, None, None, None, None, None], [None, None, None, None, None, None, None, None, None], [None , None, None, None, None, None, None, None, None], [None ,None ,None, None, None, None, None, None, None], [Manticore_Piece2 , None, None, None, None, None, None, None, Manticore_Piece2], [None , None, None, None, Sorceress_Piece1, None, None, None, None]]
     turn = 0
 
 
