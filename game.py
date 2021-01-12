@@ -43,33 +43,46 @@ def get_sprites(character, directory):
 """
 
 class Projectile():
+    obj_type = "projectile"
+    team = 2
+    dmg = 0
     x = 0
     y = 0
     direction = ()
     sprite = ""
     speed = 1
+    hitbox_x = 0
+    hitbox_y = 0
+    angle = 0
+    width= 10
+    height = 10
     def __init__(self, direction, character):
-        self.x, self.y = (character.x + character.char_x_offset * 2.6, character.y + character.char_x_offset * 2.6)
+        self.team = character.team
+        self.x, self.y = (character.x, character.y)
+        self.height, self.width  = min(character.proj_height, character.proj_width),min(character.proj_height, character.proj_width)
         self.direction = (direction[0], direction[1]) 
         dark_projectiles.append(self)
         self.speed = character.atk_speed
-
+        self.dmg = character.atk_damage
         sprite = pygame.image.load(r'Resources\Sprites\Characters\{0}\Projectile\Projectile.png'.format(character.name))
-        sprite = pygame.transform.smoothscale(sprite,  (character.proj_size, character.proj_size))
+        sprite = pygame.transform.smoothscale(sprite,  (_CHARS_SIZE, _CHARS_SIZE))
         if direction[0] < 0:
             sprite = pygame.transform.flip(sprite, True, False)
+            #self.hitbox_x = (48 - self.width) *2.6
         if direction[0] == 1 and direction[1] == -1:
             correction = 2
-            sprite = pygame.transform.rotate(sprite,  45)
+            self.angle = 45
+            #self.hitbox_y = (48 -self.height) *2.6 
+            #self.hitbox_x = (48 - self.width) * 2.6
         elif direction[0] == -1 and direction[1] == -1:
             correction = 7
-            sprite = pygame.transform.rotate(sprite,  -45)
+            self.angle = -45
         elif direction[0] == 1 and direction[1] == 1:
             correction = 3
-            sprite = pygame.transform.rotate(sprite,  315)
+            self.angle = 315
         elif direction[0] == -1 and direction[1] == 1:
             correction = 8
-            sprite = pygame.transform.rotate(sprite,  -315)
+            self.angle = -315
         elif direction[0] == 1 and direction[1] == 0:
             correction = 0
         elif direction[0] == -1 and direction[1] == 0:
@@ -79,19 +92,36 @@ class Projectile():
                 correction= 9
             else:
                 correction = 4
-            sprite = pygame.transform.rotate(sprite,  -90)
+            self.angle = -90
         elif direction[0] == 0 and direction[1] == -1:
             if character.orientation:
                 correction= 6
             else:
                 correction = 1
-            sprite = pygame.transform.rotate(sprite,  90)
+            self.angle = 90
+        sprite = pygame.transform.rotate(sprite,  self.angle)
         self.x, self.y = (self.x + character.proj_correction[correction][0]*2.6, self.y + character.proj_correction[correction][1]*2.6)
         self.sprite = sprite
 
+    def hitbox(self):
+        return pygame.Rect(self.x + self.hitbox_x, self.y +  self.hitbox_y, self.width *2.6, self.height*2.6)
+
+    
     def move(self):
         self.x += self.direction[0] * self.speed
         self.y += self.direction[1] * self.speed
+        for rect in arena_collisions:
+            if rect != self:
+                if self.hitbox().colliderect(rect.hitbox()):
+                    print(rect.team)
+                    if rect.obj_type == "player":
+                        if rect.team != self.team:
+                            rect.take_damage(self.dmg)
+                            if self.team == 0:
+                                light_projectiles.remove(self)
+                            else:
+                                dark_projectiles.remove(self)
+
 """
 ~~~~CHARACTERS~~~~
 """
@@ -878,6 +908,7 @@ class Djinni():
         animation_line.append(self)
 
 class Archer():
+    obj_type = "player"
     name = "Archer"
     description = "The archers are fearless amazones, that can handle their bows with legendary skill. They are equipped with magical quivers that never get empty." 
     s_moving_type = "ground - 3"
@@ -890,10 +921,12 @@ class Archer():
     s_number_of_chars = "2"
 
     #STAT NUMBERS
+    team = 0
     speed = 5
     atk_damage = 2
     atk_speed = 8
     atk_cooldown = 2
+    base_hp = 4
     alive = True
     orientation = True
     direction = (1,0)
@@ -909,7 +942,7 @@ class Archer():
     #projectile
     proj_dir = (0,0)
     proj_size = 30
-                    #Corrections #TODO:Get it right
+                    #Corrections 
     proj_correction = [
     (15,7), #RightAttackFront
     (14,-3), #RightAttackUp
@@ -1070,8 +1103,11 @@ class Archer():
     def shoot(self):
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
-    def take_damage(self):
-        pass
+    def take_damage(self, damage):
+        self.base_hp -= damage
+        print(f'{self.name}: Ouch!')
+        if self.base_hp <= 0:
+            self.die()
 
     #movement
     def move(self, player):
@@ -1079,6 +1115,8 @@ class Archer():
         x, y = (0, 0)
         if not self.performing_attack:
             if player == 1:
+                if keys[pygame.K_SPACE]:
+                    self.take_damage(3)
                 if keys[pygame.K_w]:
                     y += 1         
                 if keys[pygame.K_s]:
@@ -1090,6 +1128,8 @@ class Archer():
                 if keys[pygame.K_LSHIFT]:
                     self.attack(x, -y)
             elif player == 2:
+                if keys[pygame.K_SPACE]:
+                    self.take_damage(3)
                 if keys[pygame.K_UP]:
                     y += 1            
                 if keys[pygame.K_DOWN]:
@@ -1118,6 +1158,12 @@ class Archer():
                 self.current_animation = "moving"
             else:
                 self.current_animation = "idle"
+    
+    def ping(self):
+        return False if self.alive else True
+
+    def die(self):
+        self.alive = False
 
     def __init__(self):
         print(f"{self.name} instantiated")
@@ -1154,7 +1200,6 @@ class Golem():
 
     #projectile
     proj_dir = (0,0)
-    proj_size = 50
                     #Corrections #TODO:Get it right
     proj_correction = [
     (15,7), #RightAttackFront
@@ -1763,6 +1808,7 @@ class Wizard():
 
 
 class Sorceress():
+    obj_type = "player"
     #TODO: Sorceress info
     name = "Sorceress"
     description = "Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn." 
@@ -1776,10 +1822,16 @@ class Sorceress():
     s_number_of_chars = "2"
     
     #STAT NUMBERS
+    team = 1
+        #type: teleport0 air1 ground2
+    move_type = 0
+    move_limit = 3
     speed = 5
-    atk_damage = 2
-    atk_speed = 8
-    atk_cooldown = 2
+    atk_damage = 8
+    atk_speed = 9
+    atk_cooldown = 0.75
+    base_hp = 9.5
+    max_hp= 16.5
     alive = True
     orientation = True
     direction = (1,0)
@@ -1794,12 +1846,13 @@ class Sorceress():
 
     #projectile
     proj_dir = (0,0)
-    proj_size = 30
+    proj_width = 10
+    proj_height = 4
                     #Corrections 
     proj_correction = [
-    (15,7), #RightAttackFront
+    (34,26), #RightAttackFront
     (14,-3), #RightAttackUp
-    (17,-3), #RightAttackFrontUp
+    (36,19), #RightAttackFrontUp
     (16,15), #RightAttackFrontDown
     (6,16), #RightAttackDown
     (-9,7), #LeftAttackFront
@@ -1956,8 +2009,10 @@ class Sorceress():
     def shoot(self):
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
-    def take_damage(self):
-        pass
+    def take_damage(self, damage):
+        self.base_hp -= damage
+        if self.base_hp <= 0:
+            self.die()
 
     #movement
     def move(self, player):
@@ -1965,6 +2020,8 @@ class Sorceress():
         x, y = (0, 0)
         if not self.performing_attack:
             if player == 1:
+                if keys[pygame.K_SPACE]:
+                    self.take_damage(3)
                 if keys[pygame.K_w]:
                     y += 1         
                 if keys[pygame.K_s]:
@@ -1976,6 +2033,8 @@ class Sorceress():
                 if keys[pygame.K_LSHIFT]:
                     self.attack(x, -y)
             elif player == 2:
+                if keys[pygame.K_SPACE]:
+                    self.take_damage(3)
                 if keys[pygame.K_UP]:
                     y += 1            
                 if keys[pygame.K_DOWN]:
@@ -2004,6 +2063,12 @@ class Sorceress():
                 self.current_animation = "moving"
             else:
                 self.current_animation = "idle"
+    
+    def ping(self):
+        return False if self.alive else True
+
+    def die(self):
+        self.alive = False
 
     def __init__(self):
         print(f"{self.name} instantiated")
@@ -2393,7 +2458,6 @@ def see_dark_chars():
     screen.blit(goblin, (50, 450))
     screen.blit(go_back_button, (860, 580))
     pygame.draw.rect(screen, (255, 255, 255) , Rect(char_view_buttons[char_view_sel][0], char_view_buttons[char_view_sel][1], char_view_buttons[char_view_sel][2], char_view_buttons[char_view_sel][3]), 4)
-    pygame.draw.rect(screen, (255, 255, 255), (400, 400, 200, 200), 4)
 
 """CHARACTERS SHEETS"""
 char_det = Knight()
@@ -2679,9 +2743,16 @@ def board():
 dueler1 = None
 dueler2 = None
 arena_collisions = []
+
+dead = []
+arena_finish_clock = 0
+arena_finish_var = 0
 def start_duel(fighter1, fighter2):
-    global current_scene, dueler1, dueler2
-    arena_collisions.clear
+    global current_scene, dueler1, dueler2, arena_finish_clock, arena_finish_var
+    arena_collisions.clear()
+    dead.clear()
+    arena_finish_clock = 15
+    arena_finish_var = 0
     current_scene = "arena"
     dueler1 = fighter1
     dueler2 = fighter2
@@ -2697,6 +2768,9 @@ def start_duel(fighter1, fighter2):
 def finish_duel():
     global current_scene
     current_scene = "game"
+    light_projectiles.clear()
+    dark_projectiles.clear()
+    arena_collisions.clear()
     
 fg_begun = False
 arena_ground = pygame.Rect(160, 20, 704, 600)
@@ -2704,21 +2778,31 @@ light_projectiles = []
 dark_projectiles = []
 
 def arena():
-    global dueler1, dueler2
+    global dueler1, dueler2, arena_finish_clock, arena_finish_var
     screen.fill((255, 0, 0))
     #Logic
     dueler1_name = small_gm_font.render(dueler1.name, 1, (00, 00, 00))
     dueler2_name = small_gm_font.render(dueler2.name, 1, (00, 00, 00))
     if not dueler1.alive:
-        finish_duel()
+        dead.append(dueler1)
+    else:
+        dueler1.move(1)
     if not dueler2.alive:
-        finish_duel()
-    dueler1.move(1)
-    dueler2.move(2)
+        dead.append(dueler2)
+    else:
+        dueler2.move(2)
     for proj in light_projectiles:
         proj.move()
     for proj in dark_projectiles:
         proj.move()
+    if len(dead) != 0:
+        if arena_finish_clock <= 0:
+            finish_duel()
+        else:
+            arena_finish_var += 1
+            if arena_finish_var > 10:
+                arena_finish_var = 0
+                arena_finish_clock -= 1
     #Draw
     pygame.draw.rect(screen, (100, 155, 155), arena_ground, 0)
         ##dueler's stats
@@ -2728,12 +2812,15 @@ def arena():
     pygame.draw.rect(screen, (89, 89, 89), (874, 10, 140, 620), 0)
     pygame.draw.rect(screen, (0, 0, 0), (879 , 15, 130, 610), 1)
     screen.blit(dueler1_name, (886, 40))
-    screen.blit(pygame.transform.flip(dueler1.texture, dueler1.orientation, False), (dueler1.x, dueler1.y))
-    screen.blit(pygame.transform.flip(dueler2.texture, dueler2.orientation, False), (dueler2.x, dueler2.y))
+    if dueler1.alive:
+        screen.blit(pygame.transform.flip(dueler1.texture, dueler1.orientation, False), (dueler1.x, dueler1.y))
+    if dueler2.alive:
+        screen.blit(pygame.transform.flip(dueler2.texture, dueler2.orientation, False), (dueler2.x, dueler2.y))
     for proj in light_projectiles:
         screen.blit((proj.x, proj.y), proj.sprite)
     for proj in dark_projectiles:
         screen.blit(proj.sprite, (proj.x, proj.y))
+        pygame.draw.rect(screen, (0,0,0), proj.hitbox(), 0)
     if _DEBUG:
         pygame.draw.rect(screen, (155,155,155) , dueler2.hitbox(), 0) #hitbox
 
@@ -2845,10 +2932,10 @@ while running:
                             if char_view_sel == 0:
                                 rules_screen = 0
                             elif char_view_sel == 1:
-                                #char_det = Goblin()
+                                char_det = Goblin()
                                 rules_screen = 4
                             elif char_view_sel == 2:
-                                #char_det = Manticore()
+                                char_det = Manticore()
                                 rules_screen = 4
                             elif char_view_sel == 3:
                                 #char_det = Dragon()
