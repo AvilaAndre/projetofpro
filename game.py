@@ -939,13 +939,14 @@ class Archer():
     speed = 5
     atk_damage = 8
     atk_speed = 9
-    atk_cooldown = 0.75
+    atk_cooldown = 0.75 * 60
     base_hp = 9.5
     max_hp= 16.5
     alive = True
     orientation = True
     direction = (1,0)
     performing_attack = False
+    can_attack = True
     char_x_offset = 18
     char_y_offset = 17
     char_width = 12 #TODO: get character dimensions
@@ -990,6 +991,7 @@ class Archer():
     sprite = pygame.image.load(current_sprite)
     texture = pygame.transform.scale(sprite,  (_CHARS_SIZE, _CHARS_SIZE))
     anim_clock = -1
+    can_attack_cycle = 0
 
     #Masks use the opaque pixels, ignoring the transparent
     #hitbox = pygame.mask.from_surface(texture, 127)
@@ -1028,7 +1030,7 @@ class Archer():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock == 10:
+                if self.anim_clock == 8:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_animation[self.cur_key]
@@ -1041,7 +1043,7 @@ class Archer():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock == 10:
+                if self.anim_clock == 8:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_up_animation[self.cur_key]
@@ -1054,7 +1056,7 @@ class Archer():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock == 10:
+                if self.anim_clock == 8:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_down_animation[self.cur_key]
@@ -1067,7 +1069,7 @@ class Archer():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock == 10:
+                if self.anim_clock == 8:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_up_animation[self.cur_key]
@@ -1080,7 +1082,7 @@ class Archer():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock == 10:
+                if self.anim_clock == 8:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_down_animation[self.cur_key]
@@ -1108,6 +1110,7 @@ class Archer():
         if x==0 and y == 0:
             return
         self.performing_attack = True
+        self.can_attack = False
         if x != 0:
             attack_anim += "Front"
         if y == -1:
@@ -1130,8 +1133,6 @@ class Archer():
         x, y = (0, 0)
         if not self.performing_attack:
             if player == 1:
-                if keys[pygame.K_SPACE]:
-                    self.take_damage(3)
                 if keys[pygame.K_w]:
                     y += 1         
                 if keys[pygame.K_s]:
@@ -1140,11 +1141,9 @@ class Archer():
                     x += 1          
                 if keys[pygame.K_a]:
                     x -= 1              
-                if keys[pygame.K_LSHIFT]:
+                if keys[pygame.K_LSHIFT] and self.can_attack:
                     self.attack(x, -y)
             elif player == 2:
-                if keys[pygame.K_SPACE]:
-                    self.take_damage(3)
                 if keys[pygame.K_UP]:
                     y += 1            
                 if keys[pygame.K_DOWN]:
@@ -1153,7 +1152,7 @@ class Archer():
                     x += 1               
                 if keys[pygame.K_LEFT]:
                     x -= 1
-                if keys[pygame.K_RETURN]:
+                if keys[pygame.K_RETURN] and self.can_attack:
                     self.attack(x, -y)
         if x > 0:
             self.orientation = False
@@ -1173,6 +1172,11 @@ class Archer():
                 self.current_animation = "moving"
             else:
                 self.current_animation = "idle"
+        if not self.can_attack:
+            self.can_attack_cycle += 1
+            if self.can_attack_cycle > self.atk_cooldown:
+                self.can_attack_cycle = 0
+                self.can_attack = True
 
     def die(self):
         self.alive = False
@@ -1841,13 +1845,14 @@ class Sorceress():
     speed = 5
     atk_damage = 8
     atk_speed = 9
-    atk_cooldown = 0.75
+    atk_cooldown = 0.75 * 60
     base_hp = 9.5
     max_hp= 16.5
     alive = True
     orientation = True
     direction = (1,0)
     performing_attack = False
+    can_attack = True
     char_x_offset = 18
     char_y_offset = 17
     char_width = 12 #TODO: get character dimensions
@@ -1892,6 +1897,7 @@ class Sorceress():
     sprite = pygame.image.load(current_sprite)
     texture = pygame.transform.scale(sprite,  (_CHARS_SIZE, _CHARS_SIZE))
     anim_clock = -1
+    can_attack_cycle = 0
 
     #Masks use the opaque pixels, ignoring the transparent
     #hitbox = pygame.mask.from_surface(texture, 127)
@@ -1930,7 +1936,7 @@ class Sorceress():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock == 10:
+                if self.anim_clock == 8:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_animation[self.cur_key]
@@ -1943,7 +1949,7 @@ class Sorceress():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock == 10:
+                if self.anim_clock == 8:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_up_animation[self.cur_key]
@@ -1956,7 +1962,7 @@ class Sorceress():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock == 10:
+                if self.anim_clock == 8:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_down_animation[self.cur_key]
@@ -1969,7 +1975,7 @@ class Sorceress():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock == 10:
+                if self.anim_clock == 8:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_up_animation[self.cur_key]
@@ -1982,7 +1988,7 @@ class Sorceress():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock == 10:
+                if self.anim_clock == 8:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_down_animation[self.cur_key]
@@ -2010,6 +2016,7 @@ class Sorceress():
         if x==0 and y == 0:
             return
         self.performing_attack = True
+        self.can_attack = False
         if x != 0:
             attack_anim += "Front"
         if y == -1:
@@ -2025,9 +2032,10 @@ class Sorceress():
         self.base_hp -= damage
         if self.base_hp <= 0:
             self.die()
-
+            
     #movement
     def move(self, player):
+        print(self.can_attack, self.can_attack_cycle)
         keys = pygame.key.get_pressed()  #checking pressed keys
         x, y = (0, 0)
         if not self.performing_attack:
@@ -2042,7 +2050,7 @@ class Sorceress():
                     x += 1          
                 if keys[pygame.K_a]:
                     x -= 1              
-                if keys[pygame.K_LSHIFT]:
+                if keys[pygame.K_LSHIFT] and self.can_attack:
                     self.attack(x, -y)
             elif player == 2:
                 if keys[pygame.K_SPACE]:
@@ -2055,7 +2063,7 @@ class Sorceress():
                     x += 1               
                 if keys[pygame.K_LEFT]:
                     x -= 1
-                if keys[pygame.K_RETURN]:
+                if keys[pygame.K_RETURN] and self.can_attack:
                     self.attack(x, -y)
         if x > 0:
             self.orientation = False
@@ -2075,6 +2083,11 @@ class Sorceress():
                 self.current_animation = "moving"
             else:
                 self.current_animation = "idle"
+        if not self.can_attack:
+            self.can_attack_cycle += 1
+            if self.can_attack_cycle > self.atk_cooldown:
+                self.can_attack_cycle = 0
+                self.can_attack = True
 
     def die(self):
         self.alive = False
@@ -2763,8 +2776,12 @@ def start_duel(fighter1, fighter2):
     arena_finish_clock = 15
     arena_finish_var = 0
     current_scene = "arena"
-    dueler1 = fighter1
-    dueler2 = fighter2
+    if fighter1.team == 1:
+        dueler1 = fighter1
+        dueler2 = fighter2
+    else:
+        dueler1 = fighter2
+        dueler2 = fighter1
     dueler2.x = 180 - dueler2.char_x_offset * 2.16
     dueler2.y = 280 - dueler2.char_y_offset * 2.16
     dueler1.x = 804 - dueler1.char_x_offset * 2.16
@@ -2775,36 +2792,38 @@ def start_duel(fighter1, fighter2):
     arena_collisions.append(dueler2)
 
 def finish_duel():
-    global current_scene
-    current_scene = "game"
+    global current_scene, dueler1, dueler2
+    dueler1 = None
+    dueler2 = None
+    _MAIN_BOARD.next_turn()
     light_projectiles.clear()
     dark_projectiles.clear()
     arena_collisions.clear()
+    current_scene = "game"
     
 fg_begun = False
-arena_ground = pygame.Rect(160, 20, 704, 600)
+arena_ground = pygame.Rect(80, 8, 864, 624)
 light_projectiles = []
 dark_projectiles = []
 
 def arena():
+    ##Dueler2 Light, Dueler1 Dark
     global dueler1, dueler2, arena_finish_clock, arena_finish_var
     screen.fill((255, 0, 0))
     #Logic
-    dueler1_name = small_gm_font.render(dueler1.name, 1, (00, 00, 00))
-    dueler2_name = small_gm_font.render(dueler2.name, 1, (00, 00, 00))
     dueler1_hp = 0
     dueler2_hp = 0
     if not dueler1.alive:
         dead.append(dueler1)
         dueler1_hp = 0
     else:
-        dueler1.move(1)
+        dueler1.move(2)
         dueler1_hp = dueler1.base_hp
     if not dueler2.alive:
         dead.append(dueler2)
         dueler2_hp = 0
     else:
-        dueler2.move(2)
+        dueler2.move(1)
         dueler2_hp = dueler2.base_hp
     for proj in light_projectiles:
         proj.move()
@@ -2812,21 +2831,17 @@ def arena():
         proj.move()
     if len(dead) != 0:
         if arena_finish_clock <= 0:
-            finish_duel()
+            return finish_duel()
         else:
             arena_finish_var += 1
             if arena_finish_var > 10:
                 arena_finish_var = 0
                 arena_finish_clock -= 1
     #Draw
-    pygame.draw.rect(screen, (100, 155, 155), arena_ground, 0)
-        ##dueler's stats
-    pygame.draw.rect(screen, (89, 89, 89), (10,20 + (620 - dueler2_hp * 24), 140, dueler2_hp*24), 0)
-    pygame.draw.rect(screen, (0, 0, 0), (15 , 15, 130, 610), 1)
-    screen.blit(dueler2_name, (20, 40))
-    pygame.draw.rect(screen, (89, 89, 89), (874, 20 + (620 - dueler1_hp * 24), 140, dueler1_hp*24), 0)
-    pygame.draw.rect(screen, (0, 0, 0), (879 , 15, 130, 610), 1)
-    screen.blit(dueler1_name, (886, 40))
+    pygame.draw.rect(screen, _MAIN_BOARD._TILE_COLORS[_MAIN_BOARD.cur_color], arena_ground, 0)
+    ##dueler's stats
+    pygame.draw.rect(screen, (255, 255, 153), (10,(632 - dueler2_hp * 26), 50, dueler2_hp*26), 0)
+    pygame.draw.rect(screen, (0, 0, 77), (964, (632 - dueler1_hp * 26), 50, dueler1_hp*26), 0)
     if dueler1.alive:
         screen.blit(pygame.transform.flip(dueler1.texture, dueler1.orientation, False), (dueler1.x, dueler1.y))
     if dueler2.alive:
@@ -2883,10 +2898,7 @@ while running:
             #game keys
             elif current_scene == 'game' and playing:
                 if event.type == pygame.KEYDOWN:
-                    if _MAIN_BOARD.turn == 2:
-                        start_duel(Valkyrie(), Knight())
                     if event.key == K_RETURN or event.key == K_SPACE:
-                        #_MAIN_BOARD.next_turn()
                         _MAIN_BOARD.select()
                     if event.key == K_UP or event.key == K_w:
                         _MAIN_BOARD.move_on_board((-1,0))
