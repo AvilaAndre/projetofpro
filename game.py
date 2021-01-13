@@ -43,6 +43,8 @@ def get_sprites(character, directory):
 """
 
 class Projectile():
+    melee_clock = 0
+    ranged = False
     obj_type = "projectile"
     team = 2
     dmg = 0
@@ -57,6 +59,7 @@ class Projectile():
     width= 10
     height = 10
     def __init__(self, direction, character):
+        self.ranged = character.ranged
         self.team = character.team
         self.x, self.y = (character.x, character.y)
         self.height, self.width  = min(character.proj_height, character.proj_width),min(character.proj_height, character.proj_width)
@@ -67,10 +70,12 @@ class Projectile():
             dark_projectiles.append(self)
         self.speed = character.atk_speed
         self.dmg = character.atk_damage
-        sprite = pygame.image.load(r'Resources\Sprites\Characters\{0}\Projectile\Projectile.png'.format(character.name))
-        sprite = pygame.transform.smoothscale(sprite,  (_CHARS_SIZE, _CHARS_SIZE))
+        if self.ranged:
+            sprite = pygame.image.load(r'Resources\Sprites\Characters\{0}\Projectile\Projectile.png'.format(character.name))
+            sprite = pygame.transform.smoothscale(sprite,  (_CHARS_SIZE, _CHARS_SIZE))
         if direction[0] < 0:
-            sprite = pygame.transform.flip(sprite, True, False)
+            if self.ranged:
+                sprite = pygame.transform.flip(sprite, True, False)
             #self.hitbox_x = (48 - self.width) *2.6
         if direction[0] == 1 and direction[1] == -1:
             correction = 2
@@ -108,9 +113,10 @@ class Projectile():
                 correction = 1
             self.hitbox_y = -48
             self.angle = 90
-        sprite = pygame.transform.rotate(sprite,  self.angle)
+        if self.ranged:
+            sprite = pygame.transform.rotate(sprite,  self.angle)
+            self.sprite = sprite
         self.x, self.y = (self.x + (character.proj_correction[correction][0] + self.hitbox_x)*2.6, self.y + (character.proj_correction[correction][1] + self.hitbox_y)*2.6)
-        self.sprite = sprite
 
     ##TODO: FIX
     def hitbox(self):
@@ -118,13 +124,20 @@ class Projectile():
 
     
     def move(self):
-        self.x += self.direction[0] * self.speed
-        self.y += self.direction[1] * self.speed
+        if self.ranged:
+            self.x += self.direction[0] * self.speed
+            self.y += self.direction[1] * self.speed
+        else:
+            if self.melee_clock > 20:
+                if self.team == 0:
+                    light_projectiles.remove(self)
+                else:
+                    dark_projectiles.remove(self)
+            else:
+                self.melee_clock += 1
         for rect in arena_collisions:
             if rect != self:
                 if self.hitbox().colliderect(rect.hitbox()):
-                    print(rect)
-                    print(light_projectiles, dark_projectiles)
                     if rect.obj_type == "player":
                         if rect.team != self.team:
                             rect.take_damage(self.dmg)
@@ -137,6 +150,7 @@ class Projectile():
 ~~~~CHARACTERS~~~~
 """
 class Knight():
+    obj_type = "player"
     #STATS
     name = "Knight"
     description = "The knights are soldiers going on foot that are armed and primed against enemies that are much bigger than they are. Although they cannot withstand more than one attack from many of their enemies, they are no cannon (or dragon) fodder. Provided that they are fast and intelligent their speed of their attacks gives them the chance to survive and to triumph."
@@ -150,802 +164,21 @@ class Knight():
     s_number_of_chars = "7"
 
     #STAT NUMBERS
-    speed = 5
-    atk_damage = 2
-    atk_speed = 3
-    atk_cooldown = 2
-    alive = True
-    orientation = False
-    direction = (1,0)
-    performing_attack = False
-    char_x_offset = 18
-    char_y_offset = 17
-    char_width = 12 #TODO: get character dimensions
-    char_height = 19
-    #Position
-    x = 0
-    y = 0
-
-    ##SPRITES
-    idle_animation = get_sprites(name, 'Idle')
-    
-    run_animation = get_sprites(name, 'Run')
-    
-    
-    #Animation Managing
-    cur_key = 0
-    current_sprite = idle_animation[0]
-    animation_change = "idle"
-    current_animation = "idle"
-    sprite = pygame.image.load(current_sprite)
-    texture = pygame.transform.scale(sprite,  (_CHARS_SIZE, _CHARS_SIZE))
-    anim_clock = -1
-
-    #Masks use the opaque pixels, ignoring the transparent
-    #hitbox = pygame.mask.from_surface(texture, 127)
-    def handle_animation(self):
-        if self.animation_change != self.current_animation:
-            self.cur_key = -1
-            self.animation_change = self.current_animation
-
-        #CLOCK CHANGE
-        self.anim_clock += 1
-
-        if self.current_animation == "idle":
-            if self.cur_key+2 > len(self.idle_animation):
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock == 10:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.idle_animation[self.cur_key]
-        elif self.current_animation == "moving":
-            if self.cur_key+2 > len(self.run_animation):
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock > 4:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.run_animation[self.cur_key]
-        elif self.current_animation == "idle":
-            if self.cur_key+2 > len(self.idle_animation):
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock == 10:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.idle_animation[self.cur_key]
-        self.sprite = pygame.image.load(self.current_sprite)
-        self.texture = pygame.transform.scale(self.sprite,  (_CHARS_SIZE, _CHARS_SIZE))
-    
-    #collision
-    def hitbox(self):
-        return pygame.Rect(self.x + self.char_x_offset *2.6 , self.y + self.char_y_offset *2.6, self.char_width *2.6, self.char_height*2.6)
-    
-    def check_arena_collision(self):
-        colliding = False
-        if not arena_ground.contains(self.hitbox()):
-            colliding = True
-        for rect in arena_collisions:
-            if rect != self:
-                if self.hitbox().colliderect(rect.hitbox()):
-                    colliding = True
-
-        return colliding
-
-    #movement
-    def move(self, player):
-        keys = pygame.key.get_pressed()  #checking pressed keys
-        x, y = (0, 0)
-        if player == 1:
-            if keys[pygame.K_w]:
-                y += 1         
-            if keys[pygame.K_s]:
-                y -= 1
-            if keys[pygame.K_d]:
-                x += 1          
-            if keys[pygame.K_a]:
-                x -= 1              
-        elif player == 2:
-            if keys[pygame.K_UP]:
-                y += 1            
-            if keys[pygame.K_DOWN]:
-                y -= 1             
-            if keys[pygame.K_RIGHT]:
-                x += 1               
-            if keys[pygame.K_LEFT]:
-                x -= 1
-        if x > 0:
-            self.orientation = False
-        elif x <0:
-            self.orientation = True
-        self.x += x* self.speed
-        if self.check_arena_collision():
-            self.x -= x * self.speed
-            x = 0
-        self.y -= y* self.speed
-        if self.check_arena_collision():
-            self.y += y * self.speed
-            x = 0
-        self.direction = (x, y)
-        if x != 0 or y != 0:
-            self.current_animation = "moving"
-        else:
-            self.current_animation = "idle"
-
-    def __init__(self):
-        print(f"{self.name} instantiated")
-        animation_line.append(self)
-    
-
-class Unicorn():
-    name = "Unicorn"
-    description = "Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn." 
-    s_moving_type = "ground - 4"
-    s_speed = "normal"
-    s_attack_type = "energy bolts"
-    s_attack_strength = "moderate"
-    s_attack_speed = "fast"
-    s_attack_interval = "short"
-    s_life_span = "average"
-    s_number_of_chars = "2"
-    
-    #STAT NUMBERS
-    speed = 5
-    atk_damage = 2
-    atk_speed = 20
-    atk_cooldown = 2
-    alive = True
-    orientation = True
-    direction = (1,0)
-    performing_attack = False
-    char_x_offset = 18
-    char_y_offset = 17
-    char_width = 12 #TODO: get character dimensions
-    char_height = 19
-    #Position
-    x = 0
-    y = 0
-
-    #projectile
-    proj_dir = (0,0)
-    proj_size = 30
-                    #Corrections #TODO:Get it right
-    proj_correction = [
-    (15,7), #RightAttackFront
-    (14,-3), #RightAttackUp
-    (17,-3), #RightAttackFrontUp
-    (16,15), #RightAttackFrontDown
-    (6,16), #RightAttackDown
-    (-9,7), #LeftAttackFront
-    (-6,-3), #LeftAttackUp
-    (-11,-3), #LeftAttackFrontUp
-    (-8,15), #LeftAttackFrontDown
-    (-6,16)  #LeftAttackDown #    AQUI
-    ]
-    ##SPRITES
-    idle_animation = get_sprites(name, 'Idle')
-    
-    run_animation = get_sprites(name, 'Run')
-    
-    attack_front_animation = get_sprites(name, 'AttackFront')
-    attack_front_up_animation = get_sprites(name, 'AttackFrontUp')
-    attack_front_down_animation = get_sprites(name, 'AttackFrontDown')
-    attack_up_animation = get_sprites(name, 'AttackUp')
-    attack_down_animation = get_sprites(name, 'AttackDown')
-
-    #Animation Managing
-    cur_key = 0
-    current_sprite = idle_animation[0]
-    animation_change = "idle"
-    current_animation = "idle"
-    sprite = pygame.image.load(current_sprite)
-    texture = pygame.transform.scale(sprite,  (_CHARS_SIZE, _CHARS_SIZE))
-    anim_clock = -1
-
-    #Masks use the opaque pixels, ignoring the transparent
-    #hitbox = pygame.mask.from_surface(texture, 127)
-    def handle_animation(self):
-        if self.animation_change != self.current_animation:
-            self.cur_key = -1
-            self.animation_change = self.current_animation
-
-        #CLOCK CHANGE
-        self.anim_clock += 1
-
-        if self.current_animation == "idle":
-            if self.cur_key+2 > len(self.idle_animation):
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock == 10:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.idle_animation[self.cur_key]
-        elif self.current_animation == "moving":
-            if self.cur_key+2 > len(self.run_animation):
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock > 4:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.run_animation[self.cur_key]
-        elif self.current_animation == "AttackFront":
-            if self.cur_key == 2 and self.anim_clock == 0:
-                self.shoot()
-            if self.cur_key+2 > 3:
-                self.current_animation = "idle"
-                self.performing_attack = False
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock == 10:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.attack_front_animation[self.cur_key]
-        elif self.current_animation == "AttackFrontUp":
-            if self.cur_key == 2 and self.anim_clock == 0:
-                self.shoot()
-            if self.cur_key+2 > 3:
-                self.current_animation = "idle"
-                self.performing_attack = False
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock == 10:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.attack_front_up_animation[self.cur_key]
-        elif self.current_animation == "AttackFrontDown":
-            if self.cur_key == 2 and self.anim_clock == 0:
-                self.shoot()
-            if self.cur_key+2 > 3:
-                self.current_animation = "idle"
-                self.performing_attack = False
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock == 10:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.attack_front_down_animation[self.cur_key]
-        elif self.current_animation == "AttackUp":
-            if self.cur_key == 2 and self.anim_clock == 0:
-                self.shoot()
-            if self.cur_key+2 > 3:
-                self.current_animation = "idle"
-                self.performing_attack = False
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock == 10:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.attack_up_animation[self.cur_key]
-        elif self.current_animation == "AttackDown":
-            if self.cur_key == 2 and self.anim_clock == 0:
-                self.shoot()
-            if self.cur_key+2 > 3:
-                self.current_animation = "idle"
-                self.performing_attack = False
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock == 10:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.attack_down_animation[self.cur_key]
-        self.sprite = pygame.image.load(self.current_sprite)
-        self.texture = pygame.transform.scale(self.sprite,  (_CHARS_SIZE, _CHARS_SIZE))
-    
-    #collision
-    def hitbox(self):
-        return pygame.Rect(self.x + self.char_x_offset *2.6 , self.y + self.char_y_offset *2.6, self.char_width *2.6, self.char_height*2.6)
-    
-    def check_arena_collision(self):
-        colliding = False
-        if not arena_ground.contains(self.hitbox()):
-            colliding = True
-        for rect in arena_collisions:
-            if rect != self:
-                if self.hitbox().colliderect(rect.hitbox()):
-                    colliding = True
-
-        return colliding
-    
-    def attack(self, x, y):
-        self.proj_dir = (x, y)
-        attack_anim = "Attack"
-        if x==0 and y == 0:
-            return
-        self.performing_attack = True
-        if x != 0:
-            attack_anim += "Front"
-        if y == -1:
-            attack_anim += "Up"
-        elif y == 1:
-            attack_anim += "Down"
-        self.current_animation = attack_anim
-    
-    def shoot(self):
-        Projectile((self.proj_dir[0], self.proj_dir[1]), self)
-    
-    def take_damage(self):
-        pass
-
-    #movement
-    def move(self, player):
-        keys = pygame.key.get_pressed()  #checking pressed keys
-        x, y = (0, 0)
-        if not self.performing_attack:
-            if player == 1:
-                if keys[pygame.K_w]:
-                    y += 1         
-                if keys[pygame.K_s]:
-                    y -= 1
-                if keys[pygame.K_d]:
-                    x += 1          
-                if keys[pygame.K_a]:
-                    x -= 1              
-                if keys[pygame.K_LSHIFT]:
-                    self.attack(x, -y)
-            elif player == 2:
-                if keys[pygame.K_UP]:
-                    y += 1            
-                if keys[pygame.K_DOWN]:
-                    y -= 1             
-                if keys[pygame.K_RIGHT]:
-                    x += 1               
-                if keys[pygame.K_LEFT]:
-                    x -= 1
-                if keys[pygame.K_RETURN]:
-                    self.attack(x, -y)
-        if x > 0:
-            self.orientation = False
-        elif x <0:
-            self.orientation = True
-        self.x += x* self.speed
-        if self.check_arena_collision():
-            self.x -= x * self.speed
-            x = 0
-        self.y -= y* self.speed
-        if self.check_arena_collision():
-            self.y += y * self.speed
-            x = 0
-        self.direction = (x, y)
-        if not self.performing_attack:
-            if x != 0 or y != 0:
-                self.current_animation = "moving"
-            else:
-                self.current_animation = "idle"
-
-    def __init__(self):
-        print(f"{self.name} instantiated")
-        animation_line.append(self)
-
-class Valkyrie():
-    name = "Valkyrie"
-    description = "Valkyries are pretty, blonde warriors of the legion of Valhalla. Every one of it is equipped with two big talents: firstly the ability to walk through the air as if it was solid ground; and secondly a bewitched spear that after been thrown returns to its thrower." #TODO: Valkyrie's description 
-    s_moving_type = "air - 3"
-    s_speed = "normal"
-    s_attack_type = "spear"
-    s_attack_strength = "moderate"
-    s_attack_speed = "slow"
-    s_attack_interval = "average"
-    s_life_span = "average"
-    s_number_of_chars = "2"
-    
-    #STAT NUMBERS
-    speed = 5
-    atk_damage = 2
-    atk_speed = 3
-    atk_cooldown = 2
-    alive = True
-    orientation = False
-    direction = (1,0)
-    performing_attack = False
-    char_x_offset = 18
-    char_y_offset = 17
-    char_width = 12 #TODO: get character dimensions
-    char_height = 19
-    #Position
-    x = 0
-    y = 0
-
-    ##SPRITES
-    idle_animation = get_sprites(name, 'Idle')
-    print(idle_animation)
-    
-    run_animation = get_sprites(name, 'Run')
-    
-    
-    #Animation Managing
-    cur_key = 0
-    current_sprite = idle_animation[0]
-    print(current_sprite)
-    animation_change = "idle"
-    current_animation = "idle"
-    sprite = pygame.image.load(current_sprite)
-    texture = pygame.transform.scale(sprite,  (_CHARS_SIZE, _CHARS_SIZE))
-    anim_clock = -1
-
-    #Masks use the opaque pixels, ignoring the transparent
-    #hitbox = pygame.mask.from_surface(texture, 127)
-    def handle_animation(self):
-        if self.animation_change != self.current_animation:
-            self.cur_key = -1
-            self.animation_change = self.current_animation
-
-        #CLOCK CHANGE
-        self.anim_clock += 1
-
-        if self.current_animation == "idle":
-            if self.cur_key+2 > len(self.idle_animation):
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock == 10:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.idle_animation[self.cur_key]
-        elif self.current_animation == "moving":
-            if self.cur_key+2 > len(self.run_animation):
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock > 4:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.run_animation[self.cur_key]
-        elif self.current_animation == "idle":
-            if self.cur_key+2 > len(self.idle_animation):
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock == 10:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.idle_animation[self.cur_key]
-        self.sprite = pygame.image.load(self.current_sprite)
-        self.texture = pygame.transform.scale(self.sprite,  (_CHARS_SIZE, _CHARS_SIZE))
-    
-    #collision
-    def hitbox(self):
-        return pygame.Rect(self.x + self.char_x_offset *2.6 , self.y + self.char_y_offset *2.6, self.char_width *2.6, self.char_height*2.6)
-    
-    def check_arena_collision(self):
-        colliding = False
-        if not arena_ground.contains(self.hitbox()):
-            colliding = True
-        for rect in arena_collisions:
-            if rect != self:
-                if self.hitbox().colliderect(rect.hitbox()):
-                    colliding = True
-
-        return colliding
-
-    #movement
-    def move(self, player):
-        keys = pygame.key.get_pressed()  #checking pressed keys
-        x, y = (0, 0)
-        if player == 1:
-            if keys[pygame.K_w]:
-                y += 1         
-            if keys[pygame.K_s]:
-                y -= 1
-            if keys[pygame.K_d]:
-                x += 1          
-            if keys[pygame.K_a]:
-                x -= 1              
-        elif player == 2:
-            if keys[pygame.K_UP]:
-                y += 1            
-            if keys[pygame.K_DOWN]:
-                y -= 1             
-            if keys[pygame.K_RIGHT]:
-                x += 1               
-            if keys[pygame.K_LEFT]:
-                x -= 1
-        if x > 0:
-            self.orientation = False
-        elif x <0:
-            self.orientation = True
-        self.x += x* self.speed
-        if self.check_arena_collision():
-            self.x -= x * self.speed
-            x = 0
-        self.y -= y* self.speed
-        if self.check_arena_collision():
-            self.y += y * self.speed
-            x = 0
-        self.direction = (x, y)
-        if x != 0 or y != 0:
-            self.current_animation = "moving"
-        else:
-            self.current_animation = "idle"
-    
-    def __init__(self):
-        print(f"{self.name} instantiated")
-        animation_line.append(self)
-
-class Djinni():
-    name = "Djinni"
-    description = "Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn." 
-    s_moving_type = "ground - 4"
-    s_speed = "normal"
-    s_attack_type = "energy bolts" #TODO:Djinni's description
-    s_attack_strength = "moderate"
-    s_attack_speed = "fast"
-    s_attack_interval = "short"
-    s_life_span = "average"
-    s_number_of_chars = "2"
-    
-    #STAT NUMBERS
-    speed = 5
-    atk_damage = 2
-    atk_speed = 8
-    atk_cooldown = 2
-    alive = True
-    orientation = True
-    direction = (1,0)
-    performing_attack = False
-    char_x_offset = 18
-    char_y_offset = 17
-    char_width = 12 #TODO: get character dimensions
-    char_height = 19
-    #Position
-    x = 0
-    y = 0
-
-    #projectile
-    proj_dir = (0,0)
-    proj_size = 30
-                    #Corrections #TODO:Get it right
-    proj_correction = [
-    (15,7), #RightAttackFront
-    (14,-3), #RightAttackUp
-    (17,-3), #RightAttackFrontUp
-    (16,15), #RightAttackFrontDown
-    (6,16), #RightAttackDown
-    (-9,7), #LeftAttackFront
-    (-6,-3), #LeftAttackUp
-    (-11,-3), #LeftAttackFrontUp
-    (-8,15), #LeftAttackFrontDown
-    (-6,16)  #LeftAttackDown #    AQUI
-    ]
-    ##SPRITES
-    idle_animation = get_sprites(name, 'Idle')
-    
-    run_animation = get_sprites(name, 'Run')
-    
-    attack_front_animation = get_sprites(name, 'AttackFront')
-    attack_front_up_animation = get_sprites(name, 'AttackFrontUp')
-    attack_front_down_animation = get_sprites(name, 'AttackFrontDown')
-    attack_up_animation = get_sprites(name, 'AttackUp')
-    attack_down_animation = get_sprites(name, 'AttackDown')
-
-    #Animation Managing
-    cur_key = 0
-    current_sprite = idle_animation[0]
-    animation_change = "idle"
-    current_animation = "idle"
-    sprite = pygame.image.load(current_sprite)
-    texture = pygame.transform.scale(sprite,  (_CHARS_SIZE, _CHARS_SIZE))
-    anim_clock = -1
-
-    #Masks use the opaque pixels, ignoring the transparent
-    #hitbox = pygame.mask.from_surface(texture, 127)
-    def handle_animation(self):
-        if self.animation_change != self.current_animation:
-            self.cur_key = -1
-            self.animation_change = self.current_animation
-
-        #CLOCK CHANGE
-        self.anim_clock += 1
-
-        if self.current_animation == "idle":
-            if self.cur_key+2 > len(self.idle_animation):
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock == 10:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.idle_animation[self.cur_key]
-        elif self.current_animation == "moving":
-            if self.cur_key+2 > len(self.run_animation):
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock > 4:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.run_animation[self.cur_key]
-        elif self.current_animation == "AttackFront":
-            if self.cur_key == 2 and self.anim_clock == 0:
-                self.shoot()
-            if self.cur_key+2 > 3:
-                self.current_animation = "idle"
-                self.performing_attack = False
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock == 10:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.attack_front_animation[self.cur_key]
-        elif self.current_animation == "AttackFrontUp":
-            if self.cur_key == 2 and self.anim_clock == 0:
-                self.shoot()
-            if self.cur_key+2 > 3:
-                self.current_animation = "idle"
-                self.performing_attack = False
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock == 10:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.attack_front_up_animation[self.cur_key]
-        elif self.current_animation == "AttackFrontDown":
-            if self.cur_key == 2 and self.anim_clock == 0:
-                self.shoot()
-            if self.cur_key+2 > 3:
-                self.current_animation = "idle"
-                self.performing_attack = False
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock == 10:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.attack_front_down_animation[self.cur_key]
-        elif self.current_animation == "AttackUp":
-            if self.cur_key == 2 and self.anim_clock == 0:
-                self.shoot()
-            if self.cur_key+2 > 3:
-                self.current_animation = "idle"
-                self.performing_attack = False
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock == 10:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.attack_up_animation[self.cur_key]
-        elif self.current_animation == "AttackDown":
-            if self.cur_key == 2 and self.anim_clock == 0:
-                self.shoot()
-            if self.cur_key+2 > 3:
-                self.current_animation = "idle"
-                self.performing_attack = False
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock == 10:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.attack_down_animation[self.cur_key]
-        self.sprite = pygame.image.load(self.current_sprite)
-        self.texture = pygame.transform.scale(self.sprite,  (_CHARS_SIZE, _CHARS_SIZE))
-    
-    #collision
-    def hitbox(self):
-        return pygame.Rect(self.x + self.char_x_offset *2.6 , self.y + self.char_y_offset *2.6, self.char_width *2.6, self.char_height*2.6)
-    
-    def check_arena_collision(self):
-        colliding = False
-        if not arena_ground.contains(self.hitbox()):
-            colliding = True
-        for rect in arena_collisions:
-            if rect != self:
-                if self.hitbox().colliderect(rect.hitbox()):
-                    colliding = True
-
-        return colliding
-    
-    def attack(self, x, y):
-        self.proj_dir = (x, y)
-        attack_anim = "Attack"
-        if x==0 and y == 0:
-            return
-        self.performing_attack = True
-        if x != 0:
-            attack_anim += "Front"
-        if y == -1:
-            attack_anim += "Up"
-        elif y == 1:
-            attack_anim += "Down"
-        self.current_animation = attack_anim
-    
-    def shoot(self):
-        Projectile((self.proj_dir[0], self.proj_dir[1]), self)
-    
-    def take_damage(self):
-        pass
-
-    #movement
-    def move(self, player):
-        keys = pygame.key.get_pressed()  #checking pressed keys
-        x, y = (0, 0)
-        if not self.performing_attack:
-            if player == 1:
-                if keys[pygame.K_w]:
-                    y += 1         
-                if keys[pygame.K_s]:
-                    y -= 1
-                if keys[pygame.K_d]:
-                    x += 1          
-                if keys[pygame.K_a]:
-                    x -= 1              
-                if keys[pygame.K_LSHIFT]:
-                    self.attack(x, -y)
-            elif player == 2:
-                if keys[pygame.K_UP]:
-                    y += 1            
-                if keys[pygame.K_DOWN]:
-                    y -= 1             
-                if keys[pygame.K_RIGHT]:
-                    x += 1               
-                if keys[pygame.K_LEFT]:
-                    x -= 1
-                if keys[pygame.K_RETURN]:
-                    self.attack(x, -y)
-        if x > 0:
-            self.orientation = False
-        elif x <0:
-            self.orientation = True
-        self.x += x* self.speed
-        if self.check_arena_collision():
-            self.x -= x * self.speed
-            x = 0
-        self.y -= y* self.speed
-        if self.check_arena_collision():
-            self.y += y * self.speed
-            x = 0
-        self.direction = (x, y)
-        if not self.performing_attack:
-            if x != 0 or y != 0:
-                self.current_animation = "moving"
-            else:
-                self.current_animation = "idle"
-
-    def __init__(self):
-        print(f"{self.name} instantiated")
-        animation_line.append(self)
-
-class Archer():
-    obj_type = "player"
-    name = "Archer"
-    description = "The archers are fearless amazones, that can handle their bows with legendary skill. They are equipped with magical quivers that never get empty." 
-    s_moving_type = "ground - 3"
-    s_speed = "normal"
-    s_attack_type = "arrow"
-    s_attack_strength = "low"
-    s_attack_speed = "middle"
-    s_attack_interval = "average"
-    s_life_span = "short"
-    s_number_of_chars = "2"
-
-    #STAT NUMBERS
     team = 0
+    ranged = False
         #type: teleport0 air1 ground2
     move_type = 2
     move_limit = 3
     speed = 5
     atk_damage = 8
-    atk_speed = 9
+    atk_speed = 3
     atk_cooldown = 0.75 * 60
     base_hp = 9.5
     max_hp= 16.5
     alive = True
     orientation = True
     direction = (1,0)
-    performing_attack = False
+    performing_action = False
     can_attack = True
     char_x_offset = 18
     char_y_offset = 17
@@ -976,6 +209,8 @@ class Archer():
     idle_animation = get_sprites(name, 'Idle')
     
     run_animation = get_sprites(name, 'Run')
+
+    hit_animation = get_sprites(name, 'Hit')
     
     attack_front_animation = get_sprites(name, 'AttackFront')
     attack_front_up_animation = get_sprites(name, 'AttackFrontUp')
@@ -1008,7 +243,7 @@ class Archer():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock == 10:
+                if self.anim_clock > 10:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.idle_animation[self.cur_key]
@@ -1021,68 +256,79 @@ class Archer():
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.run_animation[self.cur_key]
-        elif self.current_animation == "AttackFront":
-            if self.cur_key == 2 and self.anim_clock == 0:
-                self.shoot()
+        elif self.current_animation == "hit":
             if self.cur_key+2 > 3:
                 self.current_animation = "idle"
-                self.performing_attack = False
+                self.performing_action = False
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock == 8:
+                if self.anim_clock > 5:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.hit_animation[self.cur_key]
+        elif self.current_animation == "AttackFront":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.punch()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_animation[self.cur_key]
         elif self.current_animation == "AttackFrontUp":
             if self.cur_key == 2 and self.anim_clock == 0:
-                self.shoot()
+                self.punch()
             if self.cur_key+2 > 3:
                 self.current_animation = "idle"
-                self.performing_attack = False
+                self.performing_action = False
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock == 8:
+                if self.anim_clock > self.atk_speed:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_up_animation[self.cur_key]
         elif self.current_animation == "AttackFrontDown":
             if self.cur_key == 2 and self.anim_clock == 0:
-                self.shoot()
+                self.punch()
             if self.cur_key+2 > 3:
                 self.current_animation = "idle"
-                self.performing_attack = False
+                self.performing_action = False
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock == 8:
+                if self.anim_clock > self.atk_speed:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_down_animation[self.cur_key]
         elif self.current_animation == "AttackUp":
             if self.cur_key == 2 and self.anim_clock == 0:
-                self.shoot()
+                self.punch()
             if self.cur_key+2 > 3:
                 self.current_animation = "idle"
-                self.performing_attack = False
+                self.performing_action = False
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock == 8:
+                if self.anim_clock > self.atk_speed:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_up_animation[self.cur_key]
         elif self.current_animation == "AttackDown":
             if self.cur_key == 2 and self.anim_clock == 0:
-                self.shoot()
+                self.punch()
             if self.cur_key+2 > 3:
                 self.current_animation = "idle"
-                self.performing_attack = False
+                self.performing_action = False
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock == 8:
+                if self.anim_clock > self.atk_speed:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_down_animation[self.cur_key]
@@ -1109,7 +355,7 @@ class Archer():
         attack_anim = "Attack"
         if x==0 and y == 0:
             return
-        self.performing_attack = True
+        self.performing_action = True
         self.can_attack = False
         if x != 0:
             attack_anim += "Front"
@@ -1122,8 +368,13 @@ class Archer():
     def shoot(self):
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
+    def punch(self):
+        Projectile((self.proj_dir[0], self.proj_dir[1]), self)
+    
     def take_damage(self, damage):
         self.base_hp -= damage
+        self.current_animation = "hit"
+        self.performing_action = True
         if self.base_hp <= 0:
             self.die()
 
@@ -1131,7 +382,7 @@ class Archer():
     def move(self, player):
         keys = pygame.key.get_pressed()  #checking pressed keys
         x, y = (0, 0)
-        if not self.performing_attack:
+        if not self.performing_action:
             if player == 1:
                 if keys[pygame.K_w]:
                     y += 1         
@@ -1167,7 +418,1131 @@ class Archer():
             self.y += y * self.speed
             x = 0
         self.direction = (x, y)
-        if not self.performing_attack:
+        if not self.performing_action:
+            if x != 0 or y != 0:
+                self.current_animation = "moving"
+            else:
+                self.current_animation = "idle"
+        if not self.can_attack:
+            self.can_attack_cycle += 1
+            if self.can_attack_cycle > self.atk_cooldown:
+                self.can_attack_cycle = 0
+                self.can_attack = True
+
+    def die(self):
+        self.alive = False
+
+    def __init__(self):
+        print(f"{self.name} instantiated")
+        animation_line.append(self)
+    
+
+class Unicorn():
+    name = "Unicorn"
+    description = "Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn." 
+    s_moving_type = "ground - 4"
+    s_speed = "normal"
+    s_attack_type = "energy bolts"
+    s_attack_strength = "moderate"
+    s_attack_speed = "fast"
+    s_attack_interval = "short"
+    s_life_span = "average"
+    s_number_of_chars = "2"
+    
+    obj_type = "player"
+    #STAT NUMBERS
+    team = 0
+    ranged = True
+        #type: teleport0 air1 ground2
+    move_type = 0
+    move_limit = 3
+    speed = 5
+    atk_damage = 8
+    atk_speed = 9
+    atk_cooldown = 0.75 * 60
+    base_hp = 9.5
+    max_hp= 16.5
+    alive = True
+    orientation = True
+    direction = (1,0)
+    performing_action = False
+    can_attack = True
+    char_x_offset = 18
+    char_y_offset = 17
+    char_width = 12 #TODO: get character dimensions
+    char_height = 19
+    #Position
+    x = 0
+    y = 0
+
+    #projectile
+    proj_dir = (0,0)
+    proj_width = 10
+    proj_height = 4
+                    #Corrections 
+    proj_correction = [
+    (34,26), #RightAttackFront
+    (33,17), #RightAttackUp
+    (36,19), #RightAttackFrontUp
+    (35,33), #RightAttackFrontDown
+    (33,35), #RightAttackDown
+    (14,26), #LeftAttackFront
+    (16,18), #LeftAttackUp
+    (14,19), #LeftAttackFrontUp
+    (14,34), #LeftAttackFrontDown
+    (16,35)  #LeftAttackDown 
+    ]
+    ##SPRITES
+    idle_animation = get_sprites(name, 'Idle')
+    run_animation = get_sprites(name, 'Run')
+    hit_animation = get_sprites(name, 'Hit')
+    
+    attack_front_animation = get_sprites(name, 'AttackFront')
+    attack_front_up_animation = get_sprites(name, 'AttackFrontUp')
+    attack_front_down_animation = get_sprites(name, 'AttackFrontDown')
+    attack_up_animation = get_sprites(name, 'AttackUp')
+    attack_down_animation = get_sprites(name, 'AttackDown')
+
+    #Animation Managing
+    cur_key = 0
+    current_sprite = idle_animation[0]
+    animation_change = "idle"
+    current_animation = "idle"
+    sprite = pygame.image.load(current_sprite)
+    texture = pygame.transform.scale(sprite,  (_CHARS_SIZE, _CHARS_SIZE))
+    anim_clock = -1
+    can_attack_cycle = 0
+
+    #Masks use the opaque pixels, ignoring the transparent
+    #hitbox = pygame.mask.from_surface(texture, 127)
+    def handle_animation(self):
+        if self.animation_change != self.current_animation:
+            self.cur_key = -1
+            self.animation_change = self.current_animation
+
+        #CLOCK CHANGE
+        self.anim_clock += 1
+        if self.current_animation == "idle":
+            if self.cur_key+2 > len(self.idle_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 10:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.idle_animation[self.cur_key]
+        elif self.current_animation == "moving":
+            if self.cur_key+2 > len(self.run_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 4:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.run_animation[self.cur_key]
+        elif self.current_animation == "hit":
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 5:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.hit_animation[self.cur_key]
+        elif self.current_animation == "AttackFront":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_front_animation[self.cur_key]
+        elif self.current_animation == "AttackFrontUp":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_front_up_animation[self.cur_key]
+        elif self.current_animation == "AttackFrontDown":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_front_down_animation[self.cur_key]
+        elif self.current_animation == "AttackUp":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_up_animation[self.cur_key]
+        elif self.current_animation == "AttackDown":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_down_animation[self.cur_key]
+        self.sprite = pygame.image.load(self.current_sprite)
+        self.texture = pygame.transform.scale(self.sprite,  (_CHARS_SIZE, _CHARS_SIZE))
+    
+    #collision
+    def hitbox(self):
+        return pygame.Rect(self.x + self.char_x_offset *2.6 , self.y + self.char_y_offset *2.6, self.char_width *2.6, self.char_height*2.6)
+    
+    def check_arena_collision(self):
+        colliding = False
+        if not arena_ground.contains(self.hitbox()):
+            colliding = True
+        for rect in arena_collisions:
+            if rect != self:
+                if self.hitbox().colliderect(rect.hitbox()):
+                    colliding = True
+
+        return colliding
+    
+    def attack(self, x, y):
+        self.proj_dir = (x, y)
+        attack_anim = "Attack"
+        if x==0 and y == 0:
+            return
+        self.performing_action = True
+        self.can_attack = False
+        if x != 0:
+            attack_anim += "Front"
+        if y == -1:
+            attack_anim += "Up"
+        elif y == 1:
+            attack_anim += "Down"
+        self.current_animation = attack_anim
+    
+    def shoot(self):
+        Projectile((self.proj_dir[0], self.proj_dir[1]), self)
+    
+    def take_damage(self, damage):
+        self.base_hp -= damage
+        self.current_animation = "hit"
+        self.performing_action = True
+        if self.base_hp <= 0:
+            self.die()
+            
+    #movement
+    def move(self, player):
+        keys = pygame.key.get_pressed()  #checking pressed keys
+        x, y = (0, 0)
+        if not self.performing_action:
+            if player == 1:
+                if keys[pygame.K_w]:
+                    y += 1         
+                if keys[pygame.K_s]:
+                    y -= 1
+                if keys[pygame.K_d]:
+                    x += 1          
+                if keys[pygame.K_a]:
+                    x -= 1              
+                if keys[pygame.K_LSHIFT] and self.can_attack:
+                    self.attack(x, -y)
+            elif player == 2:
+                if keys[pygame.K_UP]:
+                    y += 1            
+                if keys[pygame.K_DOWN]:
+                    y -= 1             
+                if keys[pygame.K_RIGHT]:
+                    x += 1               
+                if keys[pygame.K_LEFT]:
+                    x -= 1
+                if keys[pygame.K_RETURN] and self.can_attack:
+                    self.attack(x, -y)
+        if x > 0:
+            self.orientation = False
+        elif x <0:
+            self.orientation = True
+        self.x += x* self.speed
+        if self.check_arena_collision():
+            self.x -= x * self.speed
+            x = 0
+        self.y -= y* self.speed
+        if self.check_arena_collision():
+            self.y += y * self.speed
+            x = 0
+        self.direction = (x, y)
+        if not self.performing_action:
+            if x != 0 or y != 0:
+                self.current_animation = "moving"
+            else:
+                self.current_animation = "idle"
+        if not self.can_attack:
+            self.can_attack_cycle += 1
+            if self.can_attack_cycle > self.atk_cooldown:
+                self.can_attack_cycle = 0
+                self.can_attack = True
+
+    def die(self):
+        self.alive = False
+
+    def __init__(self):
+        print(f"{self.name} instantiated")
+        animation_line.append(self)
+
+class Valkyrie():
+    name = "Valkyrie"
+    description = "Valkyries are pretty, blonde warriors of the legion of Valhalla. Every one of it is equipped with two big talents: firstly the ability to walk through the air as if it was solid ground; and secondly a bewitched spear that after been thrown returns to its thrower." #TODO: Valkyrie's description 
+    s_moving_type = "air - 3"
+    s_speed = "normal"
+    s_attack_type = "spear"
+    s_attack_strength = "moderate"
+    s_attack_speed = "slow"
+    s_attack_interval = "average"
+    s_life_span = "average"
+    s_number_of_chars = "2"
+    
+    obj_type = "player"
+    #STAT NUMBERS
+    team = 0
+    ranged = True
+        #type: teleport0 air1 ground2
+    move_type = 0
+    move_limit = 3
+    speed = 5
+    atk_damage = 8
+    atk_speed = 9
+    atk_cooldown = 0.75 * 60
+    base_hp = 9.5
+    max_hp= 16.5
+    alive = True
+    orientation = True
+    direction = (1,0)
+    performing_action = False
+    can_attack = True
+    char_x_offset = 18
+    char_y_offset = 17
+    char_width = 12 #TODO: get character dimensions
+    char_height = 19
+    #Position
+    x = 0
+    y = 0
+
+    #projectile
+    proj_dir = (0,0)
+    proj_width = 10
+    proj_height = 4
+                    #Corrections 
+    proj_correction = [
+    (34,26), #RightAttackFront
+    (33,17), #RightAttackUp
+    (36,19), #RightAttackFrontUp
+    (35,33), #RightAttackFrontDown
+    (33,35), #RightAttackDown
+    (14,26), #LeftAttackFront
+    (16,18), #LeftAttackUp
+    (14,19), #LeftAttackFrontUp
+    (14,34), #LeftAttackFrontDown
+    (16,35)  #LeftAttackDown 
+    ]
+    ##SPRITES
+    idle_animation = get_sprites(name, 'Idle')
+    run_animation = get_sprites(name, 'Run')
+    hit_animation = get_sprites(name, 'Hit')
+    
+    attack_front_animation = get_sprites(name, 'AttackFront')
+    attack_front_up_animation = get_sprites(name, 'AttackFrontUp')
+    attack_front_down_animation = get_sprites(name, 'AttackFrontDown')
+    attack_up_animation = get_sprites(name, 'AttackUp')
+    attack_down_animation = get_sprites(name, 'AttackDown')
+
+    #Animation Managing
+    cur_key = 0
+    current_sprite = idle_animation[0]
+    animation_change = "idle"
+    current_animation = "idle"
+    sprite = pygame.image.load(current_sprite)
+    texture = pygame.transform.scale(sprite,  (_CHARS_SIZE, _CHARS_SIZE))
+    anim_clock = -1
+    can_attack_cycle = 0
+
+    #Masks use the opaque pixels, ignoring the transparent
+    #hitbox = pygame.mask.from_surface(texture, 127)
+    def handle_animation(self):
+        if self.animation_change != self.current_animation:
+            self.cur_key = -1
+            self.animation_change = self.current_animation
+
+        #CLOCK CHANGE
+        self.anim_clock += 1
+        if self.current_animation == "idle":
+            if self.cur_key+2 > len(self.idle_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 10:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.idle_animation[self.cur_key]
+        elif self.current_animation == "moving":
+            if self.cur_key+2 > len(self.run_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 4:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.run_animation[self.cur_key]
+        elif self.current_animation == "hit":
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 5:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.hit_animation[self.cur_key]
+        elif self.current_animation == "AttackFront":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_front_animation[self.cur_key]
+        elif self.current_animation == "AttackFrontUp":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_front_up_animation[self.cur_key]
+        elif self.current_animation == "AttackFrontDown":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_front_down_animation[self.cur_key]
+        elif self.current_animation == "AttackUp":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_up_animation[self.cur_key]
+        elif self.current_animation == "AttackDown":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_down_animation[self.cur_key]
+        self.sprite = pygame.image.load(self.current_sprite)
+        self.texture = pygame.transform.scale(self.sprite,  (_CHARS_SIZE, _CHARS_SIZE))
+    
+    #collision
+    def hitbox(self):
+        return pygame.Rect(self.x + self.char_x_offset *2.6 , self.y + self.char_y_offset *2.6, self.char_width *2.6, self.char_height*2.6)
+    
+    def check_arena_collision(self):
+        colliding = False
+        if not arena_ground.contains(self.hitbox()):
+            colliding = True
+        for rect in arena_collisions:
+            if rect != self:
+                if self.hitbox().colliderect(rect.hitbox()):
+                    colliding = True
+
+        return colliding
+    
+    def attack(self, x, y):
+        self.proj_dir = (x, y)
+        attack_anim = "Attack"
+        if x==0 and y == 0:
+            return
+        self.performing_action = True
+        self.can_attack = False
+        if x != 0:
+            attack_anim += "Front"
+        if y == -1:
+            attack_anim += "Up"
+        elif y == 1:
+            attack_anim += "Down"
+        self.current_animation = attack_anim
+    
+    def shoot(self):
+        Projectile((self.proj_dir[0], self.proj_dir[1]), self)
+    
+    def take_damage(self, damage):
+        self.base_hp -= damage
+        self.current_animation = "hit"
+        self.performing_action = True
+        if self.base_hp <= 0:
+            self.die()
+            
+    #movement
+    def move(self, player):
+        keys = pygame.key.get_pressed()  #checking pressed keys
+        x, y = (0, 0)
+        if not self.performing_action:
+            if player == 1:
+                if keys[pygame.K_w]:
+                    y += 1         
+                if keys[pygame.K_s]:
+                    y -= 1
+                if keys[pygame.K_d]:
+                    x += 1          
+                if keys[pygame.K_a]:
+                    x -= 1              
+                if keys[pygame.K_LSHIFT] and self.can_attack:
+                    self.attack(x, -y)
+            elif player == 2:
+                if keys[pygame.K_UP]:
+                    y += 1            
+                if keys[pygame.K_DOWN]:
+                    y -= 1             
+                if keys[pygame.K_RIGHT]:
+                    x += 1               
+                if keys[pygame.K_LEFT]:
+                    x -= 1
+                if keys[pygame.K_RETURN] and self.can_attack:
+                    self.attack(x, -y)
+        if x > 0:
+            self.orientation = False
+        elif x <0:
+            self.orientation = True
+        self.x += x* self.speed
+        if self.check_arena_collision():
+            self.x -= x * self.speed
+            x = 0
+        self.y -= y* self.speed
+        if self.check_arena_collision():
+            self.y += y * self.speed
+            x = 0
+        self.direction = (x, y)
+        if not self.performing_action:
+            if x != 0 or y != 0:
+                self.current_animation = "moving"
+            else:
+                self.current_animation = "idle"
+        if not self.can_attack:
+            self.can_attack_cycle += 1
+            if self.can_attack_cycle > self.atk_cooldown:
+                self.can_attack_cycle = 0
+                self.can_attack = True
+
+    def die(self):
+        self.alive = False
+
+    def __init__(self):
+        print(f"{self.name} instantiated")
+        animation_line.append(self)
+
+class Djinni():
+    name = "Djinni"
+    description = "Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn." 
+    s_moving_type = "ground - 4"
+    s_speed = "normal"
+    s_attack_type = "energy bolts" #TODO:Djinni's description
+    s_attack_strength = "moderate"
+    s_attack_speed = "fast"
+    s_attack_interval = "short"
+    s_life_span = "average"
+    s_number_of_chars = "2"
+    
+    obj_type = "player"
+    #STAT NUMBERS
+    team = 0
+    ranged = True
+        #type: teleport0 air1 ground2
+    move_type = 0
+    move_limit = 3
+    speed = 5
+    atk_damage = 8
+    atk_speed = 9
+    atk_cooldown = 0.75 * 60
+    base_hp = 9.5
+    max_hp= 16.5
+    alive = True
+    orientation = True
+    direction = (1,0)
+    performing_action = False
+    can_attack = True
+    char_x_offset = 18
+    char_y_offset = 17
+    char_width = 12 #TODO: get character dimensions
+    char_height = 19
+    #Position
+    x = 0
+    y = 0
+
+    #projectile
+    proj_dir = (0,0)
+    proj_width = 10
+    proj_height = 4
+                    #Corrections 
+    proj_correction = [
+    (34,26), #RightAttackFront
+    (33,17), #RightAttackUp
+    (36,19), #RightAttackFrontUp
+    (35,33), #RightAttackFrontDown
+    (33,35), #RightAttackDown
+    (14,26), #LeftAttackFront
+    (16,18), #LeftAttackUp
+    (14,19), #LeftAttackFrontUp
+    (14,34), #LeftAttackFrontDown
+    (16,35)  #LeftAttackDown 
+    ]
+    ##SPRITES
+    idle_animation = get_sprites(name, 'Idle')
+    run_animation = get_sprites(name, 'Run')
+    hit_animation = get_sprites(name, 'Hit')
+    
+    attack_front_animation = get_sprites(name, 'AttackFront')
+    attack_front_up_animation = get_sprites(name, 'AttackFrontUp')
+    attack_front_down_animation = get_sprites(name, 'AttackFrontDown')
+    attack_up_animation = get_sprites(name, 'AttackUp')
+    attack_down_animation = get_sprites(name, 'AttackDown')
+
+    #Animation Managing
+    cur_key = 0
+    current_sprite = idle_animation[0]
+    animation_change = "idle"
+    current_animation = "idle"
+    sprite = pygame.image.load(current_sprite)
+    texture = pygame.transform.scale(sprite,  (_CHARS_SIZE, _CHARS_SIZE))
+    anim_clock = -1
+    can_attack_cycle = 0
+
+    #Masks use the opaque pixels, ignoring the transparent
+    #hitbox = pygame.mask.from_surface(texture, 127)
+    def handle_animation(self):
+        if self.animation_change != self.current_animation:
+            self.cur_key = -1
+            self.animation_change = self.current_animation
+
+        #CLOCK CHANGE
+        self.anim_clock += 1
+        if self.current_animation == "idle":
+            if self.cur_key+2 > len(self.idle_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 10:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.idle_animation[self.cur_key]
+        elif self.current_animation == "moving":
+            if self.cur_key+2 > len(self.run_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 4:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.run_animation[self.cur_key]
+        elif self.current_animation == "hit":
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 5:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.hit_animation[self.cur_key]
+        elif self.current_animation == "AttackFront":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_front_animation[self.cur_key]
+        elif self.current_animation == "AttackFrontUp":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_front_up_animation[self.cur_key]
+        elif self.current_animation == "AttackFrontDown":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_front_down_animation[self.cur_key]
+        elif self.current_animation == "AttackUp":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_up_animation[self.cur_key]
+        elif self.current_animation == "AttackDown":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_down_animation[self.cur_key]
+        self.sprite = pygame.image.load(self.current_sprite)
+        self.texture = pygame.transform.scale(self.sprite,  (_CHARS_SIZE, _CHARS_SIZE))
+    
+    #collision
+    def hitbox(self):
+        return pygame.Rect(self.x + self.char_x_offset *2.6 , self.y + self.char_y_offset *2.6, self.char_width *2.6, self.char_height*2.6)
+    
+    def check_arena_collision(self):
+        colliding = False
+        if not arena_ground.contains(self.hitbox()):
+            colliding = True
+        for rect in arena_collisions:
+            if rect != self:
+                if self.hitbox().colliderect(rect.hitbox()):
+                    colliding = True
+
+        return colliding
+    
+    def attack(self, x, y):
+        self.proj_dir = (x, y)
+        attack_anim = "Attack"
+        if x==0 and y == 0:
+            return
+        self.performing_action = True
+        self.can_attack = False
+        if x != 0:
+            attack_anim += "Front"
+        if y == -1:
+            attack_anim += "Up"
+        elif y == 1:
+            attack_anim += "Down"
+        self.current_animation = attack_anim
+    
+    def shoot(self):
+        Projectile((self.proj_dir[0], self.proj_dir[1]), self)
+    
+    def take_damage(self, damage):
+        self.base_hp -= damage
+        self.current_animation = "hit"
+        self.performing_action = True
+        if self.base_hp <= 0:
+            self.die()
+            
+    #movement
+    def move(self, player):
+        keys = pygame.key.get_pressed()  #checking pressed keys
+        x, y = (0, 0)
+        if not self.performing_action:
+            if player == 1:
+                if keys[pygame.K_w]:
+                    y += 1         
+                if keys[pygame.K_s]:
+                    y -= 1
+                if keys[pygame.K_d]:
+                    x += 1          
+                if keys[pygame.K_a]:
+                    x -= 1              
+                if keys[pygame.K_LSHIFT] and self.can_attack:
+                    self.attack(x, -y)
+            elif player == 2:
+                if keys[pygame.K_UP]:
+                    y += 1            
+                if keys[pygame.K_DOWN]:
+                    y -= 1             
+                if keys[pygame.K_RIGHT]:
+                    x += 1               
+                if keys[pygame.K_LEFT]:
+                    x -= 1
+                if keys[pygame.K_RETURN] and self.can_attack:
+                    self.attack(x, -y)
+        if x > 0:
+            self.orientation = False
+        elif x <0:
+            self.orientation = True
+        self.x += x* self.speed
+        if self.check_arena_collision():
+            self.x -= x * self.speed
+            x = 0
+        self.y -= y* self.speed
+        if self.check_arena_collision():
+            self.y += y * self.speed
+            x = 0
+        self.direction = (x, y)
+        if not self.performing_action:
+            if x != 0 or y != 0:
+                self.current_animation = "moving"
+            else:
+                self.current_animation = "idle"
+        if not self.can_attack:
+            self.can_attack_cycle += 1
+            if self.can_attack_cycle > self.atk_cooldown:
+                self.can_attack_cycle = 0
+                self.can_attack = True
+
+    def die(self):
+        self.alive = False
+
+    def __init__(self):
+        print(f"{self.name} instantiated")
+        animation_line.append(self)
+
+class Archer():
+    obj_type = "player"
+    name = "Archer"
+    description = "The archers are fearless amazones, that can handle their bows with legendary skill. They are equipped with magical quivers that never get empty." 
+    s_moving_type = "ground - 3"
+    s_speed = "normal"
+    s_attack_type = "arrow"
+    s_attack_strength = "low"
+    s_attack_speed = "middle"
+    s_attack_interval = "average"
+    s_life_span = "short"
+    s_number_of_chars = "2"
+
+    #STAT NUMBERS
+    team = 0
+    ranged = True
+        #type: teleport0 air1 ground2
+    move_type = 2
+    move_limit = 3
+    speed = 5
+    atk_damage = 8
+    atk_speed = 9
+    atk_cooldown = 0.75 * 60
+    base_hp = 9.5
+    max_hp= 16.5
+    alive = True
+    orientation = True
+    direction = (1,0)
+    performing_action = False
+    can_attack = True
+    char_x_offset = 18
+    char_y_offset = 17
+    char_width = 12 #TODO: get character dimensions
+    char_height = 19
+    #Position
+    x = 0
+    y = 0
+
+    #projectile
+    proj_dir = (0,0)
+    proj_width = 10
+    proj_height = 4
+                    #Corrections 
+    proj_correction = [
+    (34,26), #RightAttackFront
+    (33,17), #RightAttackUp
+    (36,19), #RightAttackFrontUp
+    (35,33), #RightAttackFrontDown
+    (33,35), #RightAttackDown
+    (14,26), #LeftAttackFront
+    (16,18), #LeftAttackUp
+    (14,19), #LeftAttackFrontUp
+    (14,34), #LeftAttackFrontDown
+    (16,35)  #LeftAttackDown #    AQUI
+    ]
+    ##SPRITES
+    idle_animation = get_sprites(name, 'Idle')
+    
+    run_animation = get_sprites(name, 'Run')
+
+    hit_animation = get_sprites(name, 'Hit')
+    
+    attack_front_animation = get_sprites(name, 'AttackFront')
+    attack_front_up_animation = get_sprites(name, 'AttackFrontUp')
+    attack_front_down_animation = get_sprites(name, 'AttackFrontDown')
+    attack_up_animation = get_sprites(name, 'AttackUp')
+    attack_down_animation = get_sprites(name, 'AttackDown')
+
+    #Animation Managing
+    cur_key = 0
+    current_sprite = idle_animation[0]
+    animation_change = "idle"
+    current_animation = "idle"
+    sprite = pygame.image.load(current_sprite)
+    texture = pygame.transform.scale(sprite,  (_CHARS_SIZE, _CHARS_SIZE))
+    anim_clock = -1
+    can_attack_cycle = 0
+
+    #Masks use the opaque pixels, ignoring the transparent
+    #hitbox = pygame.mask.from_surface(texture, 127)
+    def handle_animation(self):
+        if self.animation_change != self.current_animation:
+            self.cur_key = -1
+            self.animation_change = self.current_animation
+
+        #CLOCK CHANGE
+        self.anim_clock += 1
+
+        if self.current_animation == "idle":
+            if self.cur_key+2 > len(self.idle_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 10:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.idle_animation[self.cur_key]
+        elif self.current_animation == "moving":
+            if self.cur_key+2 > len(self.run_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 4:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.run_animation[self.cur_key]
+        elif self.current_animation == "hit":
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 5:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.hit_animation[self.cur_key]
+        elif self.current_animation == "AttackFront":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_front_animation[self.cur_key]
+        elif self.current_animation == "AttackFrontUp":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_front_up_animation[self.cur_key]
+        elif self.current_animation == "AttackFrontDown":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_front_down_animation[self.cur_key]
+        elif self.current_animation == "AttackUp":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_up_animation[self.cur_key]
+        elif self.current_animation == "AttackDown":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_down_animation[self.cur_key]
+        self.sprite = pygame.image.load(self.current_sprite)
+        self.texture = pygame.transform.scale(self.sprite,  (_CHARS_SIZE, _CHARS_SIZE))
+    
+    #collision
+    def hitbox(self):
+        return pygame.Rect(self.x + self.char_x_offset *2.6 , self.y + self.char_y_offset *2.6, self.char_width *2.6, self.char_height*2.6)
+    
+    def check_arena_collision(self):
+        colliding = False
+        if not arena_ground.contains(self.hitbox()):
+            colliding = True
+        for rect in arena_collisions:
+            if rect != self:
+                if self.hitbox().colliderect(rect.hitbox()):
+                    colliding = True
+
+        return colliding
+    
+    def attack(self, x, y):
+        self.proj_dir = (x, y)
+        attack_anim = "Attack"
+        if x==0 and y == 0:
+            return
+        self.performing_action = True
+        self.can_attack = False
+        if x != 0:
+            attack_anim += "Front"
+        if y == -1:
+            attack_anim += "Up"
+        elif y == 1:
+            attack_anim += "Down"
+        self.current_animation = attack_anim
+    
+    def shoot(self):
+        Projectile((self.proj_dir[0], self.proj_dir[1]), self)
+    
+    def take_damage(self, damage):
+        self.base_hp -= damage
+        self.current_animation = "hit"
+        self.performing_action = True
+        if self.base_hp <= 0:
+            self.die()
+
+    #movement
+    def move(self, player):
+        keys = pygame.key.get_pressed()  #checking pressed keys
+        x, y = (0, 0)
+        if not self.performing_action:
+            if player == 1:
+                if keys[pygame.K_w]:
+                    y += 1         
+                if keys[pygame.K_s]:
+                    y -= 1
+                if keys[pygame.K_d]:
+                    x += 1          
+                if keys[pygame.K_a]:
+                    x -= 1              
+                if keys[pygame.K_LSHIFT] and self.can_attack:
+                    self.attack(x, -y)
+            elif player == 2:
+                if keys[pygame.K_UP]:
+                    y += 1            
+                if keys[pygame.K_DOWN]:
+                    y -= 1             
+                if keys[pygame.K_RIGHT]:
+                    x += 1               
+                if keys[pygame.K_LEFT]:
+                    x -= 1
+                if keys[pygame.K_RETURN] and self.can_attack:
+                    self.attack(x, -y)
+        if x > 0:
+            self.orientation = False
+        elif x <0:
+            self.orientation = True
+        self.x += x* self.speed
+        if self.check_arena_collision():
+            self.x -= x * self.speed
+            x = 0
+        self.y -= y* self.speed
+        if self.check_arena_collision():
+            self.y += y * self.speed
+            x = 0
+        self.direction = (x, y)
+        if not self.performing_action:
             if x != 0 or y != 0:
                 self.current_animation = "moving"
             else:
@@ -1197,648 +1572,10 @@ class Golem():
     s_life_span = "average"
     s_number_of_chars = "2"
     
-    #STAT NUMBERS
-    speed = 5
-    atk_damage = 2
-    atk_speed = 5
-    atk_cooldown = 2
-    alive = True
-    orientation = True
-    direction = (1,0)
-    performing_attack = False
-    char_x_offset = 18
-    char_y_offset = 17
-    char_width = 12 #TODO: get character dimensions
-    char_height = 19
-    #Position
-    x = 0
-    y = 0
-
-    #projectile
-    proj_dir = (0,0)
-                    #Corrections #TODO:Get it right
-    proj_correction = [
-    (15,7), #RightAttackFront
-    (14,-3), #RightAttackUp
-    (17,-3), #RightAttackFrontUp
-    (16,15), #RightAttackFrontDown
-    (6,16), #RightAttackDown
-    (-9,7), #LeftAttackFront
-    (-6,-3), #LeftAttackUp
-    (-11,-3), #LeftAttackFrontUp
-    (-8,15), #LeftAttackFrontDown
-    (-6,16)  #LeftAttackDown #    AQUI
-    ]
-    ##SPRITES
-    idle_animation = get_sprites(name, 'Idle')
-    
-    run_animation = get_sprites(name, 'Run')
-    
-    attack_front_animation = get_sprites(name, 'AttackFront')
-    attack_front_up_animation = get_sprites(name, 'AttackFrontUp')
-    attack_front_down_animation = get_sprites(name, 'AttackFrontDown')
-    attack_up_animation = get_sprites(name, 'AttackUp')
-    attack_down_animation = get_sprites(name, 'AttackDown')
-
-    #Animation Managing
-    cur_key = 0
-    current_sprite = idle_animation[0]
-    animation_change = "idle"
-    current_animation = "idle"
-    sprite = pygame.image.load(current_sprite)
-    texture = pygame.transform.scale(sprite,  (_CHARS_SIZE, _CHARS_SIZE))
-    anim_clock = -1
-
-    #Masks use the opaque pixels, ignoring the transparent
-    #hitbox = pygame.mask.from_surface(texture, 127)
-    def handle_animation(self):
-        if self.animation_change != self.current_animation:
-            self.cur_key = -1
-            self.animation_change = self.current_animation
-
-        #CLOCK CHANGE
-        self.anim_clock += 1
-
-        if self.current_animation == "idle":
-            if self.cur_key+2 > len(self.idle_animation):
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock == 10:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.idle_animation[self.cur_key]
-        elif self.current_animation == "moving":
-            if self.cur_key+2 > len(self.run_animation):
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock > 4:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.run_animation[self.cur_key]
-        elif self.current_animation == "AttackFront":
-            if self.cur_key == 2 and self.anim_clock == 0:
-                self.shoot()
-            if self.cur_key+2 > 3:
-                self.current_animation = "idle"
-                self.performing_attack = False
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock == 10:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.attack_front_animation[self.cur_key]
-        elif self.current_animation == "AttackFrontUp":
-            if self.cur_key == 2 and self.anim_clock == 0:
-                self.shoot()
-            if self.cur_key+2 > 3:
-                self.current_animation = "idle"
-                self.performing_attack = False
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock == 10:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.attack_front_up_animation[self.cur_key]
-        elif self.current_animation == "AttackFrontDown":
-            if self.cur_key == 2 and self.anim_clock == 0:
-                self.shoot()
-            if self.cur_key+2 > 3:
-                self.current_animation = "idle"
-                self.performing_attack = False
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock == 10:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.attack_front_down_animation[self.cur_key]
-        elif self.current_animation == "AttackUp":
-            if self.cur_key == 2 and self.anim_clock == 0:
-                self.shoot()
-            if self.cur_key+2 > 3:
-                self.current_animation = "idle"
-                self.performing_attack = False
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock == 10:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.attack_up_animation[self.cur_key]
-        elif self.current_animation == "AttackDown":
-            if self.cur_key == 2 and self.anim_clock == 0:
-                self.shoot()
-            if self.cur_key+2 > 3:
-                self.current_animation = "idle"
-                self.performing_attack = False
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock == 10:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.attack_down_animation[self.cur_key]
-        self.sprite = pygame.image.load(self.current_sprite)
-        self.texture = pygame.transform.scale(self.sprite,  (_CHARS_SIZE, _CHARS_SIZE))
-    
-    #collision
-    def hitbox(self):
-        return pygame.Rect(self.x + self.char_x_offset *2.6 , self.y + self.char_y_offset *2.6, self.char_width *2.6, self.char_height*2.6)
-    
-    def check_arena_collision(self):
-        colliding = False
-        if not arena_ground.contains(self.hitbox()):
-            colliding = True
-        for rect in arena_collisions:
-            if rect != self:
-                if self.hitbox().colliderect(rect.hitbox()):
-                    colliding = True
-
-        return colliding
-    
-    def attack(self, x, y):
-        self.proj_dir = (x, y)
-        attack_anim = "Attack"
-        if x==0 and y == 0:
-            return
-        self.performing_attack = True
-        if x != 0:
-            attack_anim += "Front"
-        if y == -1:
-            attack_anim += "Up"
-        elif y == 1:
-            attack_anim += "Down"
-        self.current_animation = attack_anim
-    
-    def shoot(self):
-        Projectile((self.proj_dir[0], self.proj_dir[1]), self)
-    
-    def take_damage(self):
-        pass
-
-    #movement
-    def move(self, player):
-        keys = pygame.key.get_pressed()  #checking pressed keys
-        x, y = (0, 0)
-        if not self.performing_attack:
-            if player == 1:
-                if keys[pygame.K_w]:
-                    y += 1         
-                if keys[pygame.K_s]:
-                    y -= 1
-                if keys[pygame.K_d]:
-                    x += 1          
-                if keys[pygame.K_a]:
-                    x -= 1              
-                if keys[pygame.K_LSHIFT]:
-                    self.attack(x, -y)
-            elif player == 2:
-                if keys[pygame.K_UP]:
-                    y += 1            
-                if keys[pygame.K_DOWN]:
-                    y -= 1             
-                if keys[pygame.K_RIGHT]:
-                    x += 1               
-                if keys[pygame.K_LEFT]:
-                    x -= 1
-                if keys[pygame.K_RETURN]:
-                    self.attack(x, -y)
-        if x > 0:
-            self.orientation = False
-        elif x <0:
-            self.orientation = True
-        self.x += x* self.speed
-        if self.check_arena_collision():
-            self.x -= x * self.speed
-            x = 0
-        self.y -= y* self.speed
-        if self.check_arena_collision():
-            self.y += y * self.speed
-            x = 0
-        self.direction = (x, y)
-        if not self.performing_attack:
-            if x != 0 or y != 0:
-                self.current_animation = "moving"
-            else:
-                self.current_animation = "idle"
-
-    def __init__(self):
-        print(f"{self.name} instantiated")
-        animation_line.append(self)
-
-class Phoenix():
-    name = "Phoenix"
-    description = "Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn." 
-    s_moving_type = "ground - 4"
-    s_speed = "normal"
-    s_attack_type = "energy bolts"
-    s_attack_strength = "moderate"
-    s_attack_speed = "fast"
-    s_attack_interval = "short"
-    s_life_span = "average"
-    s_number_of_chars = "2"
-    
-        #STAT NUMBERS
-    speed = 5
-    atk_damage = 2
-    atk_speed = 3
-    atk_cooldown = 2
-    alive = True
-    orientation = False
-    direction = (1,0)
-    performing_attack = False
-    char_x_offset = 18
-    char_y_offset = 17
-    char_width = 12 #TODO: get character dimensions
-    char_height = 19
-    #Position
-    x = 0
-    y = 0
-
-    ##SPRITES
-    idle_animation = get_sprites(name, 'Idle')
-    
-    run_animation = get_sprites(name, 'Run')
-    
-    
-    #Animation Managing
-    cur_key = 0
-    current_sprite = idle_animation[0]
-    animation_change = "idle"
-    current_animation = "idle"
-    sprite = pygame.image.load(current_sprite)
-    texture = pygame.transform.scale(sprite,  (_CHARS_SIZE, _CHARS_SIZE))
-    anim_clock = -1
-
-    #Masks use the opaque pixels, ignoring the transparent
-    #hitbox = pygame.mask.from_surface(texture, 127)
-    def handle_animation(self):
-        if self.animation_change != self.current_animation:
-            self.cur_key = -1
-            self.animation_change = self.current_animation
-
-        #CLOCK CHANGE
-        self.anim_clock += 1
-
-        if self.current_animation == "idle":
-            if self.cur_key+2 > len(self.idle_animation):
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock == 10:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.idle_animation[self.cur_key]
-        elif self.current_animation == "moving":
-            if self.cur_key+2 > len(self.run_animation):
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock > 4:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.run_animation[self.cur_key]
-        elif self.current_animation == "idle":
-            if self.cur_key+2 > len(self.idle_animation):
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock == 10:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.idle_animation[self.cur_key]
-        self.sprite = pygame.image.load(self.current_sprite)
-        self.texture = pygame.transform.scale(self.sprite,  (_CHARS_SIZE, _CHARS_SIZE))
-    
-    #collision
-    def hitbox(self):
-        return pygame.Rect(self.x + self.char_x_offset *2.6 , self.y + self.char_y_offset *2.6, self.char_width *2.6, self.char_height*2.6)
-    
-    def check_arena_collision(self):
-        colliding = False
-        if not arena_ground.contains(self.hitbox()):
-            colliding = True
-        for rect in arena_collisions:
-            if rect != self:
-                if self.hitbox().colliderect(rect.hitbox()):
-                    colliding = True
-
-        return colliding
-
-    #movement
-    def move(self, player):
-        keys = pygame.key.get_pressed()  #checking pressed keys
-        x, y = (0, 0)
-        if player == 1:
-            if keys[pygame.K_w]:
-                y += 1         
-            if keys[pygame.K_s]:
-                y -= 1
-            if keys[pygame.K_d]:
-                x += 1          
-            if keys[pygame.K_a]:
-                x -= 1              
-        elif player == 2:
-            if keys[pygame.K_UP]:
-                y += 1            
-            if keys[pygame.K_DOWN]:
-                y -= 1             
-            if keys[pygame.K_RIGHT]:
-                x += 1               
-            if keys[pygame.K_LEFT]:
-                x -= 1
-        if x > 0:
-            self.orientation = False
-        elif x <0:
-            self.orientation = True
-        self.x += x* self.speed
-        if self.check_arena_collision():
-            self.x -= x * self.speed
-            x = 0
-        self.y -= y* self.speed
-        if self.check_arena_collision():
-            self.y += y * self.speed
-            x = 0
-        self.direction = (x, y)
-        if x != 0 or y != 0:
-            self.current_animation = "moving"
-        else:
-            self.current_animation = "idle"
-
-    def __init__(self):
-        print(f"{self.name} instantiated")
-        animation_line.append(self)
-
-class Wizard():
-    name = "Wizard"
-    description = "Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn." 
-    s_moving_type = "ground - 4"
-    s_speed = "normal"
-    s_attack_type = "energy bolts"
-    s_attack_strength = "moderate"
-    s_attack_speed = "fast"
-    s_attack_interval = "short"
-    s_life_span = "average"
-    s_number_of_chars = "2"
-    
-    #STAT NUMBERS
-    speed = 5
-    atk_damage = 2
-    atk_speed = 8
-    atk_cooldown = 2
-    alive = True
-    orientation = True
-    direction = (1,0)
-    performing_attack = False
-    char_x_offset = 18
-    char_y_offset = 17
-    char_width = 12 #TODO: get character dimensions
-    char_height = 19
-    #Position
-    x = 0
-    y = 0
-
-    #projectile
-    proj_dir = (0,0)
-    proj_size = 30
-                    #Corrections 
-    proj_correction = [
-    (15,7), #RightAttackFront
-    (14,-3), #RightAttackUp
-    (17,-3), #RightAttackFrontUp
-    (16,15), #RightAttackFrontDown
-    (6,16), #RightAttackDown
-    (-9,7), #LeftAttackFront
-    (-6,-3), #LeftAttackUp
-    (-11,-3), #LeftAttackFrontUp
-    (-8,15), #LeftAttackFrontDown
-    (-6,16)  #LeftAttackDown #    AQUI
-    ]
-    ##SPRITES
-    idle_animation = get_sprites(name, 'Idle')
-    
-    run_animation = get_sprites(name, 'Run')
-    
-    attack_front_animation = get_sprites(name, 'AttackFront')
-    attack_front_up_animation = get_sprites(name, 'AttackFrontUp')
-    attack_front_down_animation = get_sprites(name, 'AttackFrontDown')
-    attack_up_animation = get_sprites(name, 'AttackUp')
-    attack_down_animation = get_sprites(name, 'AttackDown')
-
-
-
-    #Animation Managing
-    cur_key = 0
-    current_sprite = idle_animation[0]
-    animation_change = "idle"
-    current_animation = "idle"
-    sprite = pygame.image.load(current_sprite)
-    texture = pygame.transform.scale(sprite,  (_CHARS_SIZE, _CHARS_SIZE))
-    anim_clock = -1
-
-    #Masks use the opaque pixels, ignoring the transparent
-    #hitbox = pygame.mask.from_surface(texture, 127)
-    def handle_animation(self):
-        if self.animation_change != self.current_animation:
-            self.cur_key = -1
-            self.animation_change = self.current_animation
-
-        #CLOCK CHANGE
-        self.anim_clock += 1
-
-        if self.current_animation == "idle":
-            if self.cur_key+2 > len(self.idle_animation):
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock == 10:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.idle_animation[self.cur_key]
-        elif self.current_animation == "moving":
-            if self.cur_key+2 > len(self.run_animation):
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock > 4:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.run_animation[self.cur_key]
-        elif self.current_animation == "AttackFront":
-            if self.cur_key == 2 and self.anim_clock == 0:
-                self.shoot()
-            if self.cur_key+2 > 3:
-                self.current_animation = "idle"
-                self.performing_attack = False
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock == 10:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.attack_front_animation[self.cur_key]
-        elif self.current_animation == "AttackFrontUp":
-            if self.cur_key == 2 and self.anim_clock == 0:
-                self.shoot()
-            if self.cur_key+2 > 3:
-                self.current_animation = "idle"
-                self.performing_attack = False
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock == 10:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.attack_front_up_animation[self.cur_key]
-        elif self.current_animation == "AttackFrontDown":
-            if self.cur_key == 2 and self.anim_clock == 0:
-                self.shoot()
-            if self.cur_key+2 > 3:
-                self.current_animation = "idle"
-                self.performing_attack = False
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock == 10:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.attack_front_down_animation[self.cur_key]
-        elif self.current_animation == "AttackUp":
-            if self.cur_key == 2 and self.anim_clock == 0:
-                self.shoot()
-            if self.cur_key+2 > 3:
-                self.current_animation = "idle"
-                self.performing_attack = False
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock == 10:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.attack_up_animation[self.cur_key]
-        elif self.current_animation == "AttackDown":
-            if self.cur_key == 2 and self.anim_clock == 0:
-                self.shoot()
-            if self.cur_key+2 > 3:
-                self.current_animation = "idle"
-                self.performing_attack = False
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock == 10:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.attack_down_animation[self.cur_key]
-        self.sprite = pygame.image.load(self.current_sprite)
-        self.texture = pygame.transform.scale(self.sprite,  (_CHARS_SIZE, _CHARS_SIZE))
-    
-    #collision
-    def hitbox(self):
-        return pygame.Rect(self.x + self.char_x_offset *2.6 , self.y + self.char_y_offset *2.6, self.char_width *2.6, self.char_height*2.6)
-    
-    def check_arena_collision(self):
-        colliding = False
-        if not arena_ground.contains(self.hitbox()):
-            colliding = True
-        for rect in arena_collisions:
-            if rect != self:
-                if self.hitbox().colliderect(rect.hitbox()):
-                    colliding = True
-
-        return colliding
-    
-    def attack(self, x, y):
-        self.proj_dir = (x, y)
-        attack_anim = "Attack"
-        if x==0 and y == 0:
-            return
-        self.performing_attack = True
-        if x != 0:
-            attack_anim += "Front"
-        if y == -1:
-            attack_anim += "Up"
-        elif y == 1:
-            attack_anim += "Down"
-        self.current_animation = attack_anim
-    
-    def shoot(self):
-        Projectile((self.proj_dir[0], self.proj_dir[1]), self)
-    
-    def take_damage(self):
-        pass
-
-    #movement
-    def move(self, player):
-        keys = pygame.key.get_pressed()  #checking pressed keys
-        x, y = (0, 0)
-        if not self.performing_attack:
-            if player == 1:
-                if keys[pygame.K_w]:
-                    y += 1         
-                if keys[pygame.K_s]:
-                    y -= 1
-                if keys[pygame.K_d]:
-                    x += 1          
-                if keys[pygame.K_a]:
-                    x -= 1              
-                if keys[pygame.K_LSHIFT]:
-                    self.attack(x, -y)
-            elif player == 2:
-                if keys[pygame.K_UP]:
-                    y += 1            
-                if keys[pygame.K_DOWN]:
-                    y -= 1             
-                if keys[pygame.K_RIGHT]:
-                    x += 1               
-                if keys[pygame.K_LEFT]:
-                    x -= 1
-                if keys[pygame.K_RETURN]:
-                    self.attack(x, -y)
-        if x > 0:
-            self.orientation = False
-        elif x <0:
-            self.orientation = True
-        self.x += x* self.speed
-        if self.check_arena_collision():
-            self.x -= x * self.speed
-            x = 0
-        self.y -= y* self.speed
-        if self.check_arena_collision():
-            self.y += y * self.speed
-            x = 0
-        self.direction = (x, y)
-        if not self.performing_attack:
-            if x != 0 or y != 0:
-                self.current_animation = "moving"
-            else:
-                self.current_animation = "idle"
-
-    def __init__(self):
-        print(f"{self.name} instantiated")
-        animation_line.append(self)
-#DARK#
-
-
-class Sorceress():
     obj_type = "player"
-    #TODO: Sorceress info
-    name = "Sorceress"
-    description = "Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn." 
-    s_moving_type = "ground - 4"
-    s_speed = "normal"
-    s_attack_type = "energy bolts"
-    s_attack_strength = "moderate"
-    s_attack_speed = "fast"
-    s_attack_interval = "short"
-    s_life_span = "average"
-    s_number_of_chars = "2"
-    
     #STAT NUMBERS
-    team = 1
+    team = 0
+    ranged = True
         #type: teleport0 air1 ground2
     move_type = 0
     move_limit = 3
@@ -1851,7 +1588,7 @@ class Sorceress():
     alive = True
     orientation = True
     direction = (1,0)
-    performing_attack = False
+    performing_action = False
     can_attack = True
     char_x_offset = 18
     char_y_offset = 17
@@ -1876,12 +1613,12 @@ class Sorceress():
     (16,18), #LeftAttackUp
     (14,19), #LeftAttackFrontUp
     (14,34), #LeftAttackFrontDown
-    (16,35)  #LeftAttackDown #    AQUI
+    (16,35)  #LeftAttackDown 
     ]
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
-    
     run_animation = get_sprites(name, 'Run')
+    hit_animation = get_sprites(name, 'Hit')
     
     attack_front_animation = get_sprites(name, 'AttackFront')
     attack_front_up_animation = get_sprites(name, 'AttackFrontUp')
@@ -1908,13 +1645,12 @@ class Sorceress():
 
         #CLOCK CHANGE
         self.anim_clock += 1
-
         if self.current_animation == "idle":
             if self.cur_key+2 > len(self.idle_animation):
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock == 10:
+                if self.anim_clock > 10:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.idle_animation[self.cur_key]
@@ -1927,16 +1663,27 @@ class Sorceress():
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.run_animation[self.cur_key]
+        elif self.current_animation == "hit":
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 5:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.hit_animation[self.cur_key]
         elif self.current_animation == "AttackFront":
             if self.cur_key == 2 and self.anim_clock == 0:
                 self.shoot()
             if self.cur_key+2 > 3:
                 self.current_animation = "idle"
-                self.performing_attack = False
+                self.performing_action = False
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock == 8:
+                if self.anim_clock > self.atk_speed:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_animation[self.cur_key]
@@ -1945,11 +1692,11 @@ class Sorceress():
                 self.shoot()
             if self.cur_key+2 > 3:
                 self.current_animation = "idle"
-                self.performing_attack = False
+                self.performing_action = False
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock == 8:
+                if self.anim_clock > self.atk_speed:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_up_animation[self.cur_key]
@@ -1958,11 +1705,11 @@ class Sorceress():
                 self.shoot()
             if self.cur_key+2 > 3:
                 self.current_animation = "idle"
-                self.performing_attack = False
+                self.performing_action = False
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock == 8:
+                if self.anim_clock > self.atk_speed:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_down_animation[self.cur_key]
@@ -1971,11 +1718,11 @@ class Sorceress():
                 self.shoot()
             if self.cur_key+2 > 3:
                 self.current_animation = "idle"
-                self.performing_attack = False
+                self.performing_action = False
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock == 8:
+                if self.anim_clock > self.atk_speed:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_up_animation[self.cur_key]
@@ -1984,11 +1731,11 @@ class Sorceress():
                 self.shoot()
             if self.cur_key+2 > 3:
                 self.current_animation = "idle"
-                self.performing_attack = False
+                self.performing_action = False
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock == 8:
+                if self.anim_clock > self.atk_speed:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_down_animation[self.cur_key]
@@ -2015,7 +1762,7 @@ class Sorceress():
         attack_anim = "Attack"
         if x==0 and y == 0:
             return
-        self.performing_attack = True
+        self.performing_action = True
         self.can_attack = False
         if x != 0:
             attack_anim += "Front"
@@ -2030,18 +1777,17 @@ class Sorceress():
     
     def take_damage(self, damage):
         self.base_hp -= damage
+        self.current_animation = "hit"
+        self.performing_action = True
         if self.base_hp <= 0:
             self.die()
             
     #movement
     def move(self, player):
-        print(self.can_attack, self.can_attack_cycle)
         keys = pygame.key.get_pressed()  #checking pressed keys
         x, y = (0, 0)
-        if not self.performing_attack:
+        if not self.performing_action:
             if player == 1:
-                if keys[pygame.K_SPACE]:
-                    self.take_damage(3)
                 if keys[pygame.K_w]:
                     y += 1         
                 if keys[pygame.K_s]:
@@ -2053,8 +1799,6 @@ class Sorceress():
                 if keys[pygame.K_LSHIFT] and self.can_attack:
                     self.attack(x, -y)
             elif player == 2:
-                if keys[pygame.K_SPACE]:
-                    self.take_damage(3)
                 if keys[pygame.K_UP]:
                     y += 1            
                 if keys[pygame.K_DOWN]:
@@ -2078,7 +1822,850 @@ class Sorceress():
             self.y += y * self.speed
             x = 0
         self.direction = (x, y)
-        if not self.performing_attack:
+        if not self.performing_action:
+            if x != 0 or y != 0:
+                self.current_animation = "moving"
+            else:
+                self.current_animation = "idle"
+        if not self.can_attack:
+            self.can_attack_cycle += 1
+            if self.can_attack_cycle > self.atk_cooldown:
+                self.can_attack_cycle = 0
+                self.can_attack = True
+
+    def die(self):
+        self.alive = False
+
+    def __init__(self):
+        print(f"{self.name} instantiated")
+        animation_line.append(self)
+
+class Phoenix():
+    name = "Phoenix"
+    description = "Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn." 
+    s_moving_type = "ground - 4"
+    s_speed = "normal"
+    s_attack_type = "energy bolts"
+    s_attack_strength = "moderate"
+    s_attack_speed = "fast"
+    s_attack_interval = "short"
+    s_life_span = "average"
+    s_number_of_chars = "2"
+    
+    obj_type = "player"
+    #STAT NUMBERS
+    team = 0
+    ranged = True
+        #type: teleport0 air1 ground2
+    move_type = 0
+    move_limit = 3
+    speed = 5
+    atk_damage = 8
+    atk_speed = 9
+    atk_cooldown = 0.75 * 60
+    base_hp = 9.5
+    max_hp= 16.5
+    alive = True
+    orientation = True
+    direction = (1,0)
+    performing_action = False
+    can_attack = True
+    char_x_offset = 18
+    char_y_offset = 17
+    char_width = 12 #TODO: get character dimensions
+    char_height = 19
+    #Position
+    x = 0
+    y = 0
+
+    #projectile
+    proj_dir = (0,0)
+    proj_width = 10
+    proj_height = 4
+                    #Corrections 
+    proj_correction = [
+    (34,26), #RightAttackFront
+    (33,17), #RightAttackUp
+    (36,19), #RightAttackFrontUp
+    (35,33), #RightAttackFrontDown
+    (33,35), #RightAttackDown
+    (14,26), #LeftAttackFront
+    (16,18), #LeftAttackUp
+    (14,19), #LeftAttackFrontUp
+    (14,34), #LeftAttackFrontDown
+    (16,35)  #LeftAttackDown 
+    ]
+    ##SPRITES
+    idle_animation = get_sprites(name, 'Idle')
+    run_animation = get_sprites(name, 'Run')
+    hit_animation = get_sprites(name, 'Hit')
+    
+    attack_front_animation = get_sprites(name, 'Attack')
+    attack_front_up_animation = get_sprites(name, 'Attack')
+    attack_front_down_animation = get_sprites(name, 'Attack')
+    attack_up_animation = get_sprites(name, 'Attack')
+    attack_down_animation = get_sprites(name, 'Attack')
+
+    #Animation Managing
+    cur_key = 0
+    current_sprite = idle_animation[0]
+    animation_change = "idle"
+    current_animation = "idle"
+    sprite = pygame.image.load(current_sprite)
+    texture = pygame.transform.scale(sprite,  (_CHARS_SIZE, _CHARS_SIZE))
+    anim_clock = -1
+    can_attack_cycle = 0
+
+    #Masks use the opaque pixels, ignoring the transparent
+    #hitbox = pygame.mask.from_surface(texture, 127)
+    def handle_animation(self):
+        if self.animation_change != self.current_animation:
+            self.cur_key = -1
+            self.animation_change = self.current_animation
+
+        #CLOCK CHANGE
+        self.anim_clock += 1
+        if self.current_animation == "idle":
+            if self.cur_key+2 > len(self.idle_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 10:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.idle_animation[self.cur_key]
+        elif self.current_animation == "moving":
+            if self.cur_key+2 > len(self.run_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 4:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.run_animation[self.cur_key]
+        elif self.current_animation == "hit":
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 5:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.hit_animation[self.cur_key]
+        elif self.current_animation == "AttackFront":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_front_animation[self.cur_key]
+        elif self.current_animation == "AttackFrontUp":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_front_up_animation[self.cur_key]
+        elif self.current_animation == "AttackFrontDown":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_front_down_animation[self.cur_key]
+        elif self.current_animation == "AttackUp":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_up_animation[self.cur_key]
+        elif self.current_animation == "AttackDown":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_down_animation[self.cur_key]
+        self.sprite = pygame.image.load(self.current_sprite)
+        self.texture = pygame.transform.scale(self.sprite,  (_CHARS_SIZE, _CHARS_SIZE))
+    
+    #collision
+    def hitbox(self):
+        return pygame.Rect(self.x + self.char_x_offset *2.6 , self.y + self.char_y_offset *2.6, self.char_width *2.6, self.char_height*2.6)
+    
+    def check_arena_collision(self):
+        colliding = False
+        if not arena_ground.contains(self.hitbox()):
+            colliding = True
+        for rect in arena_collisions:
+            if rect != self:
+                if self.hitbox().colliderect(rect.hitbox()):
+                    colliding = True
+
+        return colliding
+    
+    def attack(self, x, y):
+        self.proj_dir = (x, y)
+        attack_anim = "Attack"
+        if x==0 and y == 0:
+            return
+        self.performing_action = True
+        self.can_attack = False
+        if x != 0:
+            attack_anim += "Front"
+        if y == -1:
+            attack_anim += "Up"
+        elif y == 1:
+            attack_anim += "Down"
+        self.current_animation = attack_anim
+    
+    def shoot(self):
+        Projectile((self.proj_dir[0], self.proj_dir[1]), self)
+    
+    def take_damage(self, damage):
+        self.base_hp -= damage
+        self.current_animation = "hit"
+        self.performing_action = True
+        if self.base_hp <= 0:
+            self.die()
+            
+    #movement
+    def move(self, player):
+        keys = pygame.key.get_pressed()  #checking pressed keys
+        x, y = (0, 0)
+        if not self.performing_action:
+            if player == 1:
+                if keys[pygame.K_w]:
+                    y += 1         
+                if keys[pygame.K_s]:
+                    y -= 1
+                if keys[pygame.K_d]:
+                    x += 1          
+                if keys[pygame.K_a]:
+                    x -= 1              
+                if keys[pygame.K_LSHIFT] and self.can_attack:
+                    self.attack(x, -y)
+            elif player == 2:
+                if keys[pygame.K_UP]:
+                    y += 1            
+                if keys[pygame.K_DOWN]:
+                    y -= 1             
+                if keys[pygame.K_RIGHT]:
+                    x += 1               
+                if keys[pygame.K_LEFT]:
+                    x -= 1
+                if keys[pygame.K_RETURN] and self.can_attack:
+                    self.attack(x, -y)
+        if x > 0:
+            self.orientation = False
+        elif x <0:
+            self.orientation = True
+        self.x += x* self.speed
+        if self.check_arena_collision():
+            self.x -= x * self.speed
+            x = 0
+        self.y -= y* self.speed
+        if self.check_arena_collision():
+            self.y += y * self.speed
+            x = 0
+        self.direction = (x, y)
+        if not self.performing_action:
+            if x != 0 or y != 0:
+                self.current_animation = "moving"
+            else:
+                self.current_animation = "idle"
+        if not self.can_attack:
+            self.can_attack_cycle += 1
+            if self.can_attack_cycle > self.atk_cooldown:
+                self.can_attack_cycle = 0
+                self.can_attack = True
+
+    def die(self):
+        self.alive = False
+
+    def __init__(self):
+        print(f"{self.name} instantiated")
+        animation_line.append(self)
+
+class Wizard():
+    name = "Wizard"
+    description = "Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn." 
+    s_moving_type = "ground - 4"
+    s_speed = "normal"
+    s_attack_type = "energy bolts"
+    s_attack_strength = "moderate"
+    s_attack_speed = "fast"
+    s_attack_interval = "short"
+    s_life_span = "average"
+    s_number_of_chars = "2"
+    
+    obj_type = "player"
+    #STAT NUMBERS
+    team = 0
+    ranged = True
+        #type: teleport0 air1 ground2
+    move_type = 0
+    move_limit = 3
+    speed = 5
+    atk_damage = 8
+    atk_speed = 9
+    atk_cooldown = 0.75 * 60
+    base_hp = 9.5
+    max_hp= 16.5
+    alive = True
+    orientation = True
+    direction = (1,0)
+    performing_action = False
+    can_attack = True
+    char_x_offset = 18
+    char_y_offset = 17
+    char_width = 12 #TODO: get character dimensions
+    char_height = 19
+    #Position
+    x = 0
+    y = 0
+
+    #projectile
+    proj_dir = (0,0)
+    proj_width = 10
+    proj_height = 4
+                    #Corrections 
+    proj_correction = [
+    (34,26), #RightAttackFront
+    (33,17), #RightAttackUp
+    (36,19), #RightAttackFrontUp
+    (35,33), #RightAttackFrontDown
+    (33,35), #RightAttackDown
+    (14,26), #LeftAttackFront
+    (16,18), #LeftAttackUp
+    (14,19), #LeftAttackFrontUp
+    (14,34), #LeftAttackFrontDown
+    (16,35)  #LeftAttackDown 
+    ]
+    ##SPRITES
+    idle_animation = get_sprites(name, 'Idle')
+    run_animation = get_sprites(name, 'Run')
+    hit_animation = get_sprites(name, 'Hit')
+    
+    attack_front_animation = get_sprites(name, 'AttackFront')
+    attack_front_up_animation = get_sprites(name, 'AttackFrontUp')
+    attack_front_down_animation = get_sprites(name, 'AttackFrontDown')
+    attack_up_animation = get_sprites(name, 'AttackUp')
+    attack_down_animation = get_sprites(name, 'AttackDown')
+
+    #Animation Managing
+    cur_key = 0
+    current_sprite = idle_animation[0]
+    animation_change = "idle"
+    current_animation = "idle"
+    sprite = pygame.image.load(current_sprite)
+    texture = pygame.transform.scale(sprite,  (_CHARS_SIZE, _CHARS_SIZE))
+    anim_clock = -1
+    can_attack_cycle = 0
+
+    #Masks use the opaque pixels, ignoring the transparent
+    #hitbox = pygame.mask.from_surface(texture, 127)
+    def handle_animation(self):
+        if self.animation_change != self.current_animation:
+            self.cur_key = -1
+            self.animation_change = self.current_animation
+
+        #CLOCK CHANGE
+        self.anim_clock += 1
+        if self.current_animation == "idle":
+            if self.cur_key+2 > len(self.idle_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 10:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.idle_animation[self.cur_key]
+        elif self.current_animation == "moving":
+            if self.cur_key+2 > len(self.run_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 4:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.run_animation[self.cur_key]
+        elif self.current_animation == "hit":
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 5:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.hit_animation[self.cur_key]
+        elif self.current_animation == "AttackFront":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_front_animation[self.cur_key]
+        elif self.current_animation == "AttackFrontUp":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_front_up_animation[self.cur_key]
+        elif self.current_animation == "AttackFrontDown":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_front_down_animation[self.cur_key]
+        elif self.current_animation == "AttackUp":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_up_animation[self.cur_key]
+        elif self.current_animation == "AttackDown":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_down_animation[self.cur_key]
+        self.sprite = pygame.image.load(self.current_sprite)
+        self.texture = pygame.transform.scale(self.sprite,  (_CHARS_SIZE, _CHARS_SIZE))
+    
+    #collision
+    def hitbox(self):
+        return pygame.Rect(self.x + self.char_x_offset *2.6 , self.y + self.char_y_offset *2.6, self.char_width *2.6, self.char_height*2.6)
+    
+    def check_arena_collision(self):
+        colliding = False
+        if not arena_ground.contains(self.hitbox()):
+            colliding = True
+        for rect in arena_collisions:
+            if rect != self:
+                if self.hitbox().colliderect(rect.hitbox()):
+                    colliding = True
+
+        return colliding
+    
+    def attack(self, x, y):
+        self.proj_dir = (x, y)
+        attack_anim = "Attack"
+        if x==0 and y == 0:
+            return
+        self.performing_action = True
+        self.can_attack = False
+        if x != 0:
+            attack_anim += "Front"
+        if y == -1:
+            attack_anim += "Up"
+        elif y == 1:
+            attack_anim += "Down"
+        self.current_animation = attack_anim
+    
+    def shoot(self):
+        Projectile((self.proj_dir[0], self.proj_dir[1]), self)
+    
+    def take_damage(self, damage):
+        self.base_hp -= damage
+        self.current_animation = "hit"
+        self.performing_action = True
+        if self.base_hp <= 0:
+            self.die()
+            
+    #movement
+    def move(self, player):
+        keys = pygame.key.get_pressed()  #checking pressed keys
+        x, y = (0, 0)
+        if not self.performing_action:
+            if player == 1:
+                if keys[pygame.K_w]:
+                    y += 1         
+                if keys[pygame.K_s]:
+                    y -= 1
+                if keys[pygame.K_d]:
+                    x += 1          
+                if keys[pygame.K_a]:
+                    x -= 1              
+                if keys[pygame.K_LSHIFT] and self.can_attack:
+                    self.attack(x, -y)
+            elif player == 2:
+                if keys[pygame.K_UP]:
+                    y += 1            
+                if keys[pygame.K_DOWN]:
+                    y -= 1             
+                if keys[pygame.K_RIGHT]:
+                    x += 1               
+                if keys[pygame.K_LEFT]:
+                    x -= 1
+                if keys[pygame.K_RETURN] and self.can_attack:
+                    self.attack(x, -y)
+        if x > 0:
+            self.orientation = False
+        elif x <0:
+            self.orientation = True
+        self.x += x* self.speed
+        if self.check_arena_collision():
+            self.x -= x * self.speed
+            x = 0
+        self.y -= y* self.speed
+        if self.check_arena_collision():
+            self.y += y * self.speed
+            x = 0
+        self.direction = (x, y)
+        if not self.performing_action:
+            if x != 0 or y != 0:
+                self.current_animation = "moving"
+            else:
+                self.current_animation = "idle"
+        if not self.can_attack:
+            self.can_attack_cycle += 1
+            if self.can_attack_cycle > self.atk_cooldown:
+                self.can_attack_cycle = 0
+                self.can_attack = True
+
+    def die(self):
+        self.alive = False
+
+    def __init__(self):
+        print(f"{self.name} instantiated")
+        animation_line.append(self)
+#DARK#
+
+
+class Sorceress():
+    #TODO: Sorceress info
+    name = "Sorceress"
+    description = "Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn." 
+    s_moving_type = "ground - 4"
+    s_speed = "normal"
+    s_attack_type = "energy bolts"
+    s_attack_strength = "moderate"
+    s_attack_speed = "fast"
+    s_attack_interval = "short"
+    s_life_span = "average"
+    s_number_of_chars = "2"
+    
+    obj_type = "player"
+    #STAT NUMBERS
+    team = 1
+    ranged = True
+        #type: teleport0 air1 ground2
+    move_type = 0
+    move_limit = 3
+    speed = 5
+    atk_damage = 8
+    atk_speed = 9
+    atk_cooldown = 0.75 * 60
+    base_hp = 9.5
+    max_hp= 16.5
+    alive = True
+    orientation = True
+    direction = (1,0)
+    performing_action = False
+    can_attack = True
+    char_x_offset = 18
+    char_y_offset = 17
+    char_width = 12 #TODO: get character dimensions
+    char_height = 19
+    #Position
+    x = 0
+    y = 0
+
+    #projectile
+    proj_dir = (0,0)
+    proj_width = 10
+    proj_height = 4
+                    #Corrections 
+    proj_correction = [
+    (34,26), #RightAttackFront
+    (33,17), #RightAttackUp
+    (36,19), #RightAttackFrontUp
+    (35,33), #RightAttackFrontDown
+    (33,35), #RightAttackDown
+    (14,26), #LeftAttackFront
+    (16,18), #LeftAttackUp
+    (14,19), #LeftAttackFrontUp
+    (14,34), #LeftAttackFrontDown
+    (16,35)  #LeftAttackDown 
+    ]
+    ##SPRITES
+    idle_animation = get_sprites(name, 'Idle')
+    run_animation = get_sprites(name, 'Run')
+    hit_animation = get_sprites(name, 'Hit')
+    
+    attack_front_animation = get_sprites(name, 'AttackFront')
+    attack_front_up_animation = get_sprites(name, 'AttackFrontUp')
+    attack_front_down_animation = get_sprites(name, 'AttackFrontDown')
+    attack_up_animation = get_sprites(name, 'AttackUp')
+    attack_down_animation = get_sprites(name, 'AttackDown')
+
+    #Animation Managing
+    cur_key = 0
+    current_sprite = idle_animation[0]
+    animation_change = "idle"
+    current_animation = "idle"
+    sprite = pygame.image.load(current_sprite)
+    texture = pygame.transform.scale(sprite,  (_CHARS_SIZE, _CHARS_SIZE))
+    anim_clock = -1
+    can_attack_cycle = 0
+
+    #Masks use the opaque pixels, ignoring the transparent
+    #hitbox = pygame.mask.from_surface(texture, 127)
+    def handle_animation(self):
+        if self.animation_change != self.current_animation:
+            self.cur_key = -1
+            self.animation_change = self.current_animation
+
+        #CLOCK CHANGE
+        self.anim_clock += 1
+        if self.current_animation == "idle":
+            if self.cur_key+2 > len(self.idle_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 10:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.idle_animation[self.cur_key]
+        elif self.current_animation == "moving":
+            if self.cur_key+2 > len(self.run_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 4:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.run_animation[self.cur_key]
+        elif self.current_animation == "hit":
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 5:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.hit_animation[self.cur_key]
+        elif self.current_animation == "AttackFront":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_front_animation[self.cur_key]
+        elif self.current_animation == "AttackFrontUp":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_front_up_animation[self.cur_key]
+        elif self.current_animation == "AttackFrontDown":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_front_down_animation[self.cur_key]
+        elif self.current_animation == "AttackUp":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_up_animation[self.cur_key]
+        elif self.current_animation == "AttackDown":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_down_animation[self.cur_key]
+        self.sprite = pygame.image.load(self.current_sprite)
+        self.texture = pygame.transform.scale(self.sprite,  (_CHARS_SIZE, _CHARS_SIZE))
+    
+    #collision
+    def hitbox(self):
+        return pygame.Rect(self.x + self.char_x_offset *2.6 , self.y + self.char_y_offset *2.6, self.char_width *2.6, self.char_height*2.6)
+    
+    def check_arena_collision(self):
+        colliding = False
+        if not arena_ground.contains(self.hitbox()):
+            colliding = True
+        for rect in arena_collisions:
+            if rect != self:
+                if self.hitbox().colliderect(rect.hitbox()):
+                    colliding = True
+
+        return colliding
+    
+    def attack(self, x, y):
+        self.proj_dir = (x, y)
+        attack_anim = "Attack"
+        if x==0 and y == 0:
+            return
+        self.performing_action = True
+        self.can_attack = False
+        if x != 0:
+            attack_anim += "Front"
+        if y == -1:
+            attack_anim += "Up"
+        elif y == 1:
+            attack_anim += "Down"
+        self.current_animation = attack_anim
+    
+    def shoot(self):
+        Projectile((self.proj_dir[0], self.proj_dir[1]), self)
+    
+    def take_damage(self, damage):
+        self.base_hp -= damage
+        self.current_animation = "hit"
+        self.performing_action = True
+        if self.base_hp <= 0:
+            self.die()
+            
+    #movement
+    def move(self, player):
+        keys = pygame.key.get_pressed()  #checking pressed keys
+        x, y = (0, 0)
+        if not self.performing_action:
+            if player == 1:
+                if keys[pygame.K_w]:
+                    y += 1         
+                if keys[pygame.K_s]:
+                    y -= 1
+                if keys[pygame.K_d]:
+                    x += 1          
+                if keys[pygame.K_a]:
+                    x -= 1              
+                if keys[pygame.K_LSHIFT] and self.can_attack:
+                    self.attack(x, -y)
+            elif player == 2:
+                if keys[pygame.K_UP]:
+                    y += 1            
+                if keys[pygame.K_DOWN]:
+                    y -= 1             
+                if keys[pygame.K_RIGHT]:
+                    x += 1               
+                if keys[pygame.K_LEFT]:
+                    x -= 1
+                if keys[pygame.K_RETURN] and self.can_attack:
+                    self.attack(x, -y)
+        if x > 0:
+            self.orientation = False
+        elif x <0:
+            self.orientation = True
+        self.x += x* self.speed
+        if self.check_arena_collision():
+            self.x -= x * self.speed
+            x = 0
+        self.y -= y* self.speed
+        if self.check_arena_collision():
+            self.y += y * self.speed
+            x = 0
+        self.direction = (x, y)
+        if not self.performing_action:
             if x != 0 or y != 0:
                 self.current_animation = "moving"
             else:
@@ -2108,15 +2695,24 @@ class Manticore():
     s_life_span = "short"
     s_number_of_chars = "2"
 
+    obj_type = "player"
     #STAT NUMBERS
+    team = 1
+    ranged = True
+        #type: teleport0 air1 ground2
+    move_type = 0
+    move_limit = 3
     speed = 5
-    atk_damage = 2
-    atk_speed = 8
-    atk_cooldown = 2
+    atk_damage = 8
+    atk_speed = 9
+    atk_cooldown = 0.75 * 60
+    base_hp = 9.5
+    max_hp= 16.5
     alive = True
     orientation = True
     direction = (1,0)
-    performing_attack = False
+    performing_action = False
+    can_attack = True
     char_x_offset = 18
     char_y_offset = 17
     char_width = 12 #TODO: get character dimensions
@@ -2127,24 +2723,25 @@ class Manticore():
 
     #projectile
     proj_dir = (0,0)
-    proj_size = 30
-                    #Corrections #TODO:Get it right
+    proj_width = 10
+    proj_height = 4
+                    #Corrections 
     proj_correction = [
-    (15,7), #RightAttackFront
-    (14,-3), #RightAttackUp
-    (17,-3), #RightAttackFrontUp
-    (16,15), #RightAttackFrontDown
-    (6,16), #RightAttackDown
-    (-9,7), #LeftAttackFront
-    (-6,-3), #LeftAttackUp
-    (-11,-3), #LeftAttackFrontUp
-    (-8,15), #LeftAttackFrontDown
-    (-6,16)  #LeftAttackDown #    AQUI
+    (34,26), #RightAttackFront
+    (33,17), #RightAttackUp
+    (36,19), #RightAttackFrontUp
+    (35,33), #RightAttackFrontDown
+    (33,35), #RightAttackDown
+    (14,26), #LeftAttackFront
+    (16,18), #LeftAttackUp
+    (14,19), #LeftAttackFrontUp
+    (14,34), #LeftAttackFrontDown
+    (16,35)  #LeftAttackDown 
     ]
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
-    
     run_animation = get_sprites(name, 'Run')
+    hit_animation = get_sprites(name, 'Hit')
     
     attack_front_animation = get_sprites(name, 'AttackFront')
     attack_front_up_animation = get_sprites(name, 'AttackFrontUp')
@@ -2160,6 +2757,7 @@ class Manticore():
     sprite = pygame.image.load(current_sprite)
     texture = pygame.transform.scale(sprite,  (_CHARS_SIZE, _CHARS_SIZE))
     anim_clock = -1
+    can_attack_cycle = 0
 
     #Masks use the opaque pixels, ignoring the transparent
     #hitbox = pygame.mask.from_surface(texture, 127)
@@ -2170,13 +2768,12 @@ class Manticore():
 
         #CLOCK CHANGE
         self.anim_clock += 1
-
         if self.current_animation == "idle":
             if self.cur_key+2 > len(self.idle_animation):
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock == 10:
+                if self.anim_clock > 10:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.idle_animation[self.cur_key]
@@ -2189,16 +2786,27 @@ class Manticore():
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.run_animation[self.cur_key]
+        elif self.current_animation == "hit":
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 5:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.hit_animation[self.cur_key]
         elif self.current_animation == "AttackFront":
             if self.cur_key == 2 and self.anim_clock == 0:
                 self.shoot()
             if self.cur_key+2 > 3:
                 self.current_animation = "idle"
-                self.performing_attack = False
+                self.performing_action = False
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock == 10:
+                if self.anim_clock > self.atk_speed:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_animation[self.cur_key]
@@ -2207,11 +2815,11 @@ class Manticore():
                 self.shoot()
             if self.cur_key+2 > 3:
                 self.current_animation = "idle"
-                self.performing_attack = False
+                self.performing_action = False
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock == 10:
+                if self.anim_clock > self.atk_speed:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_up_animation[self.cur_key]
@@ -2220,11 +2828,11 @@ class Manticore():
                 self.shoot()
             if self.cur_key+2 > 3:
                 self.current_animation = "idle"
-                self.performing_attack = False
+                self.performing_action = False
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock == 10:
+                if self.anim_clock > self.atk_speed:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_down_animation[self.cur_key]
@@ -2233,11 +2841,11 @@ class Manticore():
                 self.shoot()
             if self.cur_key+2 > 3:
                 self.current_animation = "idle"
-                self.performing_attack = False
+                self.performing_action = False
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock == 10:
+                if self.anim_clock > self.atk_speed:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_up_animation[self.cur_key]
@@ -2246,11 +2854,11 @@ class Manticore():
                 self.shoot()
             if self.cur_key+2 > 3:
                 self.current_animation = "idle"
-                self.performing_attack = False
+                self.performing_action = False
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock == 10:
+                if self.anim_clock > self.atk_speed:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_down_animation[self.cur_key]
@@ -2277,7 +2885,8 @@ class Manticore():
         attack_anim = "Attack"
         if x==0 and y == 0:
             return
-        self.performing_attack = True
+        self.performing_action = True
+        self.can_attack = False
         if x != 0:
             attack_anim += "Front"
         if y == -1:
@@ -2289,14 +2898,18 @@ class Manticore():
     def shoot(self):
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
-    def take_damage(self):
-        pass
-
+    def take_damage(self, damage):
+        self.base_hp -= damage
+        self.current_animation = "hit"
+        self.performing_action = True
+        if self.base_hp <= 0:
+            self.die()
+            
     #movement
     def move(self, player):
         keys = pygame.key.get_pressed()  #checking pressed keys
         x, y = (0, 0)
-        if not self.performing_attack:
+        if not self.performing_action:
             if player == 1:
                 if keys[pygame.K_w]:
                     y += 1         
@@ -2306,7 +2919,7 @@ class Manticore():
                     x += 1          
                 if keys[pygame.K_a]:
                     x -= 1              
-                if keys[pygame.K_LSHIFT]:
+                if keys[pygame.K_LSHIFT] and self.can_attack:
                     self.attack(x, -y)
             elif player == 2:
                 if keys[pygame.K_UP]:
@@ -2317,7 +2930,7 @@ class Manticore():
                     x += 1               
                 if keys[pygame.K_LEFT]:
                     x -= 1
-                if keys[pygame.K_RETURN]:
+                if keys[pygame.K_RETURN] and self.can_attack:
                     self.attack(x, -y)
         if x > 0:
             self.orientation = False
@@ -2332,11 +2945,19 @@ class Manticore():
             self.y += y * self.speed
             x = 0
         self.direction = (x, y)
-        if not self.performing_attack:
+        if not self.performing_action:
             if x != 0 or y != 0:
                 self.current_animation = "moving"
             else:
                 self.current_animation = "idle"
+        if not self.can_attack:
+            self.can_attack_cycle += 1
+            if self.can_attack_cycle > self.atk_cooldown:
+                self.can_attack_cycle = 0
+                self.can_attack = True
+
+    def die(self):
+        self.alive = False
 
     def __init__(self):
         print(f"{self.name} instantiated")
@@ -2847,11 +3468,13 @@ def arena():
     if dueler2.alive:
         screen.blit(pygame.transform.flip(dueler2.texture, dueler2.orientation, False), (dueler2.x, dueler2.y))
     for proj in light_projectiles:
-        screen.blit(proj.sprite, (proj.x, proj.y))
+        if proj.ranged:
+            screen.blit(proj.sprite, (proj.x, proj.y))
         if _DEBUG:
             pygame.draw.rect(screen, (0,0,0), proj.hitbox(), 0)
     for proj in dark_projectiles:
-        screen.blit(proj.sprite, (proj.x, proj.y))
+        if proj.ranged:
+            screen.blit(proj.sprite, (proj.x, proj.y))
         if _DEBUG:
             pygame.draw.rect(screen, (0,0,0), proj.hitbox(), 0)
     if _DEBUG:
