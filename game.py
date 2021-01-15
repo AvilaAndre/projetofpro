@@ -174,6 +174,7 @@ class Knight():
     atk_speed = 3
     atk_cooldown = 0.75 * 60
     base_hp = 9.5
+    hp = base_hp
     max_hp= 16.5
     alive = True
     orientation = True
@@ -369,11 +370,15 @@ class Knight():
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
     
+    def update_base_hp(self, hp):
+        self.base_hp += hp
+
+
     def take_damage(self, damage):
-        self.base_hp -= damage
+        self.hp -= damage
         self.current_animation = "hit"
         self.performing_action = True
-        if self.base_hp <= 0:
+        if self.hp <= 0:
             self.die()
 
     #movement
@@ -428,7 +433,9 @@ class Knight():
                 self.can_attack = True
 
     def die(self):
+        self.base_hp = 0
         self.alive = False
+
 
     def __init__(self):
         print(f"{self.name} instantiated")
@@ -458,6 +465,7 @@ class Unicorn():
     atk_speed = 9
     atk_cooldown = 0.75 * 60
     base_hp = 9.5
+    hp = base_hp
     max_hp= 16.5
     alive = True
     orientation = True
@@ -649,11 +657,14 @@ class Unicorn():
     def shoot(self):
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
+    def update_base_hp(self, hp):
+        self.base_hp += hp
+    
     def take_damage(self, damage):
-        self.base_hp -= damage
+        self.hp -= damage
         self.current_animation = "hit"
         self.performing_action = True
-        if self.base_hp <= 0:
+        if self.hp <= 0:
             self.die()
             
     #movement
@@ -708,7 +719,9 @@ class Unicorn():
                 self.can_attack = True
 
     def die(self):
+        self.base_hp = 0
         self.alive = False
+
 
     def __init__(self):
         print(f"{self.name} instantiated")
@@ -738,6 +751,7 @@ class Valkyrie():
     atk_speed = 9
     atk_cooldown = 0.75 * 60
     base_hp = 9.5
+    hp = base_hp
     max_hp= 16.5
     alive = True
     orientation = True
@@ -929,11 +943,14 @@ class Valkyrie():
     def shoot(self):
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
+    def update_base_hp(self, hp):
+        self.base_hp += hp
+
     def take_damage(self, damage):
-        self.base_hp -= damage
+        self.hp -= damage
         self.current_animation = "hit"
         self.performing_action = True
-        if self.base_hp <= 0:
+        if self.hp <= 0:
             self.die()
             
     #movement
@@ -988,7 +1005,9 @@ class Valkyrie():
                 self.can_attack = True
 
     def die(self):
+        self.base_hp = 0
         self.alive = False
+
 
     def __init__(self):
         print(f"{self.name} instantiated")
@@ -1018,6 +1037,7 @@ class Djinni():
     atk_speed = 9
     atk_cooldown = 0.75 * 60
     base_hp = 9.5
+    hp = base_hp
     max_hp= 16.5
     alive = True
     orientation = True
@@ -1209,11 +1229,14 @@ class Djinni():
     def shoot(self):
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
+    def update_base_hp(self, hp):
+        self.base_hp += hp
+
     def take_damage(self, damage):
-        self.base_hp -= damage
+        self.hp -= damage
         self.current_animation = "hit"
         self.performing_action = True
-        if self.base_hp <= 0:
+        if self.hp <= 0:
             self.die()
             
     #movement
@@ -1268,7 +1291,9 @@ class Djinni():
                 self.can_attack = True
 
     def die(self):
+        self.base_hp = 0
         self.alive = False
+
 
     def __init__(self):
         print(f"{self.name} instantiated")
@@ -1298,6 +1323,7 @@ class Archer():
     atk_speed = 9
     atk_cooldown = 0.75 * 60
     base_hp = 9.5
+    hp = base_hp
     max_hp= 16.5
     alive = True
     orientation = True
@@ -1492,11 +1518,14 @@ class Archer():
     def shoot(self):
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
+    def update_base_hp(self, hp):
+        self.base_hp += hp
+
     def take_damage(self, damage):
-        self.base_hp -= damage
+        self.hp -= damage
         self.current_animation = "hit"
         self.performing_action = True
-        if self.base_hp <= 0:
+        if self.hp <= 0:
             self.die()
 
     #movement
@@ -1551,7 +1580,9 @@ class Archer():
                 self.can_attack = True
 
     def die(self):
+        self.base_hp = 0
         self.alive = False
+
 
     def __init__(self):
         print(f"{self.name} instantiated")
@@ -1581,6 +1612,7 @@ class Golem():
     atk_speed = 9
     atk_cooldown = 0.75 * 60
     base_hp = 9.5
+    hp = base_hp
     max_hp= 16.5
     alive = True
     orientation = True
@@ -1772,11 +1804,14 @@ class Golem():
     def shoot(self):
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
+    def update_base_hp(self, hp):
+        self.base_hp += hp
+
     def take_damage(self, damage):
-        self.base_hp -= damage
+        self.hp -= damage
         self.current_animation = "hit"
         self.performing_action = True
-        if self.base_hp <= 0:
+        if self.hp <= 0:
             self.die()
             
     #movement
@@ -1831,7 +1866,9 @@ class Golem():
                 self.can_attack = True
 
     def die(self):
+        self.base_hp = 0
         self.alive = False
+
 
     def __init__(self):
         print(f"{self.name} instantiated")
@@ -1854,13 +1891,14 @@ class Phoenix():
     team = 0
     ranged = True
         #type: teleport0 air1 ground2
-    move_type = 0
+    move_type = 1
     move_limit = 3
     speed = 5
     atk_damage = 8
     atk_speed = 9
     atk_cooldown = 0.75 * 60
     base_hp = 9.5
+    hp = base_hp
     max_hp= 16.5
     alive = True
     orientation = True
@@ -2052,11 +2090,14 @@ class Phoenix():
     def shoot(self):
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
+    def update_base_hp(self, hp):
+        self.base_hp += hp
+
     def take_damage(self, damage):
-        self.base_hp -= damage
+        self.hp -= damage
         self.current_animation = "hit"
         self.performing_action = True
-        if self.base_hp <= 0:
+        if self.hp <= 0:
             self.die()
             
     #movement
@@ -2111,7 +2152,9 @@ class Phoenix():
                 self.can_attack = True
 
     def die(self):
+        self.base_hp = 0
         self.alive = False
+
 
     def __init__(self):
         print(f"{self.name} instantiated")
@@ -2141,6 +2184,7 @@ class Wizard():
     atk_speed = 9
     atk_cooldown = 0.75 * 60
     base_hp = 9.5
+    hp = base_hp
     max_hp= 16.5
     alive = True
     orientation = True
@@ -2332,11 +2376,14 @@ class Wizard():
     def shoot(self):
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
+    def update_base_hp(self, hp):
+        self.base_hp += hp
+
     def take_damage(self, damage):
-        self.base_hp -= damage
+        self.hp -= damage
         self.current_animation = "hit"
         self.performing_action = True
-        if self.base_hp <= 0:
+        if self.hp <= 0:
             self.die()
             
     #movement
@@ -2391,7 +2438,9 @@ class Wizard():
                 self.can_attack = True
 
     def die(self):
+        self.base_hp = 0
         self.alive = False
+
 
     def __init__(self):
         print(f"{self.name} instantiated")
@@ -2426,6 +2475,7 @@ class Sorceress():
     atk_speed = 9
     atk_cooldown = 0.75 * 60
     base_hp = 9.5
+    hp = base_hp
     max_hp= 16.5
     alive = True
     orientation = True
@@ -2617,11 +2667,15 @@ class Sorceress():
     def shoot(self):
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
+    def update_base_hp(self, hp):
+        self.base_hp += hp
+
+
     def take_damage(self, damage):
-        self.base_hp -= damage
+        self.hp -= damage
         self.current_animation = "hit"
         self.performing_action = True
-        if self.base_hp <= 0:
+        if self.hp <= 0:
             self.die()
             
     #movement
@@ -2676,7 +2730,9 @@ class Sorceress():
                 self.can_attack = True
 
     def die(self):
+        self.base_hp = 0
         self.alive = False
+
 
     def __init__(self):
         print(f"{self.name} instantiated")
@@ -2706,6 +2762,7 @@ class Manticore():
     atk_speed = 9
     atk_cooldown = 0.75 * 60
     base_hp = 9.5
+    hp = base_hp
     max_hp= 16.5
     alive = True
     orientation = True
@@ -2897,11 +2954,14 @@ class Manticore():
     def shoot(self):
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
+    def update_base_hp(self, hp):
+        self.base_hp += hp
+
     def take_damage(self, damage):
-        self.base_hp -= damage
+        self.hp -= damage
         self.current_animation = "hit"
         self.performing_action = True
-        if self.base_hp <= 0:
+        if self.hp <= 0:
             self.die()
             
     #movement
@@ -2956,7 +3016,9 @@ class Manticore():
                 self.can_attack = True
 
     def die(self):
+        self.base_hp = 0
         self.alive = False
+
 
     def __init__(self):
         print(f"{self.name} instantiated")
@@ -2986,6 +3048,7 @@ class Troll():
     atk_speed = 9
     atk_cooldown = 0.75 * 60
     base_hp = 9.5
+    hp = base_hp
     max_hp= 16.5
     alive = True
     orientation = True
@@ -3177,11 +3240,14 @@ class Troll():
     def shoot(self):
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
+    def update_base_hp(self, hp):
+        self.base_hp += hp
+
     def take_damage(self, damage):
-        self.base_hp -= damage
+        self.hp -= damage
         self.current_animation = "hit"
         self.performing_action = True
-        if self.base_hp <= 0:
+        if self.hp <= 0:
             self.die()
             
     #movement
@@ -3236,6 +3302,7 @@ class Troll():
                 self.can_attack = True
 
     def die(self):
+        self.base_hp = 0
         self.alive = False
 
     def __init__(self):
@@ -3268,6 +3335,7 @@ class Goblin():
     atk_speed = 3
     atk_cooldown = 0.75 * 60
     base_hp = 9.5
+    hp = base_hp
     max_hp= 16.5
     alive = True
     orientation = True
@@ -3463,11 +3531,14 @@ class Goblin():
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
     
+    def update_base_hp(self, hp):
+        self.base_hp += hp
+
     def take_damage(self, damage):
-        self.base_hp -= damage
+        self.hp -= damage
         self.current_animation = "hit"
         self.performing_action = True
-        if self.base_hp <= 0:
+        if self.hp <= 0:
             self.die()
 
     #movement
@@ -3522,6 +3593,7 @@ class Goblin():
                 self.can_attack = True
 
     def die(self):
+        self.base_hp = 0
         self.alive = False
 
     def __init__(self):
@@ -3552,6 +3624,7 @@ class Banshee():
     atk_speed = 9
     atk_cooldown = 0.75 * 60
     base_hp = 9.5
+    hp = base_hp
     max_hp= 16.5
     alive = True
     orientation = True
@@ -3743,11 +3816,14 @@ class Banshee():
     def shoot(self):
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
+    def update_base_hp(self, hp):
+        self.base_hp += hp
+
     def take_damage(self, damage):
-        self.base_hp -= damage
+        self.hp -= damage
         self.current_animation = "hit"
         self.performing_action = True
-        if self.base_hp <= 0:
+        if self.hp <= 0:
             self.die()
             
     #movement
@@ -3802,7 +3878,9 @@ class Banshee():
                 self.can_attack = True
 
     def die(self):
+        self.base_hp = 0
         self.alive = False
+
 
     def __init__(self):
         print(f"{self.name} instantiated")
@@ -3832,6 +3910,7 @@ class Dragon():
     atk_speed = 9
     atk_cooldown = 0.75 * 60
     base_hp = 9.5
+    hp = base_hp
     max_hp= 16.5
     alive = True
     orientation = True
@@ -4023,11 +4102,14 @@ class Dragon():
     def shoot(self):
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
+    def update_base_hp(self, hp):
+        self.base_hp += hp
+
     def take_damage(self, damage):
-        self.base_hp -= damage
+        self.hp -= damage
         self.current_animation = "hit"
         self.performing_action = True
-        if self.base_hp <= 0:
+        if self.hp <= 0:
             self.die()
             
     #movement
@@ -4082,6 +4164,7 @@ class Dragon():
                 self.can_attack = True
 
     def die(self):
+        self.base_hp = 0
         self.alive = False
 
     def __init__(self):
@@ -4112,6 +4195,7 @@ class Basilisk():
     atk_speed = 9
     atk_cooldown = 0.75 * 60
     base_hp = 9.5
+    hp = base_hp
     max_hp= 16.5
     alive = True
     orientation = True
@@ -4303,11 +4387,15 @@ class Basilisk():
     def shoot(self):
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
+    def update_base_hp(self, hp):
+        self.base_hp += hp
+
+
     def take_damage(self, damage):
-        self.base_hp -= damage
+        self.hp -= damage
         self.current_animation = "hit"
         self.performing_action = True
-        if self.base_hp <= 0:
+        if self.hp <= 0:
             self.die()
             
     #movement
@@ -4362,6 +4450,7 @@ class Basilisk():
                 self.can_attack = True
 
     def die(self):
+        self.base_hp = 0
         self.alive = False
 
     def __init__(self):
@@ -4683,7 +4772,7 @@ class GameBoard:
     board_y = 64
     light_square = pygame.image.load(r'Resources\Sprites\Tiles\220220220LightTile.png')
     board_color_data = [[ _TILE_COLORS[5] ,_TILE_COLORS[0], _TILE_COLORS[5], 0, _TILE_COLORS[0], 0, _TILE_COLORS[5], _TILE_COLORS[0], _TILE_COLORS[5]], [_TILE_COLORS[0] , _TILE_COLORS[5],0, _TILE_COLORS[0], 0, _TILE_COLORS[0], 0, _TILE_COLORS[5], _TILE_COLORS[0]], [_TILE_COLORS[5] ,0,_TILE_COLORS[0], _TILE_COLORS[5], 0, _TILE_COLORS[5], _TILE_COLORS[0], 0, _TILE_COLORS[5]], [(220,220,220) , _TILE_COLORS[0], _TILE_COLORS[5], _TILE_COLORS[0], 0, _TILE_COLORS[0], _TILE_COLORS[5], _TILE_COLORS[0], 0], [0, 0, 0, 0, 0, 0, 0, 0, 0], [0 , _TILE_COLORS[5], _TILE_COLORS[0], _TILE_COLORS[5], 0, _TILE_COLORS[5], _TILE_COLORS[0], _TILE_COLORS[5], 0], [_TILE_COLORS[0] ,0,_TILE_COLORS[5], _TILE_COLORS[0], 0, _TILE_COLORS[0], _TILE_COLORS[5], 0, _TILE_COLORS[0]], [_TILE_COLORS[5] , _TILE_COLORS[0], 0, _TILE_COLORS[5], 0, _TILE_COLORS[5], 0, _TILE_COLORS[0], _TILE_COLORS[5]], [_TILE_COLORS[0] , _TILE_COLORS[5], _TILE_COLORS[0], 0, _TILE_COLORS[5], 0, _TILE_COLORS[0], _TILE_COLORS[5], _TILE_COLORS[0]]]
-    board_data = [[Valkyrie_Piece1 , Golem_Piece1, Unicorn_Piece2, Djinni_Piece1, Wizard_Piece1, Phoenix_Piece1, Unicorn_Piece1, Golem_Piece2, Valkyrie_Piece2], [Archer_Piece1, Knight_Piece1 , Knight_Piece2, Knight_Piece3, Knight_Piece4, Knight_Piece5, Knight_Piece6, Knight_Piece7, Archer_Piece2], [None , None, None, None, None, None, None, None, None], [None, None, None, None, None, None, None, None, None], [None, None, None, None, None, None, None, None, None], [None , None, None, None, None, None, None, None, None], [None ,None ,None, None, None, None, None, None, None], [Manticore_Piece2 , Goblin_Piece1, Goblin_Piece2, Goblin_Piece3, Goblin_Piece4, Goblin_Piece5, Goblin_Piece6, Goblin_Piece7, Manticore_Piece2], [Banshee_Piece1 , Troll_Piece1, Basilisk_Piece1, None, Sorceress_Piece1, Dragon_Piece1, Basilisk_Piece2, Troll_Piece2, Banshee_Piece2]]
+    board_data = [[Valkyrie_Piece1 , Golem_Piece1, Unicorn_Piece2, Djinni_Piece1, Wizard_Piece1, Phoenix_Piece1, Unicorn_Piece1, Golem_Piece2, Valkyrie_Piece2], [Archer_Piece1, Knight_Piece1 , Knight_Piece2, Knight_Piece3, Knight_Piece4, Knight_Piece5, Knight_Piece6, Knight_Piece7, Archer_Piece2], [None , None, None, None, None, None, None, None, None], [None, None, None, None, None, None, None, None, None], [None, None, None, None, None, None, None, None, None], [None , None, None, None, None, None, None, None, None], [None ,None ,None, None, None, None, None, None, None], [Manticore_Piece1 , Goblin_Piece1, Goblin_Piece2, Goblin_Piece3, Goblin_Piece4, Goblin_Piece5, Goblin_Piece6, Goblin_Piece7, Manticore_Piece2], [Banshee_Piece1 , Troll_Piece1, Basilisk_Piece1, None, Sorceress_Piece1, Dragon_Piece1, Basilisk_Piece2, Troll_Piece2, Banshee_Piece2]]
     turn = 0
     moving = (0, 0)
 
@@ -4691,10 +4780,14 @@ class GameBoard:
     player_board_y = 0
     turn_player = 0
     selected_sq = ()
+    move_count = (0,0)
 
     light_fighter = None
     dark_fighter = None
 
+    board_warn = ''
+    board_warn_clock = 0
+    board_warn_cycle = 0
     ##ENERGY SQUARE ANIMATION##
     energy_square_frames = [pygame.image.load(r'Resources\Sprites\Tiles\EnergySquare\EnergySquareF1.png'), pygame.image.load(r'Resources\Sprites\Tiles\EnergySquare\EnergySquareF2.png'), pygame.image.load(r'Resources\Sprites\Tiles\EnergySquare\EnergySquareF3.png'), pygame.image.load(r'Resources\Sprites\Tiles\EnergySquare\EnergySquareF4.png'), pygame.image.load(r'Resources\Sprites\Tiles\EnergySquare\EnergySquareF5.png')]
     es_cur_anim = 0
@@ -4748,19 +4841,24 @@ class GameBoard:
         self.turn += 1
         self.board_color_switch()
         self.update_board()
+        self.board_warn =  f"It is {'darks'} turn!"
 
     def select(self):
         #sq is for square
         if self.selected_sq == ():
             if self.board_data[self.player_board_y][self.player_board_x] != None:
                 self.selected_sq = (self.board_data[self.player_board_y][self.player_board_x],(self.player_board_x, self.player_board_y))
+                self.board_warn =  self.selected_sq[0][0].name + '  [' + self.selected_sq[0][0].s_moving_type + ']'
+                self.move_count = (0,0)
         else:
             if self.board_data[self.player_board_y][self.player_board_x] == None:
                 self.board_data[self.player_board_y][self.player_board_x] = self.selected_sq[0]
                 self.board_data[self.selected_sq[1][1]][self.selected_sq[1][0]] = None
+                self.board_warn =  ''
                 self.next_turn()
+                self.selected_sq = ()
             elif self.board_data[self.player_board_y][self.player_board_x][0].team == self.board_data[self.selected_sq[1][1]][self.selected_sq[1][0]][0].team:
-                print("They're teamates!") #TODO:Log
+                self.board_warn = ''
             elif not self.board_data[self.player_board_y][self.player_board_x] == self.selected_sq[0]:
                 if self.board_data[self.player_board_y][self.player_board_x][0].team == 0:
                     self.light_fighter = (self.board_data[self.player_board_y][self.player_board_x], (self.player_board_y, self.player_board_x))
@@ -4769,34 +4867,51 @@ class GameBoard:
                     self.light_fighter = self.selected_sq
                     self.dark_fighter = (self.board_data[self.player_board_y][self.player_board_x], (self.player_board_y, self.player_board_x))
                 start_duel(self.selected_sq[0][0], self.board_data[self.player_board_y][self.player_board_x][0], (self.player_board_x, self.player_board_y))
-            self.selected_sq = ()
+                self.board_warn =  ''
+                self.selected_sq = ()
 
     def move_on_board(self, direc):
+        def check_move(vertical, horizontal):
+            if self.selected_sq == ():
+                return True
+            move_count = (self.move_count[0] + vertical, self.move_count[1] + horizontal)
+            if self.selected_sq[0][0].move_type == 0 or self.selected_sq[0][0].move_type ==1:
+                if self.selected_sq[0][0].move_limit < max(abs(move_count[0]), abs(move_count[1])):
+                    self.board_warn = "You have moved your limit"
+                    return False
+            elif self.selected_sq[0][0].move_type == 2:
+                if self.selected_sq[0][0].move_limit < (abs(move_count[0]) + abs(move_count[1])):
+                    self.board_warn = "You have moved your limit"
+                    return False
+                if self.board_data[self.player_board_y + horizontal][self.player_board_x + vertical] != None:
+                    if self.board_data[self.player_board_y + horizontal][self.player_board_x + vertical][0].team == self.selected_sq[0][0].team and self.board_data[self.player_board_y + horizontal][self.player_board_x + vertical][0] != self.selected_sq[0][0]:
+                        return False
+            return True
         x, y = direc
-        if self.player_board_x + x > -1 and self.player_board_x + x < 9:
+        if self.player_board_x + x > -1 and self.player_board_x + x < 9 and check_move(x, 0):
             self.player_board_x += x
-        if self.player_board_y + y > -1 and self.player_board_y + y < 9:
+            self.move_count = (self.move_count[0] + x, self.move_count[1])
+            if self.board_warn == "You have moved your limit" and self.selected_sq != ():
+                self.board_warn =  self.selected_sq[0][0].name + ' (' + self.selected_sq[0][0].s_moving_type + ')'
+        if self.player_board_y + y > -1 and self.player_board_y + y < 9 and check_move(0, y):
             self.player_board_y += y
+            self.move_count = (self.move_count[0], self.move_count[1] + y)
+            if self.board_warn == "You have moved your limit" and self.selected_sq != ():
+                self.board_warn =  self.selected_sq[0][0].name + ' (' + self.selected_sq[0][0].s_moving_type + ')'
+        
+    
         
     def get_info(self):
-        if self.selected_sq != ():
-            return self.selected_sq[0][0].name + ' - ' + self.selected_sq[0][0].s_moving_type
-        character = self.board_data[self.player_board_y][self.player_board_x]
-        if character == None:
-            return ''
-        else:
-            return character[0].name + ' - ' + character[0].s_moving_type
+        return self.board_warn.upper()
     
     def move_selected_piece(self):
         screen.blit(pygame.transform.flip(self.selected_sq[0][1],self.selected_sq[0][0].orientation, False), (self.board_x + (56*self.player_board_y) - self.selected_sq[0][0].char_x_offset, self.board_y + (56*self.player_board_x) - self.selected_sq[0][0].char_y_offset))
 
     def finished_fight(self, piece, position):
         if piece == 0:
-            print(self.light_fighter)
             self.board_data[position[1]][position[0]] = self.light_fighter[0]
             self.board_data[self.light_fighter[1][1]][self.light_fighter[1][0]] = None
         elif piece == 1:
-            print(self.dark_fighter)
             self.board_data[position[1]][position[0]] = self.dark_fighter[0]
             self.board_data[self.dark_fighter[1][1]][self.dark_fighter[1][0]] = None
         self.light_fighter = None
@@ -4847,6 +4962,7 @@ dead = []
 arena_finish_clock = 0
 arena_finish_var = 0
 fighting_pos = (0,0)
+
 def start_duel(fighter1, fighter2, pos):
     global current_scene, dueler1, dueler0, arena_finish_clock, arena_finish_var, fighting_pos
     arena_collisions.clear()
@@ -4901,13 +5017,13 @@ def arena():
         dueler1_hp = 0
     else:
         dueler1.move(2)
-        dueler1_hp = dueler1.base_hp
+        dueler1_hp = dueler1.hp
     if not dueler0.alive:
         dead.append(dueler0)
         dueler0_hp = 0
     else:
         dueler0.move(1)
-        dueler0_hp = dueler0.base_hp
+        dueler0_hp = dueler0.hp
     for proj in light_projectiles:
         proj.move()
     for proj in dark_projectiles:
@@ -4926,7 +5042,7 @@ def arena():
                 arena_finish_var = 0
                 arena_finish_clock -= 1
     #Draw
-    pygame.draw.rect(screen, _MAIN_BOARD._TILE_COLORS[_MAIN_BOARD.cur_color], arena_ground, 0)
+    pygame.draw.rect(screen, _MAIN_BOARD.board_color_data[fighting_pos[1]][fighting_pos[0]], arena_ground, 0)
     ##dueler's stats
     pygame.draw.rect(screen, (255, 255, 153), (10,(632 - dueler0_hp * 26), 50, dueler0_hp*26), 0)
     pygame.draw.rect(screen, (0, 0, 77), (964, (632 - dueler1_hp * 26), 50, dueler1_hp*26), 0)
@@ -5060,7 +5176,7 @@ while running:
                                 char_det = Manticore()
                                 rules_screen = 4
                             elif char_view_sel == 3:
-                                #char_det = Dragon()
+                                char_det = Dragon()
                                 rules_screen = 4
                             elif char_view_sel == 4:
                                 char_det = Sorceress()
@@ -5069,7 +5185,7 @@ while running:
                                 #char_det = Shapeshifter()
                                 rules_screen = 4
                             elif char_view_sel == 6:
-                                #char_det = Basilisk()
+                                char_det = Basilisk()
                                 rules_screen = 4
                             elif char_view_sel == 7:
                                 char_det = Troll()
