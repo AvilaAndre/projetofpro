@@ -4692,6 +4692,9 @@ class GameBoard:
     turn_player = 0
     selected_sq = ()
 
+    light_fighter = None
+    dark_fighter = None
+
     ##ENERGY SQUARE ANIMATION##
     energy_square_frames = [pygame.image.load(r'Resources\Sprites\Tiles\EnergySquare\EnergySquareF1.png'), pygame.image.load(r'Resources\Sprites\Tiles\EnergySquare\EnergySquareF2.png'), pygame.image.load(r'Resources\Sprites\Tiles\EnergySquare\EnergySquareF3.png'), pygame.image.load(r'Resources\Sprites\Tiles\EnergySquare\EnergySquareF4.png'), pygame.image.load(r'Resources\Sprites\Tiles\EnergySquare\EnergySquareF5.png')]
     es_cur_anim = 0
@@ -4755,8 +4758,17 @@ class GameBoard:
             if self.board_data[self.player_board_y][self.player_board_x] == None:
                 self.board_data[self.player_board_y][self.player_board_x] = self.selected_sq[0]
                 self.board_data[self.selected_sq[1][1]][self.selected_sq[1][0]] = None
+                self.next_turn()
+            elif self.board_data[self.player_board_y][self.player_board_x][0].team == self.board_data[self.selected_sq[1][1]][self.selected_sq[1][0]][0].team:
+                print("They're teamates!") #TODO:Log
             elif not self.board_data[self.player_board_y][self.player_board_x] == self.selected_sq[0]:
-                start_duel(self.selected_sq[0][0], self.board_data[self.player_board_y][self.player_board_x][0])
+                if self.board_data[self.player_board_y][self.player_board_x][0].team == 0:
+                    self.light_fighter = (self.board_data[self.player_board_y][self.player_board_x], (self.player_board_y, self.player_board_x))
+                    self.dark_fighter = self.selected_sq
+                else:
+                    self.light_fighter = self.selected_sq
+                    self.dark_fighter = (self.board_data[self.player_board_y][self.player_board_x], (self.player_board_y, self.player_board_x))
+                start_duel(self.selected_sq[0][0], self.board_data[self.player_board_y][self.player_board_x][0], (self.player_board_x, self.player_board_y))
             self.selected_sq = ()
 
     def move_on_board(self, direc):
@@ -4778,6 +4790,17 @@ class GameBoard:
     def move_selected_piece(self):
         screen.blit(pygame.transform.flip(self.selected_sq[0][1],self.selected_sq[0][0].orientation, False), (self.board_x + (56*self.player_board_y) - self.selected_sq[0][0].char_x_offset, self.board_y + (56*self.player_board_x) - self.selected_sq[0][0].char_y_offset))
 
+    def finished_fight(self, piece, position):
+        if piece == 0:
+            print(self.light_fighter)
+            self.board_data[position[1]][position[0]] = self.light_fighter[0]
+            self.board_data[self.light_fighter[1][1]][self.light_fighter[1][0]] = None
+        elif piece == 1:
+            print(self.dark_fighter)
+            self.board_data[position[1]][position[0]] = self.dark_fighter[0]
+            self.board_data[self.dark_fighter[1][1]][self.dark_fighter[1][0]] = None
+        self.light_fighter = None
+        self.dark_fighter = None
 
     def update_board(self):
         for i in range(0, 9):
@@ -4817,39 +4840,45 @@ def board():
 
 #---
 dueler1 = None
-dueler2 = None
+dueler0 = None
 arena_collisions = []
 
 dead = []
 arena_finish_clock = 0
 arena_finish_var = 0
-def start_duel(fighter1, fighter2):
-    global current_scene, dueler1, dueler2, arena_finish_clock, arena_finish_var
+fighting_pos = (0,0)
+def start_duel(fighter1, fighter2, pos):
+    global current_scene, dueler1, dueler0, arena_finish_clock, arena_finish_var, fighting_pos
     arena_collisions.clear()
     dead.clear()
     arena_finish_clock = 15
     arena_finish_var = 0
     current_scene = "arena"
+    fighting_pos = pos
     if fighter1.team == 1:
         dueler1 = fighter1
-        dueler2 = fighter2
+        dueler0 = fighter2
     else:
         dueler1 = fighter2
-        dueler2 = fighter1
-    dueler2.x = 180 - dueler2.char_x_offset * 2.16
-    dueler2.y = 280 - dueler2.char_y_offset * 2.16
+        dueler0 = fighter1
+    dueler0.x = 180 - dueler0.char_x_offset * 2.16
+    dueler0.y = 280 - dueler0.char_y_offset * 2.16
     dueler1.x = 804 - dueler1.char_x_offset * 2.16
     dueler1.y = 280 - dueler1.char_y_offset * 2.16
     dueler1.orientation = True
-    dueler2.orientation = False
+    dueler0.orientation = False
     arena_collisions.append(dueler1)
-    arena_collisions.append(dueler2)
+    arena_collisions.append(dueler0)
 
-def finish_duel():
-    global current_scene, dueler1, dueler2
+def finish_duel(winner):
+    global current_scene, dueler1, dueler0
     dueler1 = None
-    dueler2 = None
+    dueler0 = None
     _MAIN_BOARD.next_turn()
+    if winner == 0:
+        _MAIN_BOARD.finished_fight(0, fighting_pos)
+    elif winner == 1:
+        _MAIN_BOARD.finished_fight(1, fighting_pos)
     light_projectiles.clear()
     dark_projectiles.clear()
     arena_collisions.clear()
@@ -4861,31 +4890,36 @@ light_projectiles = []
 dark_projectiles = []
 
 def arena():
-    ##Dueler2 Light, Dueler1 Dark
-    global dueler1, dueler2, arena_finish_clock, arena_finish_var
+    ##dueler0 Light, Dueler1 Dark
+    global dueler1, dueler0, arena_finish_clock, arena_finish_var
     screen.fill((255, 0, 0))
     #Logic
     dueler1_hp = 0
-    dueler2_hp = 0
+    dueler0_hp = 0
     if not dueler1.alive:
         dead.append(dueler1)
         dueler1_hp = 0
     else:
         dueler1.move(2)
         dueler1_hp = dueler1.base_hp
-    if not dueler2.alive:
-        dead.append(dueler2)
-        dueler2_hp = 0
+    if not dueler0.alive:
+        dead.append(dueler0)
+        dueler0_hp = 0
     else:
-        dueler2.move(1)
-        dueler2_hp = dueler2.base_hp
+        dueler0.move(1)
+        dueler0_hp = dueler0.base_hp
     for proj in light_projectiles:
         proj.move()
     for proj in dark_projectiles:
         proj.move()
     if len(dead) != 0:
         if arena_finish_clock <= 0:
-            return finish_duel()
+            if dueler0.alive and not dueler1.alive:
+                return finish_duel(0)
+            elif dueler1.alive and not dueler0.alive:
+                return finish_duel(1)
+            else:
+                return finish_duel(None)
         else:
             arena_finish_var += 1
             if arena_finish_var > 10:
@@ -4894,12 +4928,12 @@ def arena():
     #Draw
     pygame.draw.rect(screen, _MAIN_BOARD._TILE_COLORS[_MAIN_BOARD.cur_color], arena_ground, 0)
     ##dueler's stats
-    pygame.draw.rect(screen, (255, 255, 153), (10,(632 - dueler2_hp * 26), 50, dueler2_hp*26), 0)
+    pygame.draw.rect(screen, (255, 255, 153), (10,(632 - dueler0_hp * 26), 50, dueler0_hp*26), 0)
     pygame.draw.rect(screen, (0, 0, 77), (964, (632 - dueler1_hp * 26), 50, dueler1_hp*26), 0)
     if dueler1.alive:
         screen.blit(pygame.transform.flip(dueler1.texture, dueler1.orientation, False), (dueler1.x, dueler1.y))
-    if dueler2.alive:
-        screen.blit(pygame.transform.flip(dueler2.texture, dueler2.orientation, False), (dueler2.x, dueler2.y))
+    if dueler0.alive:
+        screen.blit(pygame.transform.flip(dueler0.texture, dueler0.orientation, False), (dueler0.x, dueler0.y))
     for proj in light_projectiles:
         if proj.ranged:
             screen.blit(proj.sprite, (proj.x, proj.y))
@@ -4911,7 +4945,7 @@ def arena():
         if _DEBUG:
             pygame.draw.rect(screen, (0,0,0), proj.hitbox(), 0)
     if _DEBUG:
-        pygame.draw.rect(screen, (155,155,155) , dueler2.hitbox(), 0) #hitbox
+        pygame.draw.rect(screen, (155,155,155) , dueler0.hitbox(), 0) #hitbox
     if _DEBUG:
         pygame.draw.rect(screen, (155,155,155) , dueler1.hitbox(), 0)
 
