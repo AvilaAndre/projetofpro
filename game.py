@@ -382,6 +382,11 @@ class Knight():
         if self.hp <= 0:
             self.die()
 
+    def heal(self, qtd):
+        self.hp_lock += qtd
+        if self.hp_lock > self.base_hp:
+            self.hp_lock = self.base_hp
+
     #movement
     def move(self, player):
         keys = pygame.key.get_pressed()  #checking pressed keys
@@ -679,6 +684,11 @@ class Unicorn():
         self.performing_action = True
         if self.hp <= 0:
             self.die()
+
+    def heal(self, qtd):
+        self.hp_lock += qtd
+        if self.hp_lock > self.base_hp:
+            self.hp_lock = self.base_hp
             
     #movement
     def move(self, player):
@@ -977,6 +987,11 @@ class Valkyrie():
         self.performing_action = True
         if self.hp <= 0:
             self.die()
+
+    def heal(self, qtd):
+        self.hp_lock += qtd
+        if self.hp_lock > self.base_hp:
+            self.hp_lock = self.base_hp
             
     #movement
     def move(self, player):
@@ -1275,6 +1290,11 @@ class Djinni():
         self.performing_action = True
         if self.hp <= 0:
             self.die()
+
+    def heal(self, qtd):
+        self.hp_lock += qtd
+        if self.hp_lock > self.base_hp:
+            self.hp_lock = self.base_hp
             
     #movement
     def move(self, player):
@@ -1577,6 +1597,11 @@ class Archer():
         if self.hp <= 0:
             self.die()
 
+    def heal(self, qtd):
+        self.hp_lock += qtd
+        if self.hp_lock > self.base_hp:
+            self.hp_lock = self.base_hp
+
     #movement
     def move(self, player):
         keys = pygame.key.get_pressed()  #checking pressed keys
@@ -1874,6 +1899,11 @@ class Golem():
         self.performing_action = True
         if self.hp <= 0:
             self.die()
+
+    def heal(self, qtd):
+        self.hp_lock += qtd
+        if self.hp_lock > self.base_hp:
+            self.hp_lock = self.base_hp
             
     #movement
     def move(self, player):
@@ -2172,6 +2202,11 @@ class Phoenix():
         self.performing_action = True
         if self.hp <= 0:
             self.die()
+
+    def heal(self, qtd):
+        self.hp_lock += qtd
+        if self.hp_lock > self.base_hp:
+            self.hp_lock = self.base_hp
             
     #movement
     def move(self, player):
@@ -2470,6 +2505,11 @@ class Wizard():
         self.performing_action = True
         if self.hp <= 0:
             self.die()
+
+    def heal(self, qtd):
+        self.hp_lock += qtd
+        if self.hp_lock > self.base_hp:
+            self.hp_lock = self.base_hp
             
     #movement
     def move(self, player):
@@ -2774,6 +2814,11 @@ class Sorceress():
         self.performing_action = True
         if self.hp <= 0:
             self.die()
+
+    def heal(self, qtd):
+        self.hp_lock += qtd
+        if self.hp_lock > self.base_hp:
+            self.hp_lock = self.base_hp
             
     #movement
     def move(self, player):
@@ -3072,6 +3117,11 @@ class Manticore():
         self.performing_action = True
         if self.hp <= 0:
             self.die()
+
+    def heal(self, qtd):
+        self.hp_lock += qtd
+        if self.hp_lock > self.base_hp:
+            self.hp_lock = self.base_hp
             
     #movement
     def move(self, player):
@@ -3370,6 +3420,11 @@ class Troll():
         self.performing_action = True
         if self.hp <= 0:
             self.die()
+
+    def heal(self, qtd):
+        self.hp_lock += qtd
+        if self.hp_lock > self.base_hp:
+            self.hp_lock = self.base_hp
             
     #movement
     def move(self, player):
@@ -3674,6 +3729,11 @@ class Goblin():
         if self.hp <= 0:
             self.die()
 
+    def heal(self, qtd):
+        self.hp_lock += qtd
+        if self.hp_lock > self.base_hp:
+            self.hp_lock = self.base_hp
+
     #movement
     def move(self, player):
         keys = pygame.key.get_pressed()  #checking pressed keys
@@ -3970,6 +4030,11 @@ class Banshee():
         self.performing_action = True
         if self.hp <= 0:
             self.die()
+
+    def heal(self, qtd):
+        self.hp_lock += qtd
+        if self.hp_lock > self.base_hp:
+            self.hp_lock = self.base_hp
             
     #movement
     def move(self, player):
@@ -4268,6 +4333,11 @@ class Dragon():
         self.performing_action = True
         if self.hp <= 0:
             self.die()
+
+    def heal(self, qtd):
+        self.hp_lock += qtd
+        if self.hp_lock > self.base_hp:
+            self.hp_lock = self.base_hp
             
     #movement
     def move(self, player):
@@ -4559,6 +4629,11 @@ class Shapeshifter():
         self.performing_action = True
         if self.hp <= 0:
             self.die()
+
+    def heal(self, qtd):
+        self.hp_lock += qtd
+        if self.hp_lock > self.base_hp:
+            self.hp_lock = self.base_hp
             
     #movement
     def move(self, player):
@@ -4857,6 +4932,11 @@ class Basilisk():
         self.performing_action = True
         if self.hp <= 0:
             self.die()
+
+    def heal(self, qtd):
+        self.hp_lock += qtd
+        if self.hp_lock > self.base_hp:
+            self.hp_lock = self.base_hp
             
     #movement
     def move(self, player):
@@ -5031,7 +5111,6 @@ def see_light_chars():
     screen.blit(knight, (50, 450))
     screen.blit(go_back_button, (860, 580))
     pygame.draw.rect(screen, (0,0,0) , Rect(char_view_buttons[char_view_sel][0], char_view_buttons[char_view_sel][1], char_view_buttons[char_view_sel][2], char_view_buttons[char_view_sel][3]), 4)
-    pygame.draw.rect(screen, (0,0,0), (400, 400, 200, 200), 4)
 
 
 def see_dark_chars():
@@ -5312,6 +5391,10 @@ class GameBoard:
     def next_turn(self):
         self.turn += 1
         self.board_color_switch()
+        #for every char in an energy square heal 1
+        for sqr in self._ENERGY_SQUARES:
+            if self.board_data[sqr[0]][sqr[1]] != None:
+                 self.board_data[sqr[0]][sqr[1]][0].heal(1)
         self.update_board()
         self.board_warn =  f"It is {'darks'} turn!"
 
