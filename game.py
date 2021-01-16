@@ -1,4 +1,4 @@
-import pygame, sys, time, os
+import pygame, sys, time, os, math
 from pygame.locals import *
 
 _DEBUG = False
@@ -31,6 +31,7 @@ current_scene = 'menu'
 playing = False
 animation_line = []
 
+
 def get_sprites(character, directory):
     spritesheet = []
     for sprite in os.listdir(r"Resources\Sprites\Characters\{0}\{1}".format(character, directory)):
@@ -41,6 +42,84 @@ def get_sprites(character, directory):
 """
 ~~~~PROJECTILES~~~~
 """
+
+class DamageArea():
+    name = ''
+    sprite = ''
+    team = 2
+    ranged = True
+    x = 0
+    y = 0
+    animation_sprites = ''
+    radius = 46
+    anim_key = 0
+    dmg = 1
+    exists = True
+    banshee_damage = [0,1,2,3,4,5,6,7]
+    owner = None
+    def __init__(self, char):
+        self.name = char.name
+        self.owner = char
+        if char.name in ["Phoenix", "Banshee"]:
+            self.animation_sprites = get_sprites(char.name, "DamageArea")
+        if char.name == "Banshee":
+            self.banshee_damage = [0,1,2,3,4,5,6,7]
+        self.team = char.team
+        sprite = pygame.image.load(self.animation_sprites[0])
+        sprite = pygame.transform.smoothscale(sprite,  (_CHARS_SIZE, _CHARS_SIZE))
+        self.sprite = sprite
+        self.radius = char.area_radius
+        self.dmg = char.atk_damage
+        if self.team == 0:
+            light_areas.append(self)
+        else:
+            dark_areas.append(self)
+        self.x = char.x
+        self.y = char.y
+    
+    def hitbox(self):
+        circleRect = pygame.draw.circle(screen, (0,0,0), (int(self.x + 24*2.6), int(self.y + 24*2.6)), int(self.radius*2.16))
+        return circleRect
+
+    def move(self):
+        self.x = self.owner.x
+        self.y = self.owner.y
+        if self.name == "Banshee" or self.name == "Phoenix": 
+            if not self.exists:
+                return
+            for rect in arena_collisions:
+                if rect != self:
+                    if self.hitbox().colliderect(rect.hitbox()):
+                        if rect.obj_type == "player":
+                            if rect.team != self.team:
+                                if self.name == "Phoenix":
+                                    rect.take_damage(self.dmg)
+                                    self.exists = False
+                                elif self.name == "Banshee":
+                                    if self.anim_key in self.banshee_damage:
+                                        rect.take_damage(1)
+                                        self.banshee_damage.remove(self.anim_key)
+
+
+    def change_sprite(self, key):
+        if (key == len(self.animation_sprites) and self.name == "Phoenix") or (key == "disappear" and self.name == "Banshee"):
+            if self.team == 0:
+                light_areas.remove(self)
+            else:
+                dark_areas.remove(self)
+            self.exists = False
+            return
+        sprite = pygame.image.load(self.animation_sprites[key % len(self.animation_sprites)])
+        sprite = pygame.transform.smoothscale(sprite,  (_CHARS_SIZE, _CHARS_SIZE))
+        self.sprite = sprite
+        self.anim_key = key
+    
+    def disappear(self):
+        if self.team == 0:
+            light_areas.remove(self)
+        else:
+            dark_areas.remove(self)
+
 
 class Projectile():
     melee_clock = 0
@@ -125,8 +204,11 @@ class Projectile():
     
     def move(self):
         if self.ranged:
-            self.x += self.direction[0] * self.speed
-            self.y += self.direction[1] * self.speed
+            speed = self.speed
+            if self.direction[0] != 0 and self.direction[1] != 0:
+                speed = math.cos(math.pi / 4) *self.speed
+            self.x += self.direction[0] * speed
+            self.y += self.direction[1] * speed
         else:
             if self.melee_clock > 20:
                 if self.team == 0:
@@ -377,8 +459,9 @@ class Knight():
 
     def take_damage(self, damage):
         self.hp -= damage
-        self.current_animation = "hit"
-        self.performing_action = True
+        if self.current_animation[0] != "A":
+            self.current_animation = "hit"
+            self.performing_action = True
         if self.hp <= 0:
             self.die()
 
@@ -680,8 +763,9 @@ class Unicorn():
     
     def take_damage(self, damage):
         self.hp -= damage
-        self.current_animation = "hit"
-        self.performing_action = True
+        if self.current_animation[0] != "A":
+            self.current_animation = "hit"
+            self.performing_action = True
         if self.hp <= 0:
             self.die()
 
@@ -983,8 +1067,9 @@ class Valkyrie():
 
     def take_damage(self, damage):
         self.hp -= damage
-        self.current_animation = "hit"
-        self.performing_action = True
+        if self.current_animation[0] != "A":
+            self.current_animation = "hit"
+            self.performing_action = True
         if self.hp <= 0:
             self.die()
 
@@ -1286,8 +1371,9 @@ class Djinni():
 
     def take_damage(self, damage):
         self.hp -= damage
-        self.current_animation = "hit"
-        self.performing_action = True
+        if self.current_animation[0] != "A":
+            self.current_animation = "hit"
+            self.performing_action = True
         if self.hp <= 0:
             self.die()
 
@@ -1592,8 +1678,9 @@ class Archer():
 
     def take_damage(self, damage):
         self.hp -= damage
-        self.current_animation = "hit"
-        self.performing_action = True
+        if self.current_animation[0] != "A":
+            self.current_animation = "hit"
+            self.performing_action = True
         if self.hp <= 0:
             self.die()
 
@@ -1895,8 +1982,9 @@ class Golem():
 
     def take_damage(self, damage):
         self.hp -= damage
-        self.current_animation = "hit"
-        self.performing_action = True
+        if self.current_animation[0] != "A":
+            self.current_animation = "hit"
+            self.performing_action = True
         if self.hp <= 0:
             self.die()
 
@@ -2016,10 +2104,9 @@ class Phoenix():
     x = 0
     y = 0
 
-    #projectile
-    proj_dir = (0,0)
-    proj_width = 10
-    proj_height = 4
+    #area
+    my_area = None
+    area_radius = 28
                     #Corrections 
     proj_correction = [
     (34,26), #RightAttackFront
@@ -2038,11 +2125,8 @@ class Phoenix():
     run_animation = get_sprites(name, 'Run')
     hit_animation = get_sprites(name, 'Hit')
     
-    attack_front_animation = get_sprites(name, 'Attack')
-    attack_front_up_animation = get_sprites(name, 'Attack')
-    attack_front_down_animation = get_sprites(name, 'Attack')
-    attack_up_animation = get_sprites(name, 'Attack')
-    attack_down_animation = get_sprites(name, 'Attack')
+    attack_animation = get_sprites(name, 'Attack')
+
 
     #Animation Managing
     cur_key = 0
@@ -2053,6 +2137,7 @@ class Phoenix():
     texture = pygame.transform.scale(sprite,  (_CHARS_SIZE, _CHARS_SIZE))
     anim_clock = -1
     can_attack_cycle = 0
+    finished_attack = False
 
     #Masks use the opaque pixels, ignoring the transparent
     #hitbox = pygame.mask.from_surface(texture, 127)
@@ -2092,71 +2177,24 @@ class Phoenix():
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.hit_animation[self.cur_key]
-        elif self.current_animation == "AttackFront":
-            if self.cur_key == 2 and self.anim_clock == 0:
+        elif self.current_animation == "Attack":
+            if self.cur_key == 0 and self.anim_clock == 0:
                 self.shoot()
-            if self.cur_key+2 > 3:
+            if self.cur_key+2 > len(self.attack_animation):
+                if self.my_area != None:
+                    self.my_area.change_sprite(len(self.attack_animation))
                 self.current_animation = "idle"
                 self.performing_action = False
+                self.finished_attack = True
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
                 if self.anim_clock > self.atk_speed:
                     self.cur_key += 1
                     self.anim_clock = -1
-                    self.current_sprite = self.attack_front_animation[self.cur_key]
-        elif self.current_animation == "AttackFrontUp":
-            if self.cur_key == 2 and self.anim_clock == 0:
-                self.shoot()
-            if self.cur_key+2 > 3:
-                self.current_animation = "idle"
-                self.performing_action = False
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock > self.atk_speed:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.attack_front_up_animation[self.cur_key]
-        elif self.current_animation == "AttackFrontDown":
-            if self.cur_key == 2 and self.anim_clock == 0:
-                self.shoot()
-            if self.cur_key+2 > 3:
-                self.current_animation = "idle"
-                self.performing_action = False
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock > self.atk_speed:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.attack_front_down_animation[self.cur_key]
-        elif self.current_animation == "AttackUp":
-            if self.cur_key == 2 and self.anim_clock == 0:
-                self.shoot()
-            if self.cur_key+2 > 3:
-                self.current_animation = "idle"
-                self.performing_action = False
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock > self.atk_speed:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.attack_up_animation[self.cur_key]
-        elif self.current_animation == "AttackDown":
-            if self.cur_key == 2 and self.anim_clock == 0:
-                self.shoot()
-            if self.cur_key+2 > 3:
-                self.current_animation = "idle"
-                self.performing_action = False
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock > self.atk_speed:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.attack_down_animation[self.cur_key]
+                    self.current_sprite = self.attack_animation[self.cur_key]
+                    if self.my_area != None:
+                        self.my_area.change_sprite(self.cur_key)
         self.sprite = pygame.image.load(self.current_sprite)
         self.texture = pygame.transform.scale(self.sprite,  (_CHARS_SIZE, _CHARS_SIZE))
     
@@ -2175,31 +2213,24 @@ class Phoenix():
 
         return colliding
     
-    def attack(self, x, y):
-        self.proj_dir = (x, y)
-        attack_anim = "Attack"
-        if x==0 and y == 0:
-            return
+    def attack(self):
         self.performing_action = True
         self.can_attack = False
-        if x != 0:
-            attack_anim += "Front"
-        if y == -1:
-            attack_anim += "Up"
-        elif y == 1:
-            attack_anim += "Down"
-        self.current_animation = attack_anim
+        self.current_animation = "Attack"
+        self.finished_attack = False
     
     def shoot(self):
-        Projectile((self.proj_dir[0], self.proj_dir[1]), self)
+        self.my_area = DamageArea(self)
     
     def update_base_hp(self, hp):
         self.hp_lock += hp
 
     def take_damage(self, damage):
-        self.hp -= damage
-        self.current_animation = "hit"
-        self.performing_action = True
+        if self.current_animation != "Attack":
+            self.hp -= damage
+        if self.current_animation[0] != "A":
+            self.current_animation = "hit"
+            self.performing_action = True
         if self.hp <= 0:
             self.die()
 
@@ -2223,7 +2254,7 @@ class Phoenix():
                 if keys[pygame.K_a]:
                     x -= 1              
                 if keys[pygame.K_LSHIFT] and self.can_attack:
-                    self.attack(x, -y)
+                    self.attack()
             elif player == 2:
                 if keys[pygame.K_UP]:
                     y += 1            
@@ -2234,7 +2265,7 @@ class Phoenix():
                 if keys[pygame.K_LEFT]:
                     x -= 1
                 if keys[pygame.K_RETURN] and self.can_attack:
-                    self.attack(x, -y)
+                    self.attack()
         if x > 0:
             self.orientation = False
         elif x <0:
@@ -2270,11 +2301,7 @@ class Phoenix():
             self.idle_animation = get_sprites(self.name + "Shapeshifter", 'Idle')
             self.run_animation = get_sprites(self.name + "Shapeshifter", 'Run')
             self.hit_animation = get_sprites(self.name + "Shapeshifter", 'Hit')
-            self.attack_front_animation = get_sprites(self.name + "Shapeshifter", 'AttackFront')
-            self.attack_front_up_animation = get_sprites(self.name + "Shapeshifter", 'AttackFrontUp')
-            self.attack_front_down_animation = get_sprites(self.name + "Shapeshifter", 'AttackFrontDown')
-            self.attack_up_animation = get_sprites(self.name + "Shapeshifter", 'AttackUp')
-            self.attack_down_animation = get_sprites(self.name + "Shapeshifter", 'AttackDown')
+            self.attack_animation = get_sprites(self.name + "Shapeshifter", 'Attack')
             self.hp_lock = hp_lock
         print(f"{self.name} instantiated")
         animation_line.append(self)
@@ -2501,8 +2528,9 @@ class Wizard():
 
     def take_damage(self, damage):
         self.hp -= damage
-        self.current_animation = "hit"
-        self.performing_action = True
+        if self.current_animation[0] != "A":
+            self.current_animation = "hit"
+            self.performing_action = True
         if self.hp <= 0:
             self.die()
 
@@ -2810,8 +2838,9 @@ class Sorceress():
 
     def take_damage(self, damage):
         self.hp -= damage
-        self.current_animation = "hit"
-        self.performing_action = True
+        if self.current_animation[0] != "A":
+            self.current_animation = "hit"
+            self.performing_action = True
         if self.hp <= 0:
             self.die()
 
@@ -3113,8 +3142,9 @@ class Manticore():
 
     def take_damage(self, damage):
         self.hp -= damage
-        self.current_animation = "hit"
-        self.performing_action = True
+        if self.current_animation[0] != "A":
+            self.current_animation = "hit"
+            self.performing_action = True
         if self.hp <= 0:
             self.die()
 
@@ -3416,8 +3446,9 @@ class Troll():
 
     def take_damage(self, damage):
         self.hp -= damage
-        self.current_animation = "hit"
-        self.performing_action = True
+        if self.current_animation[0] != "A":
+            self.current_animation = "hit"
+            self.performing_action = True
         if self.hp <= 0:
             self.die()
 
@@ -3724,8 +3755,9 @@ class Goblin():
 
     def take_damage(self, damage):
         self.hp -= damage
-        self.current_animation = "hit"
-        self.performing_action = True
+        if self.current_animation[0] != "A":
+            self.current_animation = "hit"
+            self.performing_action = True
         if self.hp <= 0:
             self.die()
 
@@ -3821,7 +3853,7 @@ class Banshee():
     team = 1
     ranged = True
         #type: teleport0 air1 ground2
-    move_type = 0
+    move_type = 1
     move_limit = 3
     speed = 5
     atk_damage = 8
@@ -3844,10 +3876,9 @@ class Banshee():
     x = 0
     y = 0
 
-    #projectile
-    proj_dir = (0,0)
-    proj_width = 10
-    proj_height = 4
+    #area
+    my_area = None
+    area_radius = 28
                     #Corrections 
     proj_correction = [
     (34,26), #RightAttackFront
@@ -3866,11 +3897,8 @@ class Banshee():
     run_animation = get_sprites(name, 'Run')
     hit_animation = get_sprites(name, 'Hit')
     
-    attack_front_animation = get_sprites(name, 'Attack')
-    attack_front_up_animation = get_sprites(name, 'Attack')
-    attack_front_down_animation = get_sprites(name, 'Attack')
-    attack_up_animation = get_sprites(name, 'Attack')
-    attack_down_animation = get_sprites(name, 'Attack')
+    attack_animation = get_sprites(name, 'Attack')
+
 
     #Animation Managing
     cur_key = 0
@@ -3881,6 +3909,7 @@ class Banshee():
     texture = pygame.transform.scale(sprite,  (_CHARS_SIZE, _CHARS_SIZE))
     anim_clock = -1
     can_attack_cycle = 0
+    finished_atack = False
 
     #Masks use the opaque pixels, ignoring the transparent
     #hitbox = pygame.mask.from_surface(texture, 127)
@@ -3920,71 +3949,23 @@ class Banshee():
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.hit_animation[self.cur_key]
-        elif self.current_animation == "AttackFront":
-            if self.cur_key == 2 and self.anim_clock == 0:
+        elif self.current_animation == "Attack":
+            if self.cur_key == 0 and self.anim_clock == 0:
                 self.shoot()
-            if self.cur_key+2 > 3:
+            if self.cur_key+2 > 8:
+                if self.my_area != None:
+                    self.my_area.change_sprite("disappear")
                 self.current_animation = "idle"
-                self.performing_action = False
+                self.finished_atack = True
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
                 if self.anim_clock > self.atk_speed:
                     self.cur_key += 1
                     self.anim_clock = -1
-                    self.current_sprite = self.attack_front_animation[self.cur_key]
-        elif self.current_animation == "AttackFrontUp":
-            if self.cur_key == 2 and self.anim_clock == 0:
-                self.shoot()
-            if self.cur_key+2 > 3:
-                self.current_animation = "idle"
-                self.performing_action = False
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock > self.atk_speed:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.attack_front_up_animation[self.cur_key]
-        elif self.current_animation == "AttackFrontDown":
-            if self.cur_key == 2 and self.anim_clock == 0:
-                self.shoot()
-            if self.cur_key+2 > 3:
-                self.current_animation = "idle"
-                self.performing_action = False
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock > self.atk_speed:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.attack_front_down_animation[self.cur_key]
-        elif self.current_animation == "AttackUp":
-            if self.cur_key == 2 and self.anim_clock == 0:
-                self.shoot()
-            if self.cur_key+2 > 3:
-                self.current_animation = "idle"
-                self.performing_action = False
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock > self.atk_speed:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.attack_up_animation[self.cur_key]
-        elif self.current_animation == "AttackDown":
-            if self.cur_key == 2 and self.anim_clock == 0:
-                self.shoot()
-            if self.cur_key+2 > 3:
-                self.current_animation = "idle"
-                self.performing_action = False
-                self.cur_key = 0
-                self.anim_clock = -1
-            else: 
-                if self.anim_clock > self.atk_speed:
-                    self.cur_key += 1
-                    self.anim_clock = -1
-                    self.current_sprite = self.attack_down_animation[self.cur_key]
+                    self.current_sprite = self.attack_animation[self.cur_key % 4]
+                    if self.my_area != None:
+                        self.my_area.change_sprite(self.cur_key)
         self.sprite = pygame.image.load(self.current_sprite)
         self.texture = pygame.transform.scale(self.sprite,  (_CHARS_SIZE, _CHARS_SIZE))
     
@@ -4003,31 +3984,23 @@ class Banshee():
 
         return colliding
     
-    def attack(self, x, y):
-        self.proj_dir = (x, y)
-        attack_anim = "Attack"
-        if x==0 and y == 0:
-            return
-        self.performing_action = True
+    def attack(self):
         self.can_attack = False
-        if x != 0:
-            attack_anim += "Front"
-        if y == -1:
-            attack_anim += "Up"
-        elif y == 1:
-            attack_anim += "Down"
-        self.current_animation = attack_anim
+        self.current_animation = "Attack"
+        self.finished_atack = False
     
     def shoot(self):
-        Projectile((self.proj_dir[0], self.proj_dir[1]), self)
+        self.my_area = DamageArea(self)
     
     def update_base_hp(self, hp):
         self.hp_lock += hp
 
     def take_damage(self, damage):
         self.hp -= damage
-        self.current_animation = "hit"
-        self.performing_action = True
+        if self.current_animation[0] != "A":
+            print("It was", self.current_animation, self)
+            self.current_animation = "hit"
+            self.performing_action = True
         if self.hp <= 0:
             self.die()
 
@@ -4051,7 +4024,7 @@ class Banshee():
                 if keys[pygame.K_a]:
                     x -= 1              
                 if keys[pygame.K_LSHIFT] and self.can_attack:
-                    self.attack(x, -y)
+                    self.attack()
             elif player == 2:
                 if keys[pygame.K_UP]:
                     y += 1            
@@ -4062,7 +4035,7 @@ class Banshee():
                 if keys[pygame.K_LEFT]:
                     x -= 1
                 if keys[pygame.K_RETURN] and self.can_attack:
-                    self.attack(x, -y)
+                    self.attack()
         if x > 0:
             self.orientation = False
         elif x <0:
@@ -4076,12 +4049,12 @@ class Banshee():
             self.y += y * self.speed
             x = 0
         self.direction = (x, y)
-        if not self.performing_action:
+        if not self.performing_action and self.can_attack:
             if x != 0 or y != 0:
                 self.current_animation = "moving"
             else:
                 self.current_animation = "idle"
-        if not self.can_attack:
+        if not self.can_attack and self.finished_atack:
             self.can_attack_cycle += 1
             if self.can_attack_cycle > self.atk_cooldown:
                 self.can_attack_cycle = 0
@@ -4098,11 +4071,7 @@ class Banshee():
             self.idle_animation = get_sprites(self.name + "Shapeshifter", 'Idle')
             self.run_animation = get_sprites(self.name + "Shapeshifter", 'Run')
             self.hit_animation = get_sprites(self.name + "Shapeshifter", 'Hit')
-            self.attack_front_animation = get_sprites(self.name + "Shapeshifter", 'AttackFront')
-            self.attack_front_up_animation = get_sprites(self.name + "Shapeshifter", 'AttackFrontUp')
-            self.attack_front_down_animation = get_sprites(self.name + "Shapeshifter", 'AttackFrontDown')
-            self.attack_up_animation = get_sprites(self.name + "Shapeshifter", 'AttackUp')
-            self.attack_down_animation = get_sprites(self.name + "Shapeshifter", 'AttackDown')
+            self.attack_animation = get_sprites(self.name + "Shapeshifter", 'Attack')
             self.hp_lock = hp_lock
         print(f"{self.name} instantiated")
         animation_line.append(self)
@@ -4329,8 +4298,9 @@ class Dragon():
 
     def take_damage(self, damage):
         self.hp -= damage
-        self.current_animation = "hit"
-        self.performing_action = True
+        if self.current_animation[0] != "A":
+            self.current_animation = "hit"
+            self.performing_action = True
         if self.hp <= 0:
             self.die()
 
@@ -4625,8 +4595,9 @@ class Shapeshifter():
 
     def take_damage(self, damage):
         self.hp -= damage
-        self.current_animation = "hit"
-        self.performing_action = True
+        if self.current_animation[0] != "A":
+            self.current_animation = "hit"
+            self.performing_action = True
         if self.hp <= 0:
             self.die()
 
@@ -4928,8 +4899,9 @@ class Basilisk():
 
     def take_damage(self, damage):
         self.hp -= damage
-        self.current_animation = "hit"
-        self.performing_action = True
+        if self.current_animation[0] != "A":
+            self.current_animation = "hit"
+            self.performing_action = True
         if self.hp <= 0:
             self.die()
 
@@ -5525,7 +5497,8 @@ arena_finish_var = 0
 fighting_pos = (0,0)
 
 def start_duel(fighter1, fighter2, pos):
-    global current_scene, dueler1, dueler0, arena_finish_clock, arena_finish_var, fighting_pos
+    global current_scene, dueler1, dueler0, arena_finish_clock, arena_finish_var, fighting_pos, transition
+    transition = 3
     arena_collisions.clear()
     dead.clear()
     arena_finish_clock = 15
@@ -5650,10 +5623,12 @@ fg_begun = False
 arena_ground = pygame.Rect(80, 8, 864, 624)
 light_projectiles = []
 dark_projectiles = []
+light_areas = []
+dark_areas = []
 
 def arena():
     ##dueler0 Light, Dueler1 Dark
-    global dueler1, dueler0, arena_finish_clock, arena_finish_var
+    global dueler1, dueler0, arena_finish_clock, arena_finish_var, transition
     screen.fill((255, 0, 0))
     #Logic
     dueler1_hp = 0
@@ -5662,18 +5637,24 @@ def arena():
         dead.append(dueler1)
         dueler1_hp = 0
     else:
-        dueler1.move(2)
+        if not transition:
+            dueler1.move(2)
         dueler1_hp = dueler1.hp
     if not dueler0.alive:
         dead.append(dueler0)
         dueler0_hp = 0
     else:
-        dueler0.move(1)
+        if not transition:
+            dueler0.move(1)
         dueler0_hp = dueler0.hp
     for proj in light_projectiles:
         proj.move()
     for proj in dark_projectiles:
         proj.move()
+    for area in dark_areas:
+        area.move()
+    for area in light_areas:
+        area.move()
     if len(dead) != 0:
         if arena_finish_clock <= 0:
             if dueler0.alive and not dueler1.alive:
@@ -5692,6 +5673,14 @@ def arena():
     ##dueler's stats
     pygame.draw.rect(screen, (255, 255, 153), (10,(632 - dueler0_hp * 26), 50, dueler0_hp*26), 0)
     pygame.draw.rect(screen, (0, 0, 77), (964, (632 - dueler1_hp * 26), 50, dueler1_hp*26), 0)
+    for area in light_areas:
+        screen.blit(area.sprite, (area.x, area.y))
+        if _DEBUG:
+            pygame.draw.rect(screen, (0,0,0), area.hitbox(), 0)
+    for area in dark_areas:
+        screen.blit(area.sprite, (area.x, area.y))
+        if _DEBUG:
+            pygame.draw.rect(screen, (0,0,0), area.hitbox(), 0)
     if dueler1.alive:
         screen.blit(pygame.transform.flip(dueler1.texture, dueler1.orientation, False), (dueler1.x, dueler1.y))
     if dueler0.alive:
@@ -5717,6 +5706,8 @@ def arena():
 
 es_mlsecs = 0
 running = True
+transition = 0 
+trans_clock = 0
 
 while running:
     for event in pygame.event.get():
@@ -5895,6 +5886,12 @@ while running:
     _MAIN_BOARD.es_handle_animation()
     dt = clock.tick(60)
 
+    #transition handler
+    if transition > 0:
+        trans_clock += 1
+        if trans_clock > 10:
+            transition -= 1
+            trans_clock = 0
     #Animation_handler
     for char in animation_line:
         char.handle_animation()
