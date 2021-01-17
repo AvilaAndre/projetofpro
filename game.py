@@ -1,4 +1,4 @@
-import pygame, sys, time, os, math
+import pygame, sys, time, os, math, random
 from pygame.locals import *
 
 _DEBUG = False
@@ -255,10 +255,10 @@ class Knight():
     atk_damage = 8
     atk_speed = 3
     atk_cooldown = 0.75 * 60
-    base_hp = 9.5
-    hp_lock = 9.5
-    hp = base_hp
-    max_hp= 16.5
+    max_hp= 9.5
+    base_hp = max_hp
+    extra_hp = 0
+    hp = lambda x: x.base_hp + x.extra_hp
     alive = True
     orientation = True
     direction = (1,0)
@@ -453,22 +453,26 @@ class Knight():
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
     
-    def update_base_hp(self, hp):
-        self.hp_lock += hp
+    
 
 
     def take_damage(self, damage):
-        self.hp -= damage
+        if damage <= self.extra_hp:
+            self.extra_hp -= damage
+        elif damage > self.extra_hp:
+            damage -= self.extra_hp
+            self.extra_hp = 0
+            self.base_hp -= damage
         if self.current_animation[0] != "A":
             self.current_animation = "hit"
             self.performing_action = True
-        if self.hp <= 0:
+        if self.hp() <= 0:
             self.die()
 
     def heal(self, qtd):
-        self.hp_lock += qtd
-        if self.hp_lock > self.base_hp:
-            self.hp_lock = self.base_hp
+        self.base_hp += qtd
+        if self.base_hp > self.max_hp:
+            self.base_hp = self.max_hp
 
     #movement
     def move(self, player):
@@ -522,7 +526,6 @@ class Knight():
                 self.can_attack = True
 
     def die(self):
-        self.hp_lock = 0
         self.alive = False
 
 
@@ -564,10 +567,10 @@ class Unicorn():
     atk_damage = 8
     atk_speed = 9
     atk_cooldown = 0.75 * 60
-    base_hp = 9.5
-    hp_lock = 9.5
-    hp = base_hp
-    max_hp= 16.5
+    max_hp= 9.5
+    base_hp = max_hp
+    extra_hp = 0
+    hp = lambda x: x.base_hp + x.extra_hp
     alive = True
     orientation = True
     direction = (1,0)
@@ -758,21 +761,25 @@ class Unicorn():
     def shoot(self):
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
-    def update_base_hp(self, hp):
-        self.hp_lock += hp
+    
     
     def take_damage(self, damage):
-        self.hp -= damage
+        if damage <= self.extra_hp:
+            self.extra_hp -= damage
+        elif damage > self.extra_hp:
+            damage -= self.extra_hp
+            self.extra_hp = 0
+            self.base_hp -= damage
         if self.current_animation[0] != "A":
             self.current_animation = "hit"
             self.performing_action = True
-        if self.hp <= 0:
+        if self.hp() <= 0:
             self.die()
 
     def heal(self, qtd):
-        self.hp_lock += qtd
-        if self.hp_lock > self.base_hp:
-            self.hp_lock = self.base_hp
+        self.base_hp += qtd
+        if self.base_hp > self.max_hp:
+            self.base_hp = self.max_hp
             
     #movement
     def move(self, player):
@@ -826,7 +833,6 @@ class Unicorn():
                 self.can_attack = True
 
     def die(self):
-        self.hp_lock = 0
         self.alive = False
 
 
@@ -868,10 +874,10 @@ class Valkyrie():
     atk_damage = 8
     atk_speed = 9
     atk_cooldown = 0.75 * 60
-    base_hp = 9.5
-    hp_lock = 9.5
-    hp = base_hp
-    max_hp= 16.5
+    max_hp= 9.5
+    base_hp = max_hp
+    extra_hp = 0
+    hp = lambda x: x.base_hp + x.extra_hp
     alive = True
     orientation = True
     direction = (1,0)
@@ -1062,21 +1068,25 @@ class Valkyrie():
     def shoot(self):
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
-    def update_base_hp(self, hp):
-        self.hp_lock += hp
+    
 
     def take_damage(self, damage):
-        self.hp -= damage
+        if damage <= self.extra_hp:
+            self.extra_hp -= damage
+        elif damage > self.extra_hp:
+            damage -= self.extra_hp
+            self.extra_hp = 0
+            self.base_hp -= damage
         if self.current_animation[0] != "A":
             self.current_animation = "hit"
             self.performing_action = True
-        if self.hp <= 0:
+        if self.hp() <= 0:
             self.die()
 
     def heal(self, qtd):
-        self.hp_lock += qtd
-        if self.hp_lock > self.base_hp:
-            self.hp_lock = self.base_hp
+        self.base_hp += qtd
+        if self.base_hp > self.max_hp:
+            self.base_hp = self.max_hp
             
     #movement
     def move(self, player):
@@ -1130,7 +1140,6 @@ class Valkyrie():
                 self.can_attack = True
 
     def die(self):
-        self.hp_lock = 0
         self.alive = False
 
 
@@ -1172,10 +1181,10 @@ class Djinni():
     atk_damage = 8
     atk_speed = 9
     atk_cooldown = 0.75 * 60
-    base_hp = 9.5
-    hp_lock = 9.5
-    hp = base_hp
-    max_hp= 16.5
+    max_hp= 9.5
+    base_hp = max_hp
+    extra_hp = 0
+    hp = lambda x: x.base_hp + x.extra_hp
     alive = True
     orientation = True
     direction = (1,0)
@@ -1366,21 +1375,25 @@ class Djinni():
     def shoot(self):
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
-    def update_base_hp(self, hp):
-        self.hp_lock += hp
+    
 
     def take_damage(self, damage):
-        self.hp -= damage
+        if damage <= self.extra_hp:
+            self.extra_hp -= damage
+        elif damage > self.extra_hp:
+            damage -= self.extra_hp
+            self.extra_hp = 0
+            self.base_hp -= damage
         if self.current_animation[0] != "A":
             self.current_animation = "hit"
             self.performing_action = True
-        if self.hp <= 0:
+        if self.hp() <= 0:
             self.die()
 
     def heal(self, qtd):
-        self.hp_lock += qtd
-        if self.hp_lock > self.base_hp:
-            self.hp_lock = self.base_hp
+        self.base_hp += qtd
+        if self.base_hp > self.max_hp:
+            self.base_hp = self.max_hp
             
     #movement
     def move(self, player):
@@ -1434,7 +1447,6 @@ class Djinni():
                 self.can_attack = True
 
     def die(self):
-        self.hp_lock = 0
         self.alive = False
 
 
@@ -1476,10 +1488,10 @@ class Archer():
     atk_damage = 8
     atk_speed = 9
     atk_cooldown = 0.75 * 60
-    base_hp = 9.5
-    hp_lock = 9.5
-    hp = base_hp
-    max_hp= 16.5
+    max_hp= 9.5
+    base_hp = max_hp
+    extra_hp = 0
+    hp = lambda x: x.base_hp + x.extra_hp
     alive = True
     orientation = True
     direction = (1,0)
@@ -1673,21 +1685,25 @@ class Archer():
     def shoot(self):
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
-    def update_base_hp(self, hp):
-        self.hp_lock += hp
+    
 
     def take_damage(self, damage):
-        self.hp -= damage
+        if damage <= self.extra_hp:
+            self.extra_hp -= damage
+        elif damage > self.extra_hp:
+            damage -= self.extra_hp
+            self.extra_hp = 0
+            self.base_hp -= damage
         if self.current_animation[0] != "A":
             self.current_animation = "hit"
             self.performing_action = True
-        if self.hp <= 0:
+        if self.hp() <= 0:
             self.die()
 
     def heal(self, qtd):
-        self.hp_lock += qtd
-        if self.hp_lock > self.base_hp:
-            self.hp_lock = self.base_hp
+        self.base_hp += qtd
+        if self.base_hp > self.max_hp:
+            self.base_hp = self.max_hp
 
     #movement
     def move(self, player):
@@ -1741,7 +1757,6 @@ class Archer():
                 self.can_attack = True
 
     def die(self):
-        self.hp_lock = 0
         self.alive = False
 
 
@@ -1783,10 +1798,10 @@ class Golem():
     atk_damage = 8
     atk_speed = 9
     atk_cooldown = 0.75 * 60
-    base_hp = 9.5
-    hp_lock = 9.5
-    hp = base_hp
-    max_hp= 16.5
+    max_hp= 9.5
+    base_hp = max_hp
+    extra_hp = 0
+    hp = lambda x: x.base_hp + x.extra_hp
     alive = True
     orientation = True
     direction = (1,0)
@@ -1977,21 +1992,25 @@ class Golem():
     def shoot(self):
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
-    def update_base_hp(self, hp):
-        self.hp_lock += hp
+    
 
     def take_damage(self, damage):
-        self.hp -= damage
+        if damage <= self.extra_hp:
+            self.extra_hp -= damage
+        elif damage > self.extra_hp:
+            damage -= self.extra_hp
+            self.extra_hp = 0
+            self.base_hp -= damage
         if self.current_animation[0] != "A":
             self.current_animation = "hit"
             self.performing_action = True
-        if self.hp <= 0:
+        if self.hp() <= 0:
             self.die()
 
     def heal(self, qtd):
-        self.hp_lock += qtd
-        if self.hp_lock > self.base_hp:
-            self.hp_lock = self.base_hp
+        self.base_hp += qtd
+        if self.base_hp > self.max_hp:
+            self.base_hp = self.max_hp
             
     #movement
     def move(self, player):
@@ -2045,7 +2064,6 @@ class Golem():
                 self.can_attack = True
 
     def die(self):
-        self.hp_lock = 0
         self.alive = False
 
 
@@ -2087,10 +2105,10 @@ class Phoenix():
     atk_damage = 8
     atk_speed = 9
     atk_cooldown = 0.75 * 60
-    base_hp = 9.5
-    hp_lock = 9.5
-    hp = base_hp
-    max_hp= 16.5
+    max_hp= 9.5
+    base_hp = max_hp
+    extra_hp = 0
+    hp = lambda x: x.base_hp + x.extra_hp
     alive = True
     orientation = True
     direction = (1,0)
@@ -2222,22 +2240,26 @@ class Phoenix():
     def shoot(self):
         self.my_area = DamageArea(self)
     
-    def update_base_hp(self, hp):
-        self.hp_lock += hp
+    
 
     def take_damage(self, damage):
         if self.current_animation != "Attack":
-            self.hp -= damage
+            if damage <= self.extra_hp:
+                self.extra_hp -= damage
+            elif damage > self.extra_hp:
+                damage -= self.extra_hp
+                self.extra_hp = 0
+                self.base_hp -= damage
         if self.current_animation[0] != "A":
             self.current_animation = "hit"
             self.performing_action = True
-        if self.hp <= 0:
+        if self.hp() <= 0:
             self.die()
 
     def heal(self, qtd):
-        self.hp_lock += qtd
-        if self.hp_lock > self.base_hp:
-            self.hp_lock = self.base_hp
+        self.base_hp += qtd
+        if self.base_hp > self.max_hp:
+            self.base_hp = self.max_hp
             
     #movement
     def move(self, player):
@@ -2291,7 +2313,6 @@ class Phoenix():
                 self.can_attack = True
 
     def die(self):
-        self.hp_lock = 0
         self.alive = False
 
 
@@ -2329,10 +2350,10 @@ class Wizard():
     atk_damage = 8
     atk_speed = 9
     atk_cooldown = 0.75 * 60
-    base_hp = 9.5
-    hp_lock = 9.5
-    hp = base_hp
-    max_hp= 16.5
+    max_hp= 9.5
+    base_hp = max_hp
+    extra_hp = 0
+    hp = lambda x: x.base_hp + x.extra_hp
     alive = True
     orientation = True
     direction = (1,0)
@@ -2363,6 +2384,12 @@ class Wizard():
     (14,34), #LeftAttackFrontDown
     (16,35)  #LeftAttackDown 
     ]
+
+
+    ##SPELLS
+    spells = ["Teleport", "Heal", "Revive", "Exchange", "Shift Time", "Summon Elemental", "Imprison"]
+
+    
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
     run_animation = get_sprites(name, 'Run')
@@ -2523,21 +2550,25 @@ class Wizard():
     def shoot(self):
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
-    def update_base_hp(self, hp):
-        self.hp_lock += hp
+    
 
     def take_damage(self, damage):
-        self.hp -= damage
+        if damage <= self.extra_hp:
+            self.extra_hp -= damage
+        elif damage > self.extra_hp:
+            damage -= self.extra_hp
+            self.extra_hp = 0
+            self.base_hp -= damage
         if self.current_animation[0] != "A":
             self.current_animation = "hit"
             self.performing_action = True
-        if self.hp <= 0:
+        if self.hp() <= 0:
             self.die()
 
     def heal(self, qtd):
-        self.hp_lock += qtd
-        if self.hp_lock > self.base_hp:
-            self.hp_lock = self.base_hp
+        self.base_hp += qtd
+        if self.base_hp > self.max_hp:
+            self.base_hp = self.max_hp
             
     #movement
     def move(self, player):
@@ -2591,7 +2622,6 @@ class Wizard():
                 self.can_attack = True
 
     def die(self):
-        self.hp_lock = 0
         self.alive = False
 
 
@@ -2638,10 +2668,10 @@ class Sorceress():
     atk_damage = 8
     atk_speed = 9
     atk_cooldown = 0.75 * 60
-    base_hp = 9.5
-    hp_lock = 9.5
-    hp = base_hp
-    max_hp= 16.5
+    max_hp= 9.5
+    base_hp = max_hp
+    extra_hp = 0
+    hp = lambda x: x.base_hp + x.extra_hp
     alive = True
     orientation = True
     direction = (1,0)
@@ -2672,6 +2702,11 @@ class Sorceress():
     (14,34), #LeftAttackFrontDown
     (16,35)  #LeftAttackDown 
     ]
+
+
+    ##SPELLS
+    spells = ["Teleport", "Heal", "Revive", "Exchange", "Shift Time", "Summon Elemental", "Imprison"]
+
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
     run_animation = get_sprites(name, 'Run')
@@ -2832,22 +2867,26 @@ class Sorceress():
     def shoot(self):
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
-    def update_base_hp(self, hp):
-        self.hp_lock += hp
+    
 
 
     def take_damage(self, damage):
-        self.hp -= damage
+        if damage <= self.extra_hp:
+            self.extra_hp -= damage
+        elif damage > self.extra_hp:
+            damage -= self.extra_hp
+            self.extra_hp = 0
+            self.base_hp -= damage
         if self.current_animation[0] != "A":
             self.current_animation = "hit"
             self.performing_action = True
-        if self.hp <= 0:
+        if self.hp() <= 0:
             self.die()
 
     def heal(self, qtd):
-        self.hp_lock += qtd
-        if self.hp_lock > self.base_hp:
-            self.hp_lock = self.base_hp
+        self.base_hp += qtd
+        if self.base_hp > self.max_hp:
+            self.base_hp = self.max_hp
             
     #movement
     def move(self, player):
@@ -2901,7 +2940,6 @@ class Sorceress():
                 self.can_attack = True
 
     def die(self):
-        self.hp_lock = 0
         self.alive = False
 
 
@@ -2943,10 +2981,10 @@ class Manticore():
     atk_damage = 8
     atk_speed = 9
     atk_cooldown = 0.75 * 60
-    base_hp = 9.5
-    hp_lock = 9.5
-    hp = base_hp
-    max_hp= 16.5
+    max_hp= 9.5
+    base_hp = max_hp
+    extra_hp = 0
+    hp = lambda x: x.base_hp + x.extra_hp
     alive = True
     orientation = True
     direction = (1,0)
@@ -3137,21 +3175,25 @@ class Manticore():
     def shoot(self):
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
-    def update_base_hp(self, hp):
-        self.hp_lock += hp
+    
 
     def take_damage(self, damage):
-        self.hp -= damage
+        if damage <= self.extra_hp:
+            self.extra_hp -= damage
+        elif damage > self.extra_hp:
+            damage -= self.extra_hp
+            self.extra_hp = 0
+            self.base_hp -= damage
         if self.current_animation[0] != "A":
             self.current_animation = "hit"
             self.performing_action = True
-        if self.hp <= 0:
+        if self.hp() <= 0:
             self.die()
 
     def heal(self, qtd):
-        self.hp_lock += qtd
-        if self.hp_lock > self.base_hp:
-            self.hp_lock = self.base_hp
+        self.base_hp += qtd
+        if self.base_hp > self.max_hp:
+            self.base_hp = self.max_hp
             
     #movement
     def move(self, player):
@@ -3205,7 +3247,6 @@ class Manticore():
                 self.can_attack = True
 
     def die(self):
-        self.hp_lock = 0
         self.alive = False
 
 
@@ -3247,10 +3288,10 @@ class Troll():
     atk_damage = 8
     atk_speed = 9
     atk_cooldown = 0.75 * 60
-    base_hp = 9.5
-    hp_lock = 9.5
-    hp = base_hp
-    max_hp= 16.5
+    max_hp= 9.5
+    base_hp = max_hp
+    extra_hp = 0
+    hp = lambda x: x.base_hp + x.extra_hp
     alive = True
     orientation = True
     direction = (1,0)
@@ -3441,21 +3482,25 @@ class Troll():
     def shoot(self):
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
-    def update_base_hp(self, hp):
-        self.hp_lock += hp
+    
 
     def take_damage(self, damage):
-        self.hp -= damage
+        if damage <= self.extra_hp:
+            self.extra_hp -= damage
+        elif damage > self.extra_hp:
+            damage -= self.extra_hp
+            self.extra_hp = 0
+            self.base_hp -= damage
         if self.current_animation[0] != "A":
             self.current_animation = "hit"
             self.performing_action = True
-        if self.hp <= 0:
+        if self.hp() <= 0:
             self.die()
 
     def heal(self, qtd):
-        self.hp_lock += qtd
-        if self.hp_lock > self.base_hp:
-            self.hp_lock = self.base_hp
+        self.base_hp += qtd
+        if self.base_hp > self.max_hp:
+            self.base_hp = self.max_hp
             
     #movement
     def move(self, player):
@@ -3509,7 +3554,6 @@ class Troll():
                 self.can_attack = True
 
     def die(self):
-        self.hp_lock = 0
         self.alive = False
 
     def __init__(self, shapeshifter = False, hp_lock = 0):
@@ -3552,10 +3596,10 @@ class Goblin():
     atk_damage = 8
     atk_speed = 3
     atk_cooldown = 0.75 * 60
-    base_hp = 9.5
-    hp_lock = 9.5
-    hp = base_hp
-    max_hp= 16.5
+    max_hp= 9.5
+    base_hp = max_hp
+    extra_hp = 0
+    hp = lambda x: x.base_hp + x.extra_hp
     alive = True
     orientation = True
     direction = (1,0)
@@ -3750,21 +3794,25 @@ class Goblin():
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
     
-    def update_base_hp(self, hp):
-        self.hp_lock += hp
+    
 
     def take_damage(self, damage):
-        self.hp -= damage
+        if damage <= self.extra_hp:
+            self.extra_hp -= damage
+        elif damage > self.extra_hp:
+            damage -= self.extra_hp
+            self.extra_hp = 0
+            self.base_hp -= damage
         if self.current_animation[0] != "A":
             self.current_animation = "hit"
             self.performing_action = True
-        if self.hp <= 0:
+        if self.hp() <= 0:
             self.die()
 
     def heal(self, qtd):
-        self.hp_lock += qtd
-        if self.hp_lock > self.base_hp:
-            self.hp_lock = self.base_hp
+        self.base_hp += qtd
+        if self.base_hp > self.max_hp:
+            self.base_hp = self.max_hp
 
     #movement
     def move(self, player):
@@ -3818,7 +3866,6 @@ class Goblin():
                 self.can_attack = True
 
     def die(self):
-        self.hp_lock = 0
         self.alive = False
 
     def __init__(self, shapeshifter = False, hp_lock = 0):
@@ -3859,10 +3906,10 @@ class Banshee():
     atk_damage = 8
     atk_speed = 9
     atk_cooldown = 0.75 * 60
-    base_hp = 9.5
-    hp_lock = 9.5
-    hp = base_hp
-    max_hp= 16.5
+    max_hp= 9.5
+    base_hp = max_hp
+    extra_hp = 0
+    hp = lambda x: x.base_hp + x.extra_hp
     alive = True
     orientation = True
     direction = (1,0)
@@ -3992,22 +4039,25 @@ class Banshee():
     def shoot(self):
         self.my_area = DamageArea(self)
     
-    def update_base_hp(self, hp):
-        self.hp_lock += hp
+    
 
     def take_damage(self, damage):
-        self.hp -= damage
+        if damage <= self.extra_hp:
+            self.extra_hp -= damage
+        elif damage > self.extra_hp:
+            damage -= self.extra_hp
+            self.extra_hp = 0
+            self.base_hp -= damage
         if self.current_animation[0] != "A":
-            print("It was", self.current_animation, self)
             self.current_animation = "hit"
             self.performing_action = True
-        if self.hp <= 0:
+        if self.hp() <= 0:
             self.die()
 
     def heal(self, qtd):
-        self.hp_lock += qtd
-        if self.hp_lock > self.base_hp:
-            self.hp_lock = self.base_hp
+        self.base_hp += qtd
+        if self.base_hp > self.max_hp:
+            self.base_hp = self.max_hp
             
     #movement
     def move(self, player):
@@ -4061,7 +4111,6 @@ class Banshee():
                 self.can_attack = True
 
     def die(self):
-        self.hp_lock = 0
         self.alive = False
 
 
@@ -4099,10 +4148,10 @@ class Dragon():
     atk_damage = 8
     atk_speed = 9
     atk_cooldown = 0.75 * 60
-    base_hp = 9.5
-    hp_lock = 9.5
-    hp = base_hp
-    max_hp= 16.5
+    max_hp= 9.5
+    base_hp = max_hp
+    extra_hp = 0
+    hp = lambda x: x.base_hp + x.extra_hp
     alive = True
     orientation = True
     direction = (1,0)
@@ -4293,21 +4342,25 @@ class Dragon():
     def shoot(self):
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
-    def update_base_hp(self, hp):
-        self.hp_lock += hp
+    
 
     def take_damage(self, damage):
-        self.hp -= damage
+        if damage <= self.extra_hp:
+            self.extra_hp -= damage
+        elif damage > self.extra_hp:
+            damage -= self.extra_hp
+            self.extra_hp = 0
+            self.base_hp -= damage
         if self.current_animation[0] != "A":
             self.current_animation = "hit"
             self.performing_action = True
-        if self.hp <= 0:
+        if self.hp() <= 0:
             self.die()
 
     def heal(self, qtd):
-        self.hp_lock += qtd
-        if self.hp_lock > self.base_hp:
-            self.hp_lock = self.base_hp
+        self.base_hp += qtd
+        if self.base_hp > self.max_hp:
+            self.base_hp = self.max_hp
             
     #movement
     def move(self, player):
@@ -4361,7 +4414,6 @@ class Dragon():
                 self.can_attack = True
 
     def die(self):
-        self.hp_lock = 0
         self.alive = False
 
     def __init__(self, shapeshifter = False, hp_lock = 0):
@@ -4402,10 +4454,10 @@ class Shapeshifter():
     atk_damage = 8
     atk_speed = 9
     atk_cooldown = 0.75 * 60
-    base_hp = 9.5
-    hp_lock = 9.5
-    hp = base_hp
-    max_hp= 16.5
+    max_hp= 9.5
+    base_hp = max_hp
+    extra_hp = 0
+    hp = lambda x: x.base_hp + x.extra_hp
     alive = True
     orientation = True
     direction = (1,0)
@@ -4589,22 +4641,26 @@ class Shapeshifter():
     def shoot(self):
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
-    def update_base_hp(self, hp):
-        self.hp_lock += hp
+    
 
 
     def take_damage(self, damage):
-        self.hp -= damage
+        if damage <= self.extra_hp:
+            self.extra_hp -= damage
+        elif damage > self.extra_hp:
+            damage -= self.extra_hp
+            self.extra_hp = 0
+            self.base_hp -= damage
         if self.current_animation[0] != "A":
             self.current_animation = "hit"
             self.performing_action = True
-        if self.hp <= 0:
+        if self.hp() <= 0:
             self.die()
 
     def heal(self, qtd):
-        self.hp_lock += qtd
-        if self.hp_lock > self.base_hp:
-            self.hp_lock = self.base_hp
+        self.base_hp += qtd
+        if self.base_hp > self.max_hp:
+            self.base_hp = self.max_hp
             
     #movement
     def move(self, player):
@@ -4658,7 +4714,6 @@ class Shapeshifter():
                 self.can_attack = True
 
     def die(self):
-        self.hp_lock = 0
         self.alive = False
 
     def __init__(self, shapeshifter = False, hp_lock = 0):
@@ -4677,6 +4732,8 @@ class Shapeshifter():
         animation_line.append(self)
 
 class Basilisk():
+
+
     name = "Basilisk"
     description = "Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn." 
     s_moving_type = "ground - 4"
@@ -4699,10 +4756,10 @@ class Basilisk():
     atk_damage = 8
     atk_speed = 9
     atk_cooldown = 0.75 * 60
-    base_hp = 9.5
-    hp_lock = 9.5
-    hp = base_hp
-    max_hp= 16.5
+    max_hp= 9.5
+    base_hp = max_hp
+    extra_hp = 0
+    hp = lambda x: x.base_hp + x.extra_hp
     alive = True
     orientation = True
     direction = (1,0)
@@ -4893,22 +4950,26 @@ class Basilisk():
     def shoot(self):
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
-    def update_base_hp(self, hp):
-        self.hp_lock += hp
+    
 
 
     def take_damage(self, damage):
-        self.hp -= damage
+        if damage <= self.extra_hp:
+            self.extra_hp -= damage
+        elif damage > self.extra_hp:
+            damage -= self.extra_hp
+            self.extra_hp = 0
+            self.base_hp -= damage
         if self.current_animation[0] != "A":
             self.current_animation = "hit"
             self.performing_action = True
-        if self.hp <= 0:
+        if self.hp() <= 0:
             self.die()
 
     def heal(self, qtd):
-        self.hp_lock += qtd
-        if self.hp_lock > self.base_hp:
-            self.hp_lock = self.base_hp
+        self.base_hp += qtd
+        if self.base_hp > self.max_hp:
+            self.base_hp = self.max_hp
             
     #movement
     def move(self, player):
@@ -4962,7 +5023,6 @@ class Basilisk():
                 self.can_attack = True
 
     def die(self):
-        self.hp_lock = 0
         self.alive = False
 
     def __init__(self, shapeshifter = False, hp_lock = 0):
@@ -4979,6 +5039,1256 @@ class Basilisk():
             self.hp_lock = hp_lock
         print(f"{self.name} instantiated")
         animation_line.append(self)
+
+##ELEMENTALS
+
+class AirElemental():
+    obj_type = "player"
+    name = "AirElemental"
+    description = "The archers are fearless amazones, that can handle their bows with legendary skill. They are equipped with magical quivers that never get empty." 
+    s_moving_type = "ground - 3"
+    s_speed = "normal"
+    s_attack_type = "arrow"
+    s_attack_strength = "low"
+    s_attack_speed = "middle"
+    s_attack_interval = "average"
+    s_life_span = "short"
+    s_number_of_chars = "2"
+
+    #STAT NUMBERS
+    team = 0
+    ranged = True
+        #type: teleport0 air1 ground2
+    move_type = 2
+    move_limit = 3
+    speed = 5
+    atk_damage = 8
+    atk_speed = 9
+    atk_cooldown = 0.75 * 60
+    max_hp= 9.5
+    base_hp = max_hp
+    extra_hp = 0
+    hp = lambda x: x.base_hp + x.extra_hp
+    alive = True
+    orientation = True
+    direction = (1,0)
+    performing_action = False
+    can_attack = True
+    char_x_offset = 18
+    char_y_offset = 17
+    char_width = 12 #TODO: get character dimensions
+    char_height = 19
+    #Position
+    x = 0
+    y = 0
+
+    #projectile
+    proj_dir = (0,0)
+    proj_width = 10
+    proj_height = 4
+                    #Corrections 
+    proj_correction = [
+    (34,26), #RightAttackFront
+    (33,17), #RightAttackUp
+    (36,19), #RightAttackFrontUp
+    (35,33), #RightAttackFrontDown
+    (33,35), #RightAttackDown
+    (14,26), #LeftAttackFront
+    (16,18), #LeftAttackUp
+    (14,19), #LeftAttackFrontUp
+    (14,34), #LeftAttackFrontDown
+    (16,35)  #LeftAttackDown #    AQUI
+    ]
+    ##SPRITES
+    idle_animation = get_sprites(name, 'Idle')
+    
+    run_animation = get_sprites(name, 'Run')
+
+    hit_animation = get_sprites(name, 'Hit')
+    
+    attack_front_animation = get_sprites(name, 'AttackFront')
+    attack_front_up_animation = get_sprites(name, 'AttackFrontUp')
+    attack_front_down_animation = get_sprites(name, 'AttackFrontDown')
+    attack_up_animation = get_sprites(name, 'AttackUp')
+    attack_down_animation = get_sprites(name, 'AttackDown')
+
+    #Animation Managing
+    cur_key = 0
+    current_sprite = idle_animation[0]
+    animation_change = "idle"
+    current_animation = "idle"
+    sprite = pygame.image.load(current_sprite)
+    texture = pygame.transform.scale(sprite,  (_CHARS_SIZE, _CHARS_SIZE))
+    anim_clock = -1
+    can_attack_cycle = 0
+
+    #Masks use the opaque pixels, ignoring the transparent
+    #hitbox = pygame.mask.from_surface(texture, 127)
+    def handle_animation(self):
+        if self.animation_change != self.current_animation:
+            self.cur_key = -1
+            self.animation_change = self.current_animation
+
+        #CLOCK CHANGE
+        self.anim_clock += 1
+
+        if self.current_animation == "idle":
+            if self.cur_key+2 > len(self.idle_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 10:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.idle_animation[self.cur_key]
+        elif self.current_animation == "moving":
+            if self.cur_key+2 > len(self.run_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 4:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.run_animation[self.cur_key]
+        elif self.current_animation == "hit":
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 5:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.hit_animation[self.cur_key]
+        elif self.current_animation == "AttackFront":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_front_animation[self.cur_key]
+        elif self.current_animation == "AttackFrontUp":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_front_up_animation[self.cur_key]
+        elif self.current_animation == "AttackFrontDown":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_front_down_animation[self.cur_key]
+        elif self.current_animation == "AttackUp":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_up_animation[self.cur_key]
+        elif self.current_animation == "AttackDown":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_down_animation[self.cur_key]
+        self.sprite = pygame.image.load(self.current_sprite)
+        self.texture = pygame.transform.scale(self.sprite,  (_CHARS_SIZE, _CHARS_SIZE))
+    
+    #collision
+    def hitbox(self):
+        return pygame.Rect(self.x + self.char_x_offset *2.6 , self.y + self.char_y_offset *2.6, self.char_width *2.6, self.char_height*2.6)
+    
+    def check_arena_collision(self):
+        colliding = False
+        if not arena_ground.contains(self.hitbox()):
+            colliding = True
+        for rect in arena_collisions:
+            if rect != self:
+                if self.hitbox().colliderect(rect.hitbox()):
+                    colliding = True
+
+        return colliding
+    
+    def attack(self, x, y):
+        self.proj_dir = (x, y)
+        attack_anim = "Attack"
+        if x==0 and y == 0:
+            return
+        self.performing_action = True
+        self.can_attack = False
+        if x != 0:
+            attack_anim += "Front"
+        if y == -1:
+            attack_anim += "Up"
+        elif y == 1:
+            attack_anim += "Down"
+        self.current_animation = attack_anim
+    
+    def shoot(self):
+        Projectile((self.proj_dir[0], self.proj_dir[1]), self)
+    
+    
+
+    def take_damage(self, damage):
+        if damage <= self.extra_hp:
+            self.extra_hp -= damage
+        elif damage > self.extra_hp:
+            damage -= self.extra_hp
+            self.extra_hp = 0
+            self.base_hp -= damage
+        if self.current_animation[0] != "A":
+            self.current_animation = "hit"
+            self.performing_action = True
+        if self.hp() <= 0:
+            self.die()
+
+    def heal(self, qtd):
+        self.base_hp += qtd
+        if self.base_hp > self.max_hp:
+            self.base_hp = self.max_hp
+
+    #movement
+    def move(self, player):
+        keys = pygame.key.get_pressed()  #checking pressed keys
+        x, y = (0, 0)
+        if not self.performing_action:
+            if player == 1:
+                if keys[pygame.K_w]:
+                    y += 1         
+                if keys[pygame.K_s]:
+                    y -= 1
+                if keys[pygame.K_d]:
+                    x += 1          
+                if keys[pygame.K_a]:
+                    x -= 1              
+                if keys[pygame.K_LSHIFT] and self.can_attack:
+                    self.attack(x, -y)
+            elif player == 2:
+                if keys[pygame.K_UP]:
+                    y += 1            
+                if keys[pygame.K_DOWN]:
+                    y -= 1             
+                if keys[pygame.K_RIGHT]:
+                    x += 1               
+                if keys[pygame.K_LEFT]:
+                    x -= 1
+                if keys[pygame.K_RETURN] and self.can_attack:
+                    self.attack(x, -y)
+        if x > 0:
+            self.orientation = False
+        elif x <0:
+            self.orientation = True
+        self.x += x* self.speed
+        if self.check_arena_collision():
+            self.x -= x * self.speed
+            x = 0
+        self.y -= y* self.speed
+        if self.check_arena_collision():
+            self.y += y * self.speed
+            x = 0
+        self.direction = (x, y)
+        if not self.performing_action:
+            if x != 0 or y != 0:
+                self.current_animation = "moving"
+            else:
+                self.current_animation = "idle"
+        if not self.can_attack:
+            self.can_attack_cycle += 1
+            if self.can_attack_cycle > self.atk_cooldown:
+                self.can_attack_cycle = 0
+                self.can_attack = True
+
+    def die(self):
+        self.alive = False
+
+
+    def __init__(self, shapeshifter = False, hp_lock = 0, team = 0):
+        self.team = team
+        if shapeshifter:
+            self.team = 1
+            self.idle_animation = get_sprites(self.name + "Shapeshifter", 'Idle')
+            self.run_animation = get_sprites(self.name + "Shapeshifter", 'Run')
+            self.hit_animation = get_sprites(self.name + "Shapeshifter", 'Hit')
+            self.attack_front_animation = get_sprites(self.name + "Shapeshifter", 'AttackFront')
+            self.attack_front_up_animation = get_sprites(self.name + "Shapeshifter", 'AttackFrontUp')
+            self.attack_front_down_animation = get_sprites(self.name + "Shapeshifter", 'AttackFrontDown')
+            self.attack_up_animation = get_sprites(self.name + "Shapeshifter", 'AttackUp')
+            self.attack_down_animation = get_sprites(self.name + "Shapeshifter", 'AttackDown')
+            self.hp_lock = hp_lock
+        print(f"{self.name} instantiated")
+        animation_line.append(self)
+
+class WaterElemental():
+    obj_type = "player"
+    name = "WaterElemental"
+    description = "The archers are fearless amazones, that can handle their bows with legendary skill. They are equipped with magical quivers that never get empty." 
+    s_moving_type = "ground - 3"
+    s_speed = "normal"
+    s_attack_type = "arrow"
+    s_attack_strength = "low"
+    s_attack_speed = "middle"
+    s_attack_interval = "average"
+    s_life_span = "short"
+    s_number_of_chars = "2"
+
+    #STAT NUMBERS
+    team = 0
+    ranged = True
+        #type: teleport0 air1 ground2
+    move_type = 2
+    move_limit = 3
+    speed = 5
+    atk_damage = 8
+    atk_speed = 9
+    atk_cooldown = 0.75 * 60
+    max_hp= 9.5
+    base_hp = max_hp
+    extra_hp = 0
+    hp = lambda x: x.base_hp + x.extra_hp
+    alive = True
+    orientation = True
+    direction = (1,0)
+    performing_action = False
+    can_attack = True
+    char_x_offset = 18
+    char_y_offset = 17
+    char_width = 12 #TODO: get character dimensions
+    char_height = 19
+    #Position
+    x = 0
+    y = 0
+
+    #projectile
+    proj_dir = (0,0)
+    proj_width = 10
+    proj_height = 4
+                    #Corrections 
+    proj_correction = [
+    (34,26), #RightAttackFront
+    (33,17), #RightAttackUp
+    (36,19), #RightAttackFrontUp
+    (35,33), #RightAttackFrontDown
+    (33,35), #RightAttackDown
+    (14,26), #LeftAttackFront
+    (16,18), #LeftAttackUp
+    (14,19), #LeftAttackFrontUp
+    (14,34), #LeftAttackFrontDown
+    (16,35)  #LeftAttackDown #    AQUI
+    ]
+    ##SPRITES
+    idle_animation = get_sprites(name, 'Idle')
+    
+    run_animation = get_sprites(name, 'Run')
+
+    hit_animation = get_sprites(name, 'Hit')
+    
+    attack_front_animation = get_sprites(name, 'AttackFront')
+    attack_front_up_animation = get_sprites(name, 'AttackFrontUp')
+    attack_front_down_animation = get_sprites(name, 'AttackFrontDown')
+    attack_up_animation = get_sprites(name, 'AttackUp')
+    attack_down_animation = get_sprites(name, 'AttackDown')
+
+    #Animation Managing
+    cur_key = 0
+    current_sprite = idle_animation[0]
+    animation_change = "idle"
+    current_animation = "idle"
+    sprite = pygame.image.load(current_sprite)
+    texture = pygame.transform.scale(sprite,  (_CHARS_SIZE, _CHARS_SIZE))
+    anim_clock = -1
+    can_attack_cycle = 0
+
+    #Masks use the opaque pixels, ignoring the transparent
+    #hitbox = pygame.mask.from_surface(texture, 127)
+    def handle_animation(self):
+        if self.animation_change != self.current_animation:
+            self.cur_key = -1
+            self.animation_change = self.current_animation
+
+        #CLOCK CHANGE
+        self.anim_clock += 1
+
+        if self.current_animation == "idle":
+            if self.cur_key+2 > len(self.idle_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 10:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.idle_animation[self.cur_key]
+        elif self.current_animation == "moving":
+            if self.cur_key+2 > len(self.run_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 4:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.run_animation[self.cur_key]
+        elif self.current_animation == "hit":
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 5:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.hit_animation[self.cur_key]
+        elif self.current_animation == "AttackFront":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_front_animation[self.cur_key]
+        elif self.current_animation == "AttackFrontUp":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_front_up_animation[self.cur_key]
+        elif self.current_animation == "AttackFrontDown":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_front_down_animation[self.cur_key]
+        elif self.current_animation == "AttackUp":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_up_animation[self.cur_key]
+        elif self.current_animation == "AttackDown":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_down_animation[self.cur_key]
+        self.sprite = pygame.image.load(self.current_sprite)
+        self.texture = pygame.transform.scale(self.sprite,  (_CHARS_SIZE, _CHARS_SIZE))
+    
+    #collision
+    def hitbox(self):
+        return pygame.Rect(self.x + self.char_x_offset *2.6 , self.y + self.char_y_offset *2.6, self.char_width *2.6, self.char_height*2.6)
+    
+    def check_arena_collision(self):
+        colliding = False
+        if not arena_ground.contains(self.hitbox()):
+            colliding = True
+        for rect in arena_collisions:
+            if rect != self:
+                if self.hitbox().colliderect(rect.hitbox()):
+                    colliding = True
+
+        return colliding
+    
+    def attack(self, x, y):
+        self.proj_dir = (x, y)
+        attack_anim = "Attack"
+        if x==0 and y == 0:
+            return
+        self.performing_action = True
+        self.can_attack = False
+        if x != 0:
+            attack_anim += "Front"
+        if y == -1:
+            attack_anim += "Up"
+        elif y == 1:
+            attack_anim += "Down"
+        self.current_animation = attack_anim
+    
+    def shoot(self):
+        Projectile((self.proj_dir[0], self.proj_dir[1]), self)
+    
+    
+
+    def take_damage(self, damage):
+        if damage <= self.extra_hp:
+            self.extra_hp -= damage
+        elif damage > self.extra_hp:
+            damage -= self.extra_hp
+            self.extra_hp = 0
+            self.base_hp -= damage
+        if self.current_animation[0] != "A":
+            self.current_animation = "hit"
+            self.performing_action = True
+        if self.hp() <= 0:
+            self.die()
+
+    def heal(self, qtd):
+        self.base_hp += qtd
+        if self.base_hp > self.max_hp:
+            self.base_hp = self.max_hp
+
+    #movement
+    def move(self, player):
+        keys = pygame.key.get_pressed()  #checking pressed keys
+        x, y = (0, 0)
+        if not self.performing_action:
+            if player == 1:
+                if keys[pygame.K_w]:
+                    y += 1         
+                if keys[pygame.K_s]:
+                    y -= 1
+                if keys[pygame.K_d]:
+                    x += 1          
+                if keys[pygame.K_a]:
+                    x -= 1              
+                if keys[pygame.K_LSHIFT] and self.can_attack:
+                    self.attack(x, -y)
+            elif player == 2:
+                if keys[pygame.K_UP]:
+                    y += 1            
+                if keys[pygame.K_DOWN]:
+                    y -= 1             
+                if keys[pygame.K_RIGHT]:
+                    x += 1               
+                if keys[pygame.K_LEFT]:
+                    x -= 1
+                if keys[pygame.K_RETURN] and self.can_attack:
+                    self.attack(x, -y)
+        if x > 0:
+            self.orientation = False
+        elif x <0:
+            self.orientation = True
+        self.x += x* self.speed
+        if self.check_arena_collision():
+            self.x -= x * self.speed
+            x = 0
+        self.y -= y* self.speed
+        if self.check_arena_collision():
+            self.y += y * self.speed
+            x = 0
+        self.direction = (x, y)
+        if not self.performing_action:
+            if x != 0 or y != 0:
+                self.current_animation = "moving"
+            else:
+                self.current_animation = "idle"
+        if not self.can_attack:
+            self.can_attack_cycle += 1
+            if self.can_attack_cycle > self.atk_cooldown:
+                self.can_attack_cycle = 0
+                self.can_attack = True
+
+    def die(self):
+        self.alive = False
+
+
+    def __init__(self, shapeshifter = False, hp_lock = 0, team = 0):
+        self.team = team
+        if shapeshifter:
+            self.team = 1
+            self.idle_animation = get_sprites(self.name + "Shapeshifter", 'Idle')
+            self.run_animation = get_sprites(self.name + "Shapeshifter", 'Run')
+            self.hit_animation = get_sprites(self.name + "Shapeshifter", 'Hit')
+            self.attack_front_animation = get_sprites(self.name + "Shapeshifter", 'AttackFront')
+            self.attack_front_up_animation = get_sprites(self.name + "Shapeshifter", 'AttackFrontUp')
+            self.attack_front_down_animation = get_sprites(self.name + "Shapeshifter", 'AttackFrontDown')
+            self.attack_up_animation = get_sprites(self.name + "Shapeshifter", 'AttackUp')
+            self.attack_down_animation = get_sprites(self.name + "Shapeshifter", 'AttackDown')
+            self.hp_lock = hp_lock
+        print(f"{self.name} instantiated")
+        animation_line.append(self)
+
+class FireElemental():
+    obj_type = "player"
+    name = "FireElemental"
+    description = "The archers are fearless amazones, that can handle their bows with legendary skill. They are equipped with magical quivers that never get empty." 
+    s_moving_type = "ground - 3"
+    s_speed = "normal"
+    s_attack_type = "arrow"
+    s_attack_strength = "low"
+    s_attack_speed = "middle"
+    s_attack_interval = "average"
+    s_life_span = "short"
+    s_number_of_chars = "2"
+
+    #STAT NUMBERS
+    team = 0
+    ranged = True
+        #type: teleport0 air1 ground2
+    move_type = 2
+    move_limit = 3
+    speed = 5
+    atk_damage = 8
+    atk_speed = 9
+    atk_cooldown = 0.75 * 60
+    max_hp= 9.5
+    base_hp = max_hp
+    extra_hp = 0
+    hp = lambda x: x.base_hp + x.extra_hp
+    alive = True
+    orientation = True
+    direction = (1,0)
+    performing_action = False
+    can_attack = True
+    char_x_offset = 18
+    char_y_offset = 17
+    char_width = 12 #TODO: get character dimensions
+    char_height = 19
+    #Position
+    x = 0
+    y = 0
+
+    #projectile
+    proj_dir = (0,0)
+    proj_width = 10
+    proj_height = 4
+                    #Corrections 
+    proj_correction = [
+    (34,26), #RightAttackFront
+    (33,17), #RightAttackUp
+    (36,19), #RightAttackFrontUp
+    (35,33), #RightAttackFrontDown
+    (33,35), #RightAttackDown
+    (14,26), #LeftAttackFront
+    (16,18), #LeftAttackUp
+    (14,19), #LeftAttackFrontUp
+    (14,34), #LeftAttackFrontDown
+    (16,35)  #LeftAttackDown #    AQUI
+    ]
+    ##SPRITES
+    idle_animation = get_sprites(name, 'Idle')
+    
+    run_animation = get_sprites(name, 'Run')
+
+    hit_animation = get_sprites(name, 'Hit')
+    
+    attack_front_animation = get_sprites(name, 'AttackFront')
+    attack_front_up_animation = get_sprites(name, 'AttackFrontUp')
+    attack_front_down_animation = get_sprites(name, 'AttackFrontDown')
+    attack_up_animation = get_sprites(name, 'AttackUp')
+    attack_down_animation = get_sprites(name, 'AttackDown')
+
+    #Animation Managing
+    cur_key = 0
+    current_sprite = idle_animation[0]
+    animation_change = "idle"
+    current_animation = "idle"
+    sprite = pygame.image.load(current_sprite)
+    texture = pygame.transform.scale(sprite,  (_CHARS_SIZE, _CHARS_SIZE))
+    anim_clock = -1
+    can_attack_cycle = 0
+
+    #Masks use the opaque pixels, ignoring the transparent
+    #hitbox = pygame.mask.from_surface(texture, 127)
+    def handle_animation(self):
+        if self.animation_change != self.current_animation:
+            self.cur_key = -1
+            self.animation_change = self.current_animation
+
+        #CLOCK CHANGE
+        self.anim_clock += 1
+
+        if self.current_animation == "idle":
+            if self.cur_key+2 > len(self.idle_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 10:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.idle_animation[self.cur_key]
+        elif self.current_animation == "moving":
+            if self.cur_key+2 > len(self.run_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 4:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.run_animation[self.cur_key]
+        elif self.current_animation == "hit":
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 5:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.hit_animation[self.cur_key]
+        elif self.current_animation == "AttackFront":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_front_animation[self.cur_key]
+        elif self.current_animation == "AttackFrontUp":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_front_up_animation[self.cur_key]
+        elif self.current_animation == "AttackFrontDown":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_front_down_animation[self.cur_key]
+        elif self.current_animation == "AttackUp":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_up_animation[self.cur_key]
+        elif self.current_animation == "AttackDown":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_down_animation[self.cur_key]
+        self.sprite = pygame.image.load(self.current_sprite)
+        self.texture = pygame.transform.scale(self.sprite,  (_CHARS_SIZE, _CHARS_SIZE))
+    
+    #collision
+    def hitbox(self):
+        return pygame.Rect(self.x + self.char_x_offset *2.6 , self.y + self.char_y_offset *2.6, self.char_width *2.6, self.char_height*2.6)
+    
+    def check_arena_collision(self):
+        colliding = False
+        if not arena_ground.contains(self.hitbox()):
+            colliding = True
+        for rect in arena_collisions:
+            if rect != self:
+                if self.hitbox().colliderect(rect.hitbox()):
+                    colliding = True
+
+        return colliding
+    
+    def attack(self, x, y):
+        self.proj_dir = (x, y)
+        attack_anim = "Attack"
+        if x==0 and y == 0:
+            return
+        self.performing_action = True
+        self.can_attack = False
+        if x != 0:
+            attack_anim += "Front"
+        if y == -1:
+            attack_anim += "Up"
+        elif y == 1:
+            attack_anim += "Down"
+        self.current_animation = attack_anim
+    
+    def shoot(self):
+        Projectile((self.proj_dir[0], self.proj_dir[1]), self)
+    
+    
+
+    def take_damage(self, damage):
+        if damage <= self.extra_hp:
+            self.extra_hp -= damage
+        elif damage > self.extra_hp:
+            damage -= self.extra_hp
+            self.extra_hp = 0
+            self.base_hp -= damage
+        if self.current_animation[0] != "A":
+            self.current_animation = "hit"
+            self.performing_action = True
+        if self.hp() <= 0:
+            self.die()
+
+    def heal(self, qtd):
+        self.base_hp += qtd
+        if self.base_hp > self.max_hp:
+            self.base_hp = self.max_hp
+
+    #movement
+    def move(self, player):
+        keys = pygame.key.get_pressed()  #checking pressed keys
+        x, y = (0, 0)
+        if not self.performing_action:
+            if player == 1:
+                if keys[pygame.K_w]:
+                    y += 1         
+                if keys[pygame.K_s]:
+                    y -= 1
+                if keys[pygame.K_d]:
+                    x += 1          
+                if keys[pygame.K_a]:
+                    x -= 1              
+                if keys[pygame.K_LSHIFT] and self.can_attack:
+                    self.attack(x, -y)
+            elif player == 2:
+                if keys[pygame.K_UP]:
+                    y += 1            
+                if keys[pygame.K_DOWN]:
+                    y -= 1             
+                if keys[pygame.K_RIGHT]:
+                    x += 1               
+                if keys[pygame.K_LEFT]:
+                    x -= 1
+                if keys[pygame.K_RETURN] and self.can_attack:
+                    self.attack(x, -y)
+        if x > 0:
+            self.orientation = False
+        elif x <0:
+            self.orientation = True
+        self.x += x* self.speed
+        if self.check_arena_collision():
+            self.x -= x * self.speed
+            x = 0
+        self.y -= y* self.speed
+        if self.check_arena_collision():
+            self.y += y * self.speed
+            x = 0
+        self.direction = (x, y)
+        if not self.performing_action:
+            if x != 0 or y != 0:
+                self.current_animation = "moving"
+            else:
+                self.current_animation = "idle"
+        if not self.can_attack:
+            self.can_attack_cycle += 1
+            if self.can_attack_cycle > self.atk_cooldown:
+                self.can_attack_cycle = 0
+                self.can_attack = True
+
+    def die(self):
+        self.alive = False
+
+
+    def __init__(self, shapeshifter = False, hp_lock = 0, team = 0):
+        self.team = team
+        if shapeshifter:
+            self.team = 1
+            self.idle_animation = get_sprites(self.name + "Shapeshifter", 'Idle')
+            self.run_animation = get_sprites(self.name + "Shapeshifter", 'Run')
+            self.hit_animation = get_sprites(self.name + "Shapeshifter", 'Hit')
+            self.attack_front_animation = get_sprites(self.name + "Shapeshifter", 'AttackFront')
+            self.attack_front_up_animation = get_sprites(self.name + "Shapeshifter", 'AttackFrontUp')
+            self.attack_front_down_animation = get_sprites(self.name + "Shapeshifter", 'AttackFrontDown')
+            self.attack_up_animation = get_sprites(self.name + "Shapeshifter", 'AttackUp')
+            self.attack_down_animation = get_sprites(self.name + "Shapeshifter", 'AttackDown')
+            self.hp_lock = hp_lock
+        print(f"{self.name} instantiated")
+        animation_line.append(self)
+
+class EarthElemental():
+    obj_type = "player"
+    name = "EarthElemental"
+    description = "The archers are fearless amazones, that can handle their bows with legendary skill. They are equipped with magical quivers that never get empty." 
+    s_moving_type = "ground - 3"
+    s_speed = "normal"
+    s_attack_type = "arrow"
+    s_attack_strength = "low"
+    s_attack_speed = "middle"
+    s_attack_interval = "average"
+    s_life_span = "short"
+    s_number_of_chars = "2"
+
+    #STAT NUMBERS
+    team = 0
+    ranged = True
+        #type: teleport0 air1 ground2
+    move_type = 2
+    move_limit = 3
+    speed = 5
+    atk_damage = 8
+    atk_speed = 9
+    atk_cooldown = 0.75 * 60
+    max_hp= 9.5
+    base_hp = max_hp
+    extra_hp = 0
+    hp = lambda x: x.base_hp + x.extra_hp
+    alive = True
+    orientation = True
+    direction = (1,0)
+    performing_action = False
+    can_attack = True
+    char_x_offset = 18
+    char_y_offset = 17
+    char_width = 12 #TODO: get character dimensions
+    char_height = 19
+    #Position
+    x = 0
+    y = 0
+
+    #projectile
+    proj_dir = (0,0)
+    proj_width = 10
+    proj_height = 4
+                    #Corrections 
+    proj_correction = [
+    (34,26), #RightAttackFront
+    (33,17), #RightAttackUp
+    (36,19), #RightAttackFrontUp
+    (35,33), #RightAttackFrontDown
+    (33,35), #RightAttackDown
+    (14,26), #LeftAttackFront
+    (16,18), #LeftAttackUp
+    (14,19), #LeftAttackFrontUp
+    (14,34), #LeftAttackFrontDown
+    (16,35)  #LeftAttackDown #    AQUI
+    ]
+    ##SPRITES
+    idle_animation = get_sprites(name, 'Idle')
+    
+    run_animation = get_sprites(name, 'Run')
+
+    hit_animation = get_sprites(name, 'Hit')
+    
+    attack_front_animation = get_sprites(name, 'AttackFront')
+    attack_front_up_animation = get_sprites(name, 'AttackFrontUp')
+    attack_front_down_animation = get_sprites(name, 'AttackFrontDown')
+    attack_up_animation = get_sprites(name, 'AttackUp')
+    attack_down_animation = get_sprites(name, 'AttackDown')
+
+    #Animation Managing
+    cur_key = 0
+    current_sprite = idle_animation[0]
+    animation_change = "idle"
+    current_animation = "idle"
+    sprite = pygame.image.load(current_sprite)
+    texture = pygame.transform.scale(sprite,  (_CHARS_SIZE, _CHARS_SIZE))
+    anim_clock = -1
+    can_attack_cycle = 0
+
+    #Masks use the opaque pixels, ignoring the transparent
+    #hitbox = pygame.mask.from_surface(texture, 127)
+    def handle_animation(self):
+        if self.animation_change != self.current_animation:
+            self.cur_key = -1
+            self.animation_change = self.current_animation
+
+        #CLOCK CHANGE
+        self.anim_clock += 1
+
+        if self.current_animation == "idle":
+            if self.cur_key+2 > len(self.idle_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 10:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.idle_animation[self.cur_key]
+        elif self.current_animation == "moving":
+            if self.cur_key+2 > len(self.run_animation):
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 4:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.run_animation[self.cur_key]
+        elif self.current_animation == "hit":
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 5:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.hit_animation[self.cur_key]
+        elif self.current_animation == "AttackFront":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_front_animation[self.cur_key]
+        elif self.current_animation == "AttackFrontUp":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_front_up_animation[self.cur_key]
+        elif self.current_animation == "AttackFrontDown":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_front_down_animation[self.cur_key]
+        elif self.current_animation == "AttackUp":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_up_animation[self.cur_key]
+        elif self.current_animation == "AttackDown":
+            if self.cur_key == 2 and self.anim_clock == 0:
+                self.shoot()
+            if self.cur_key+2 > 3:
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > self.atk_speed:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.attack_down_animation[self.cur_key]
+        self.sprite = pygame.image.load(self.current_sprite)
+        self.texture = pygame.transform.scale(self.sprite,  (_CHARS_SIZE, _CHARS_SIZE))
+    
+    #collision
+    def hitbox(self):
+        return pygame.Rect(self.x + self.char_x_offset *2.6 , self.y + self.char_y_offset *2.6, self.char_width *2.6, self.char_height*2.6)
+    
+    def check_arena_collision(self):
+        colliding = False
+        if not arena_ground.contains(self.hitbox()):
+            colliding = True
+        for rect in arena_collisions:
+            if rect != self:
+                if self.hitbox().colliderect(rect.hitbox()):
+                    colliding = True
+
+        return colliding
+    
+    def attack(self, x, y):
+        self.proj_dir = (x, y)
+        attack_anim = "Attack"
+        if x==0 and y == 0:
+            return
+        self.performing_action = True
+        self.can_attack = False
+        if x != 0:
+            attack_anim += "Front"
+        if y == -1:
+            attack_anim += "Up"
+        elif y == 1:
+            attack_anim += "Down"
+        self.current_animation = attack_anim
+    
+    def shoot(self):
+        Projectile((self.proj_dir[0], self.proj_dir[1]), self)
+    
+    
+
+    def take_damage(self, damage):
+        if damage <= self.extra_hp:
+            self.extra_hp -= damage
+        elif damage > self.extra_hp:
+            damage -= self.extra_hp
+            self.extra_hp = 0
+            self.base_hp -= damage
+        if self.current_animation[0] != "A":
+            self.current_animation = "hit"
+            self.performing_action = True
+        if self.hp() <= 0:
+            self.die()
+
+    def heal(self, qtd):
+        self.base_hp += qtd
+        if self.base_hp > self.max_hp:
+            self.base_hp = self.max_hp
+
+    #movement
+    def move(self, player):
+        keys = pygame.key.get_pressed()  #checking pressed keys
+        x, y = (0, 0)
+        if not self.performing_action:
+            if player == 1:
+                if keys[pygame.K_w]:
+                    y += 1         
+                if keys[pygame.K_s]:
+                    y -= 1
+                if keys[pygame.K_d]:
+                    x += 1          
+                if keys[pygame.K_a]:
+                    x -= 1              
+                if keys[pygame.K_LSHIFT] and self.can_attack:
+                    self.attack(x, -y)
+            elif player == 2:
+                if keys[pygame.K_UP]:
+                    y += 1            
+                if keys[pygame.K_DOWN]:
+                    y -= 1             
+                if keys[pygame.K_RIGHT]:
+                    x += 1               
+                if keys[pygame.K_LEFT]:
+                    x -= 1
+                if keys[pygame.K_RETURN] and self.can_attack:
+                    self.attack(x, -y)
+        if x > 0:
+            self.orientation = False
+        elif x <0:
+            self.orientation = True
+        self.x += x* self.speed
+        if self.check_arena_collision():
+            self.x -= x * self.speed
+            x = 0
+        self.y -= y* self.speed
+        if self.check_arena_collision():
+            self.y += y * self.speed
+            x = 0
+        self.direction = (x, y)
+        if not self.performing_action:
+            if x != 0 or y != 0:
+                self.current_animation = "moving"
+            else:
+                self.current_animation = "idle"
+        if not self.can_attack:
+            self.can_attack_cycle += 1
+            if self.can_attack_cycle > self.atk_cooldown:
+                self.can_attack_cycle = 0
+                self.can_attack = True
+
+    def die(self):
+        self.alive = False
+
+
+    def __init__(self, shapeshifter = False, hp_lock = 0, team = 0):
+        self.team = team
+        if shapeshifter:
+            self.team = 1
+            self.idle_animation = get_sprites(self.name + "Shapeshifter", 'Idle')
+            self.run_animation = get_sprites(self.name + "Shapeshifter", 'Run')
+            self.hit_animation = get_sprites(self.name + "Shapeshifter", 'Hit')
+            self.attack_front_animation = get_sprites(self.name + "Shapeshifter", 'AttackFront')
+            self.attack_front_up_animation = get_sprites(self.name + "Shapeshifter", 'AttackFrontUp')
+            self.attack_front_down_animation = get_sprites(self.name + "Shapeshifter", 'AttackFrontDown')
+            self.attack_up_animation = get_sprites(self.name + "Shapeshifter", 'AttackUp')
+            self.attack_down_animation = get_sprites(self.name + "Shapeshifter", 'AttackDown')
+            self.hp_lock = hp_lock
+        print(f"{self.name} instantiated")
+        animation_line.append(self)
+
+
+    
+
 """
 ~~~~SCENES~~~~
 """
@@ -5248,43 +6558,7 @@ class GameBoard:
     _PIECE_SIZE = 80
     #Pieces
  
-    Golem_Piece1 = (Golem(), pygame.transform.scale(pygame.image.load(Golem.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
-    Golem_Piece2 = (Golem(), pygame.transform.scale(pygame.image.load(Golem.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
-    Knight_Piece1 = (Knight(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
-    Knight_Piece2 = (Knight(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
-    Knight_Piece3 = (Knight(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
-    Knight_Piece4 = (Knight(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
-    Knight_Piece5 = (Knight(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
-    Knight_Piece6 = (Knight(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
-    Knight_Piece7 = (Knight(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
-    Archer_Piece1 = (Archer(), pygame.transform.scale(pygame.image.load(Archer.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
-    Archer_Piece2 = (Archer(), pygame.transform.scale(pygame.image.load(Archer.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
-    Djinni_Piece1 = (Djinni(), pygame.transform.scale(pygame.image.load(Djinni.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
-    Wizard_Piece1 = (Wizard(), pygame.transform.scale(pygame.image.load(Wizard.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
-    Unicorn_Piece1 = (Unicorn(), pygame.transform.scale(pygame.image.load(Unicorn.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
-    Unicorn_Piece2 = (Unicorn(), pygame.transform.scale(pygame.image.load(Unicorn.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
-    Phoenix_Piece1 = (Phoenix(), pygame.transform.scale(pygame.image.load(Phoenix.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
-    Valkyrie_Piece1 = (Valkyrie(), pygame.transform.scale(pygame.image.load(Valkyrie.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
-    Valkyrie_Piece2 = (Valkyrie(), pygame.transform.scale(pygame.image.load(Valkyrie.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
-    Troll_Piece1 = (Troll(), pygame.transform.scale(pygame.image.load(Troll.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
-    Troll_Piece2 = (Troll(), pygame.transform.scale(pygame.image.load(Troll.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
-    Sorceress_Piece1 = (Sorceress(), pygame.transform.scale(pygame.image.load(Sorceress.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
-    Manticore_Piece1 = (Manticore(), pygame.transform.scale(pygame.image.load(Manticore.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
-    Manticore_Piece2 = (Manticore(), pygame.transform.scale(pygame.image.load(Manticore.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
-    Goblin_Piece1 = (Goblin(), pygame.transform.scale(pygame.image.load(Goblin.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
-    Goblin_Piece2 = (Goblin(), pygame.transform.scale(pygame.image.load(Goblin.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
-    Goblin_Piece3 = (Goblin(), pygame.transform.scale(pygame.image.load(Goblin.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
-    Goblin_Piece4 = (Goblin(), pygame.transform.scale(pygame.image.load(Goblin.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
-    Goblin_Piece5 = (Goblin(), pygame.transform.scale(pygame.image.load(Goblin.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
-    Goblin_Piece6 = (Goblin(), pygame.transform.scale(pygame.image.load(Goblin.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
-    Goblin_Piece7 = (Goblin(), pygame.transform.scale(pygame.image.load(Goblin.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
-    Banshee_Piece1 = (Banshee(), pygame.transform.scale(pygame.image.load(Banshee.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
-    Banshee_Piece2 = (Banshee(), pygame.transform.scale(pygame.image.load(Banshee.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
-    Dragon_Piece1 = (Dragon(), pygame.transform.scale(pygame.image.load(Dragon.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
-    Basilisk_Piece1 = (Basilisk(), pygame.transform.scale(pygame.image.load(Basilisk.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
-    Basilisk_Piece2 = (Basilisk(), pygame.transform.scale(pygame.image.load(Basilisk.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
-    Shapeshifter_Piece1 = (Shapeshifter(), pygame.transform.scale(pygame.image.load(Shapeshifter.current_sprite),  (_PIECE_SIZE, _PIECE_SIZE)))
-
+    
     _PLAYERS_COLOR = [(255, 255, 255), (0,0,0)]
     _STATIC_TILES = [(0,0), (0,1), (0,2), (0,4), (0,6), (0,7), (0,8), (1,0), (1,1), (1,3), (1,5), (1,7), (1,8), (2,0), (2,2), (2,3), (2,5), (2,6), (2,8), (3,1), (3,2), (3,3), (3,5), (3,6), (3,7), (5,1), (5,2), (5,3), (5,5), (5,6), (5,7), (6,0), (6,2), (6,3), (6,5), (6,6), (6,8), (7,0), (7,1), (7,3), (7,5), (7,7), (7,8), (8,0), (8,1), (8,2), (8,4), (8,6), (8,7), (8,8)]
                                 ##LIGHT --> DARK##
@@ -5295,9 +6569,13 @@ class GameBoard:
     board_y = 64
     light_square = pygame.image.load(r'Resources\Sprites\Tiles\220220220LightTile.png')
     board_color_data = [[ _TILE_COLORS[5] ,_TILE_COLORS[0], _TILE_COLORS[5], 0, _TILE_COLORS[0], 0, _TILE_COLORS[5], _TILE_COLORS[0], _TILE_COLORS[5]], [_TILE_COLORS[0] , _TILE_COLORS[5],0, _TILE_COLORS[0], 0, _TILE_COLORS[0], 0, _TILE_COLORS[5], _TILE_COLORS[0]], [_TILE_COLORS[5] ,0,_TILE_COLORS[0], _TILE_COLORS[5], 0, _TILE_COLORS[5], _TILE_COLORS[0], 0, _TILE_COLORS[5]], [(220,220,220) , _TILE_COLORS[0], _TILE_COLORS[5], _TILE_COLORS[0], 0, _TILE_COLORS[0], _TILE_COLORS[5], _TILE_COLORS[0], 0], [0, 0, 0, 0, 0, 0, 0, 0, 0], [0 , _TILE_COLORS[5], _TILE_COLORS[0], _TILE_COLORS[5], 0, _TILE_COLORS[5], _TILE_COLORS[0], _TILE_COLORS[5], 0], [_TILE_COLORS[0] ,0,_TILE_COLORS[5], _TILE_COLORS[0], 0, _TILE_COLORS[0], _TILE_COLORS[5], 0, _TILE_COLORS[0]], [_TILE_COLORS[5] , _TILE_COLORS[0], 0, _TILE_COLORS[5], 0, _TILE_COLORS[5], 0, _TILE_COLORS[0], _TILE_COLORS[5]], [_TILE_COLORS[0] , _TILE_COLORS[5], _TILE_COLORS[0], 0, _TILE_COLORS[5], 0, _TILE_COLORS[0], _TILE_COLORS[5], _TILE_COLORS[0]]]
-    board_data = [[Valkyrie_Piece1 , Golem_Piece1, Unicorn_Piece2, Djinni_Piece1, Wizard_Piece1, Phoenix_Piece1, Unicorn_Piece1, Golem_Piece2, Valkyrie_Piece2], [Archer_Piece1, Knight_Piece1 , Knight_Piece2, Knight_Piece3, Knight_Piece4, Knight_Piece5, Knight_Piece6, Knight_Piece7, Archer_Piece2], [None , None, None, None, None, None, None, None, None], [None, None, None, None, None, None, None, None, None], [None, None, None, None, None, None, None, None, None], [None , None, None, None, None, None, None, None, None], [None ,None ,None, None, None, None, None, None, None], [Manticore_Piece1 , Goblin_Piece1, Goblin_Piece2, Goblin_Piece3, Goblin_Piece4, Goblin_Piece5, Goblin_Piece6, Goblin_Piece7, Manticore_Piece2], [Banshee_Piece1 , Troll_Piece1, Basilisk_Piece1, Shapeshifter_Piece1, Sorceress_Piece1, Dragon_Piece1, Basilisk_Piece2, Troll_Piece2, Banshee_Piece2]]
+    board_data = None
+    elementals = None
     turn = 0
     moving = (0, 0)
+    choosing_action = (False, None)
+    choosen_spell = 0
+    spell_text = ''
 
     player_board_x = 0
     player_board_y = 0
@@ -5316,6 +6594,53 @@ class GameBoard:
     es_cur_anim = 0
     es_anim_cycle = 1
     es_clock = -1
+
+    def __init__(self):
+        Golem_Piece1 = (Golem(), pygame.transform.scale(pygame.image.load(Golem.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Golem_Piece2 = (Golem(), pygame.transform.scale(pygame.image.load(Golem.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Knight_Piece1 = (Knight(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Knight_Piece2 = (Knight(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Knight_Piece3 = (Knight(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Knight_Piece4 = (Knight(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Knight_Piece5 = (Knight(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Knight_Piece6 = (Knight(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Knight_Piece7 = (Knight(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Archer_Piece1 = (Archer(), pygame.transform.scale(pygame.image.load(Archer.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Archer_Piece2 = (Archer(), pygame.transform.scale(pygame.image.load(Archer.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Djinni_Piece1 = (Djinni(), pygame.transform.scale(pygame.image.load(Djinni.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Wizard_Piece1 = (Wizard(), pygame.transform.scale(pygame.image.load(Wizard.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Unicorn_Piece1 = (Unicorn(), pygame.transform.scale(pygame.image.load(Unicorn.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Unicorn_Piece2 = (Unicorn(), pygame.transform.scale(pygame.image.load(Unicorn.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Phoenix_Piece1 = (Phoenix(), pygame.transform.scale(pygame.image.load(Phoenix.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Valkyrie_Piece1 = (Valkyrie(), pygame.transform.scale(pygame.image.load(Valkyrie.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Valkyrie_Piece2 = (Valkyrie(), pygame.transform.scale(pygame.image.load(Valkyrie.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Troll_Piece1 = (Troll(), pygame.transform.scale(pygame.image.load(Troll.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Troll_Piece2 = (Troll(), pygame.transform.scale(pygame.image.load(Troll.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Sorceress_Piece1 = (Sorceress(), pygame.transform.scale(pygame.image.load(Sorceress.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Manticore_Piece1 = (Manticore(), pygame.transform.scale(pygame.image.load(Manticore.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Manticore_Piece2 = (Manticore(), pygame.transform.scale(pygame.image.load(Manticore.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Goblin_Piece1 = (Goblin(), pygame.transform.scale(pygame.image.load(Goblin.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Goblin_Piece2 = (Goblin(), pygame.transform.scale(pygame.image.load(Goblin.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Goblin_Piece3 = (Goblin(), pygame.transform.scale(pygame.image.load(Goblin.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Goblin_Piece4 = (Goblin(), pygame.transform.scale(pygame.image.load(Goblin.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Goblin_Piece5 = (Goblin(), pygame.transform.scale(pygame.image.load(Goblin.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Goblin_Piece6 = (Goblin(), pygame.transform.scale(pygame.image.load(Goblin.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Goblin_Piece7 = (Goblin(), pygame.transform.scale(pygame.image.load(Goblin.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Banshee_Piece1 = (Banshee(), pygame.transform.scale(pygame.image.load(Banshee.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Banshee_Piece2 = (Banshee(), pygame.transform.scale(pygame.image.load(Banshee.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Dragon_Piece1 = (Dragon(), pygame.transform.scale(pygame.image.load(Dragon.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Basilisk_Piece1 = (Basilisk(), pygame.transform.scale(pygame.image.load(Basilisk.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Basilisk_Piece2 = (Basilisk(), pygame.transform.scale(pygame.image.load(Basilisk.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Shapeshifter_Piece1 = (Shapeshifter(), pygame.transform.scale(pygame.image.load(Shapeshifter.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        EarthElemental_Piece = (EarthElemental(), pygame.transform.scale(pygame.image.load(EarthElemental.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        AirElemental_Piece = (AirElemental(), pygame.transform.scale(pygame.image.load(AirElemental.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        WaterElemental_Piece = (WaterElemental(), pygame.transform.scale(pygame.image.load(WaterElemental.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        FireElemental_Piece = (FireElemental(), pygame.transform.scale(pygame.image.load(FireElemental.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+
+
+        self.board_data = [[Valkyrie_Piece1 , Golem_Piece1, Unicorn_Piece2, Djinni_Piece1, Wizard_Piece1, Phoenix_Piece1, Unicorn_Piece1, Golem_Piece2, Valkyrie_Piece2], [Archer_Piece1, Knight_Piece1 , Knight_Piece2, Knight_Piece3, Knight_Piece4, Knight_Piece5, Knight_Piece6, Knight_Piece7, Archer_Piece2], [None , None, None, None, None, None, None, None, None], [None, None, None, None, None, None, None, None, None], [None, None, None, None, None, None, None, None, None], [None , None, None, None, None, None, None, None, None], [None ,None ,None, None, None, None, None, None, None], [Manticore_Piece1 , Goblin_Piece1, Goblin_Piece2, Goblin_Piece3, Goblin_Piece4, Goblin_Piece5, Goblin_Piece6, Goblin_Piece7, Manticore_Piece2], [Banshee_Piece1 , Troll_Piece1, Basilisk_Piece1, Shapeshifter_Piece1, Sorceress_Piece1, Dragon_Piece1, Basilisk_Piece2, Troll_Piece2, Banshee_Piece2]]
+        self.elementals = [EarthElemental_Piece, AirElemental_Piece, WaterElemental_Piece, FireElemental_Piece]
+
     ##ENERGY SQUARE ANIMATION##
     def es_handle_animation(self):
         self.es_clock += 1
@@ -5342,7 +6667,7 @@ class GameBoard:
                 if self.board_data[i][j] != None:
                     if self.selected_sq == ():
                         screen.blit(pygame.transform.flip(pygame.transform.scale(pygame.image.load(self.board_data[i][j][0].current_sprite), (self._PIECE_SIZE, self._PIECE_SIZE)),self.board_data[i][j][0].orientation, False), (self.board_x + (56*i) - self.board_data[i][j][0].char_x_offset, self.board_y + 56*(j) - self.board_data[i][j][0].char_y_offset))
-                    elif self.selected_sq[0] != self.board_data[i][j]:
+                    elif self.selected_sq[0] != self.board_data[i][j] or self.selected_sq[0][0].name in ["Wizard", "Sorceress"]:
                         screen.blit(pygame.transform.flip(pygame.transform.scale(pygame.image.load(self.board_data[i][j][0].current_sprite), (self._PIECE_SIZE, self._PIECE_SIZE)),self.board_data[i][j][0].orientation, False), (self.board_x + (56*i) - self.board_data[i][j][0].char_x_offset, self.board_y + 56*(j) - self.board_data[i][j][0].char_y_offset))
                     
     cur_color = 0
@@ -5364,38 +6689,50 @@ class GameBoard:
         self.turn += 1
         self.board_color_switch()
         #for every char in an energy square heal 1
+        self.update_board()
         for sqr in self._ENERGY_SQUARES:
             if self.board_data[sqr[0]][sqr[1]] != None:
                  self.board_data[sqr[0]][sqr[1]][0].heal(1)
-        self.update_board()
         self.board_warn =  f"It is {'darks'} turn!"
 
     def select(self):
-        #sq is for square
-        if self.selected_sq == ():
-            if self.board_data[self.player_board_y][self.player_board_x] != None:
-                self.selected_sq = (self.board_data[self.player_board_y][self.player_board_x],(self.player_board_x, self.player_board_y))
-                self.board_warn =  self.selected_sq[0][0].name + '  [' + self.selected_sq[0][0].s_moving_type + ']'
-                self.move_count = (0,0)
-        else:
-            if self.board_data[self.player_board_y][self.player_board_x] == None:
-                self.board_data[self.player_board_y][self.player_board_x] = self.selected_sq[0]
-                self.board_data[self.selected_sq[1][1]][self.selected_sq[1][0]] = None
-                self.board_warn =  ''
-                self.next_turn()
-                self.selected_sq = ()
-            elif self.board_data[self.player_board_y][self.player_board_x][0].team == self.board_data[self.selected_sq[1][1]][self.selected_sq[1][0]][0].team:
-                self.board_warn = ''
-            elif not self.board_data[self.player_board_y][self.player_board_x] == self.selected_sq[0]:
-                if self.board_data[self.player_board_y][self.player_board_x][0].team == 0:
-                    self.light_fighter = (self.board_data[self.player_board_y][self.player_board_x], (self.player_board_y, self.player_board_x))
-                    self.dark_fighter = self.selected_sq
-                else:
-                    self.light_fighter = self.selected_sq
-                    self.dark_fighter = (self.board_data[self.player_board_y][self.player_board_x], (self.player_board_y, self.player_board_x))
-                start_duel(self.selected_sq[0][0], self.board_data[self.player_board_y][self.player_board_x][0], (self.player_board_x, self.player_board_y))
-                self.board_warn =  ''
-                self.selected_sq = ()
+        if not self.choosing_action[0]:
+            #sq is for square
+            if self.selected_sq == ():
+                if self.board_data[self.player_board_y][self.player_board_x] != None:
+                    self.selected_sq = (self.board_data[self.player_board_y][self.player_board_x],(self.player_board_x, self.player_board_y))
+                    self.board_warn =  self.selected_sq[0][0].name + '  [' + self.selected_sq[0][0].s_moving_type + ']'
+                    self.move_count = (0,0)
+            else:
+                if self.board_data[self.player_board_y][self.player_board_x] == None:
+                    self.board_data[self.player_board_y][self.player_board_x] = self.selected_sq[0]
+                    self.board_data[self.selected_sq[1][1]][self.selected_sq[1][0]] = None
+                    self.board_warn =  ''
+                    self.next_turn()
+                    self.selected_sq = ()
+                elif self.board_data[self.player_board_y][self.player_board_x][0].team == self.board_data[self.selected_sq[1][1]][self.selected_sq[1][0]][0].team:
+                    if self.board_data[self.player_board_y][self.player_board_x][0].name == self.board_data[self.selected_sq[1][1]][self.selected_sq[1][0]][0].name and self.board_data[self.selected_sq[1][1]][self.selected_sq[1][0]][0].name in ["Wizard", "Sorceress"]:
+                        spells = []
+                        if self.board_data[self.selected_sq[1][1]][self.selected_sq[1][0]][0].name == "Wizard":
+                            spells = self.wizard_spells
+                        elif self.board_data[self.selected_sq[1][1]][self.selected_sq[1][0]][0].name == "Sorceress":
+                            spells = self.sorceress_spells
+                        self.choosing_action = (True, spells)
+
+                        self.choosen_spell = 0
+                    elif self.board_data[self.player_board_y][self.player_board_x][0].name == self.board_data[self.selected_sq[1][1]][self.selected_sq[1][0]][0].name:
+                        self.selected_sq = ()
+                    self.board_warn = ''
+                elif not self.board_data[self.player_board_y][self.player_board_x] == self.selected_sq[0]:
+                    if self.board_data[self.player_board_y][self.player_board_x][0].team == 0:
+                        self.light_fighter = (self.board_data[self.player_board_y][self.player_board_x], (self.player_board_y, self.player_board_x))
+                        self.dark_fighter = self.selected_sq
+                    else:
+                        self.light_fighter = self.selected_sq
+                        self.dark_fighter = (self.board_data[self.player_board_y][self.player_board_x], (self.player_board_y, self.player_board_x))
+                    start_duel(self.selected_sq[0][0], self.board_data[self.player_board_y][self.player_board_x][0], (self.player_board_x, self.player_board_y))
+                    self.board_warn =  ''
+                    self.selected_sq = ()
 
     def move_on_board(self, direc):
         def check_move(vertical, horizontal):
@@ -5432,7 +6769,8 @@ class GameBoard:
         return self.board_warn.upper()
     
     def move_selected_piece(self):
-        screen.blit(pygame.transform.flip(self.selected_sq[0][1],self.selected_sq[0][0].orientation, False), (self.board_x + (56*self.player_board_y) - self.selected_sq[0][0].char_x_offset, self.board_y + (56*self.player_board_x) - self.selected_sq[0][0].char_y_offset))
+        if not self.selected_sq[0][0].name in ["Wizard", "Sorceress"]:
+            screen.blit(pygame.transform.flip(self.selected_sq[0][1],self.selected_sq[0][0].orientation, False), (self.board_x + (56*self.player_board_y) - self.selected_sq[0][0].char_x_offset, self.board_y + (56*self.player_board_x) - self.selected_sq[0][0].char_y_offset))
 
     def finished_fight(self, piece, position):
         if piece == 0:
@@ -5452,7 +6790,7 @@ class GameBoard:
                         self.board_data[i][j][0].orientation = True
                     else:
                         self.board_data[i][j][0].orientation = False
-                    if self.board_data[i][j][0].hp_lock <= 0:
+                    if not self.board_data[i][j][0].alive or 'Elemental' in self.board_data[i][j][0].name:
                         self.board_data[i][j] = None
     
     def animate_board(self):
@@ -5460,6 +6798,30 @@ class GameBoard:
             for j in range(0,9):
                 if self.board_data[i][j] != None:
                     self.board_data[i][j][0].move(0)
+    
+    def show_spells(self):
+        self.board_warn = "Choose your action"
+        self.spell_text = self.choosing_action[1][self.choosen_spell]
+    
+    def perform_spell(self):
+        if self.choosing_action[1][self.choosen_spell] == "Summon Elemental":
+            if self.choosing_action[1].name == "Wizard":
+                elemental = elementals[random.randint(0, len(self.elementals) -1)]
+                self.spawn_anywhere(elemental, 0)
+            elif self.choosing_action[1].name == "Sorceress":
+                elemental = elementals[random.randint(0, len(self.elementals) -1)]
+                self.spawn_anywhere(elemental, 1)
+            self.choosing_action = (False, None)
+                    
+    def spawn_anywhere(self, piece, team = -1):
+        if team == -1:
+            pass
+        else:
+            if team == 0:
+                self.selected_sq = (piece(team= team),(0, 4))
+            elif team == 1:
+                self.selected_sq = (piece(team= team),(8, 4))
+
 
 
 _MAIN_BOARD = GameBoard()
@@ -5469,6 +6831,7 @@ def board():
     #LOGIC
     turn_number = medium_gm_font.render(f'Turn: {_MAIN_BOARD.turn}', 1, (00, 00, 00))
     player_info = small_gm_font.render(_MAIN_BOARD.get_info(), 1, (00, 00, 00))
+    spell_string = small_gm_font.render(_MAIN_BOARD.spell_text.upper(), 1, (00, 00, 00))
     if _MAIN_BOARD.turn == 0:
         _MAIN_BOARD.character_entry()
 
@@ -5483,7 +6846,9 @@ def board():
     pygame.draw.rect(screen, _MAIN_BOARD._PLAYERS_COLOR[_MAIN_BOARD.turn_player], Rect(_MAIN_BOARD.board_x + (56*_MAIN_BOARD.player_board_y), _MAIN_BOARD.board_y + (56*_MAIN_BOARD.player_board_x), 56, 56), 4)
     pygame.draw.rect(screen, (80, 112, 188), Rect(25, 500, 320, 80), 0)
     pygame.draw.rect(screen, (56, 74, 176), Rect(25, 500, 320, 80), 3)
-    screen.blit(player_info, (95, 530))
+    screen.blit(player_info, (55, 520))
+    screen.blit(spell_string, (55, 545))
+    
 
 
 #---
@@ -5513,47 +6878,59 @@ def start_duel(fighter1, fighter2, pos):
         dueler0 = fighter1
     if dueler1.name == "Shapeshifter":
         if dueler0.name == "Knight":
-            dueler1 = Knight(True, dueler0.hp_lock)
+            dueler1 = Knight(True, dueler0.base_hp)
         elif dueler0.name == "Archer":
-            dueler1 = Archer(True, dueler0.hp_lock)
+            dueler1 = Archer(True, dueler0.base_hp)
         elif dueler0.name == "Unicorn":
-            dueler1 = Unicorn(True, dueler0.hp_lock)
+            dueler1 = Unicorn(True, dueler0.base_hp)
         elif dueler0.name == "Valkyrie":
-            dueler1 = Valkyrie(True, dueler0.hp_lock)
+            dueler1 = Valkyrie(True, dueler0.base_hp)
         elif dueler0.name == "Golem":
-            dueler1 = Golem(True, dueler0.hp_lock)
+            dueler1 = Golem(True, dueler0.base_hp)
         elif dueler0.name == "Djinni":
-            dueler1 = Djinni(True, dueler0.hp_lock)
+            dueler1 = Djinni(True, dueler0.base_hp)
         elif dueler0.name == "Wizard":
-            dueler1 = Wizard(True, dueler0.hp_lock)
+            dueler1 = Wizard(True, dueler0.base_hp)
         elif dueler0.name == "Phoenix":
-            dueler1 = Phoenix(True, dueler0.hp_lock)
+            dueler1 = Phoenix(True, dueler0.base_hp)
         elif dueler0.name == "FireElemental":
-            dueler1 = FireElemental(True, dueler0.hp_lock)
+            dueler1 = FireElemental(True, dueler0.base_hp)
         elif dueler0.name == "WaterElemental":
-            dueler1 = WaterElemental(True, dueler0.hp_lock)
+            dueler1 = WaterElemental(True, dueler0.base_hp)
         elif dueler0.name == "AirElemental":
-            dueler1 = AirElemental(True, dueler0.hp_lock)
+            dueler1 = AirElemental(True, dueler0.base_hp)
         elif dueler0.name == "EarthElemental":
-            dueler1 = EarthElemental(True, dueler0.hp_lock)
+            dueler1 = EarthElemental(True, dueler0.base_hp)
     if _MAIN_BOARD.board_color_data[pos[1]][pos[0]] == (164, 200, 252):
-        dueler0.hp = dueler0.hp_lock + 7
-        dueler1.hp = dueler1.hp_lock + 0
+        if not "Elemental" in dueler0.name:
+            dueler0.extra_hp = 7
+        if not "Elemental" in dueler1.name:
+            dueler1.extra_hp = 0
     elif _MAIN_BOARD.board_color_data[pos[1]][pos[0]] == (124,156,220):
-        dueler0.hp = dueler0.hp_lock + 6
-        dueler1.hp = dueler1.hp_lock + 1
+        if not "Elemental" in dueler0.name:
+            dueler0.extra_hp = 6
+        if not "Elemental" in dueler1.name:
+            dueler1.extra_hp = 1
     elif _MAIN_BOARD.board_color_data[pos[1]][pos[0]] == (80,112,188):
-        dueler0.hp = dueler0.hp_lock + 4
-        dueler1.hp = dueler1.hp_lock + 3
+        if not "Elemental" in dueler0.name:
+            dueler0.extra_hp = 4
+        if not "Elemental" in dueler1.name:
+            dueler1.extra_hp = 3
     elif _MAIN_BOARD.board_color_data[pos[1]][pos[0]] == (56, 74, 176):
-        dueler0.hp = dueler0.hp_lock + 3
-        dueler1.hp = dueler1.hp_lock + 4
+        if not "Elemental" in dueler0.name:
+            dueler0.extra_hp = 3
+        if not "Elemental" in dueler1.name:
+            dueler1.extra_hp = 4
     elif _MAIN_BOARD.board_color_data[pos[1]][pos[0]] == (48, 32, 152):
-        dueler0.hp = dueler0.hp_lock + 1
-        dueler1.hp = dueler1.hp_lock + 6
+        if not "Elemental" in dueler0.name:
+            dueler0.extra_hp = 1
+        if not "Elemental" in dueler1.name:
+            dueler1.extra_hp = 6
     elif _MAIN_BOARD.board_color_data[pos[1]][pos[0]] == (0, 44, 92):
-        dueler0.hp = dueler0.hp_lock + 0
-        dueler1.hp = dueler1.hp_lock + 7
+        if not "Elemental" in dueler0.name:
+            dueler0.extra_hp = 0
+        if not "Elemental" in dueler1.name:
+            dueler1.extra_hp = 7
     dueler0.x = 180 - dueler0.char_x_offset * 2.16
     dueler0.y = 280 - dueler0.char_y_offset * 2.16
     dueler1.x = 804 - dueler1.char_x_offset * 2.16
@@ -5565,48 +6942,8 @@ def start_duel(fighter1, fighter2, pos):
 
 def finish_duel(winner):
     global current_scene, dueler1, dueler0
-    if _MAIN_BOARD.board_color_data[fighting_pos[1]][fighting_pos[0]] == (164, 200, 252): 
-        if dueler0.hp - dueler0.hp_lock < 7:
-            dueler0.hp_lock += dueler0.hp - dueler0.hp_lock
-        if dueler1.hp - dueler1.hp_lock < 0:
-            dueler1.hp_lock += dueler1.hp - dueler1.hp_lock + 0
-        dueler0.hp = dueler0.hp_lock
-        dueler1.hp = dueler1.hp_lock
-    elif _MAIN_BOARD.board_color_data[fighting_pos[1]][fighting_pos[0]] == (124,156,220):
-        if dueler0.hp - dueler0.hp_lock < 6:
-            dueler0.hp_lock += dueler0.hp - dueler0.hp_lock + 6
-        if dueler1.hp - dueler1.hp_lock < 1:
-            dueler1.hp_lock += dueler1.hp - dueler1.hp_lock + 1
-        dueler0.hp = dueler0.hp_lock
-        dueler1.hp = dueler1.hp_lock
-    elif _MAIN_BOARD.board_color_data[fighting_pos[1]][fighting_pos[0]] == (80,112,188):
-        if dueler0.hp - dueler0.hp_lock < 4:
-            dueler0.hp_lock += dueler0.hp - dueler0.hp_lock + 4
-        if dueler1.hp - dueler1.hp_lock < 3:
-            dueler1.hp_lock += dueler1.hp - dueler1.hp_lock + 3
-        dueler0.hp = dueler0.hp_lock
-        dueler1.hp = dueler1.hp_lock
-    elif _MAIN_BOARD.board_color_data[fighting_pos[1]][fighting_pos[0]] == (56, 74, 176):
-        if dueler0.hp - dueler0.hp_lock < 3:
-            dueler0.hp_lock += dueler0.hp - dueler0.hp_lock + 3
-        if dueler1.hp - dueler1.hp_lock < 4:
-            dueler1.hp_lock += dueler1.hp - dueler1.hp_lock + 4
-        dueler0.hp = dueler0.hp_lock
-        dueler1.hp = dueler1.hp_lock
-    elif _MAIN_BOARD.board_color_data[fighting_pos[1]][fighting_pos[0]] == (48, 32, 152):
-        if dueler0.hp - dueler0.hp_lock < 1:
-            dueler0.hp_lock += dueler0.hp - dueler0.hp_lock + 1
-        if dueler1.hp - dueler1.hp_lock < 6:
-            dueler1.hp_lock += dueler1.hp - dueler1.hp_lock + 6
-        dueler0.hp = dueler0.hp_lock
-        dueler1.hp = dueler1.hp_lock
-    elif _MAIN_BOARD.board_color_data[fighting_pos[1]][fighting_pos[0]] == (0, 44, 92):
-        if dueler0.hp - dueler0.hp_lock < 0:
-            dueler0.hp_lock += dueler0.hp - dueler0.hp_lock + 0
-        if dueler1.hp - dueler1.hp_lock < 7:
-            dueler1.hp_lock += dueler1.hp - dueler1.hp_lock + 7
-        dueler0.hp = dueler0.hp_lock
-        dueler1.hp = dueler1.hp_lock
+    dueler0.extra_hp = 0
+    dueler1.extra_hp = 0
     dueler1 = None
     dueler0 = None
     _MAIN_BOARD.next_turn()
@@ -5639,14 +6976,14 @@ def arena():
     else:
         if not transition:
             dueler1.move(2)
-        dueler1_hp = dueler1.hp
+        dueler1_hp = dueler1.hp()
     if not dueler0.alive:
         dead.append(dueler0)
         dueler0_hp = 0
     else:
         if not transition:
             dueler0.move(1)
-        dueler0_hp = dueler0.hp
+        dueler0_hp = dueler0.hp()
     for proj in light_projectiles:
         proj.move()
     for proj in dark_projectiles:
@@ -5699,6 +7036,8 @@ def arena():
         pygame.draw.rect(screen, (155,155,155) , dueler0.hitbox(), 0) #hitbox
     if _DEBUG:
         pygame.draw.rect(screen, (155,155,155) , dueler1.hitbox(), 0)
+    #print(dueler1.name, 'is', dueler1.alive, dueler1.hp(), ':', dueler1.base_hp, '+', dueler1.extra_hp)
+    #print(dueler0.name, 'is', dueler0.alive, dueler0.hp(), ':', dueler0.base_hp, '+', dueler0.extra_hp)
 
 """ 
 ~~~~~~~~~~~~~~~~~~
@@ -5741,16 +7080,26 @@ while running:
             #game keys
             elif current_scene == 'game' and playing:
                 if event.type == pygame.KEYDOWN:
-                    if event.key == K_RETURN or event.key == K_SPACE:
-                        _MAIN_BOARD.select()
-                    if event.key == K_UP or event.key == K_w:
-                        _MAIN_BOARD.move_on_board((-1,0))
-                    if event.key == K_DOWN or event.key == K_s:
-                        _MAIN_BOARD.move_on_board((1,0))
-                    if event.key == K_LEFT or event.key == K_a:
-                        _MAIN_BOARD.move_on_board((0,-1))
-                    if event.key == K_RIGHT or event.key == K_d:
-                        _MAIN_BOARD.move_on_board((0,1))
+                    if not _MAIN_BOARD.choosing_action[0]:
+                        if event.key == K_RETURN or event.key == K_SPACE:
+                            _MAIN_BOARD.select()
+                        if event.key == K_UP or event.key == K_w:
+                            _MAIN_BOARD.move_on_board((-1,0))
+                        if event.key == K_DOWN or event.key == K_s:
+                            _MAIN_BOARD.move_on_board((1,0))
+                        if event.key == K_LEFT or event.key == K_a:
+                            _MAIN_BOARD.move_on_board((0,-1))
+                        if event.key == K_RIGHT or event.key == K_d:
+                            _MAIN_BOARD.move_on_board((0,1))
+                    else:
+                        if event.key == K_RETURN or event.key == K_SPACE:
+                            _MAIN_BOARD.perform_spell()
+                        if event.key == K_UP or event.key == K_w:
+                            if _MAIN_BOARD.choosen_spell > 0:
+                                _MAIN_BOARD.choosen_spell -= 1
+                        if event.key == K_DOWN or event.key == K_s:
+                            if _MAIN_BOARD.choosen_spell + 1 < len(_MAIN_BOARD.choosing_action[1]):
+                                _MAIN_BOARD.choosen_spell += 1
 
             #rules keys
             elif current_scene == 'rules':
@@ -5860,6 +7209,8 @@ while running:
         if playing == False:
             game_scene()
         else:
+            if _MAIN_BOARD.choosing_action[0]:
+                _MAIN_BOARD.show_spells()
             board()
     elif current_scene == "rules":
         if rules_screen == 0:
@@ -5889,7 +7240,7 @@ while running:
     #transition handler
     if transition > 0:
         trans_clock += 1
-        if trans_clock > 10:
+        if trans_clock > 50:
             transition -= 1
             trans_clock = 0
     #Animation_handler
