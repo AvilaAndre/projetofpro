@@ -2389,7 +2389,7 @@ class Wizard():
     ##SPELLS
     spells = ["Teleport", "Heal", "Revive", "Exchange", "Shift Time", "Summon Elemental", "Imprison"]
 
-    
+
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
     run_animation = get_sprites(name, 'Run')
@@ -5044,7 +5044,7 @@ class Basilisk():
 
 class AirElemental():
     obj_type = "player"
-    name = "AirElemental"
+    name = "Air Elemental"
     description = "The archers are fearless amazones, that can handle their bows with legendary skill. They are equipped with magical quivers that never get empty." 
     s_moving_type = "ground - 3"
     s_speed = "normal"
@@ -5059,8 +5059,8 @@ class AirElemental():
     team = 0
     ranged = True
         #type: teleport0 air1 ground2
-    move_type = 2
-    move_limit = 3
+    move_type = 3
+    move_limit = 20
     speed = 5
     atk_damage = 8
     atk_speed = 9
@@ -5337,8 +5337,10 @@ class AirElemental():
         self.alive = False
 
 
-    def __init__(self, shapeshifter = False, hp_lock = 0, team = 0):
+    def define_team(self, team):
         self.team = team
+
+    def __init__(self, shapeshifter = False, hp_lock = 0):
         if shapeshifter:
             self.team = 1
             self.idle_animation = get_sprites(self.name + "Shapeshifter", 'Idle')
@@ -5355,7 +5357,7 @@ class AirElemental():
 
 class WaterElemental():
     obj_type = "player"
-    name = "WaterElemental"
+    name = "Water Elemental"
     description = "The archers are fearless amazones, that can handle their bows with legendary skill. They are equipped with magical quivers that never get empty." 
     s_moving_type = "ground - 3"
     s_speed = "normal"
@@ -5370,8 +5372,8 @@ class WaterElemental():
     team = 0
     ranged = True
         #type: teleport0 air1 ground2
-    move_type = 2
-    move_limit = 3
+    move_type = 3
+    move_limit = 20
     speed = 5
     atk_damage = 8
     atk_speed = 9
@@ -5648,8 +5650,10 @@ class WaterElemental():
         self.alive = False
 
 
-    def __init__(self, shapeshifter = False, hp_lock = 0, team = 0):
+    def define_team(self, team):
         self.team = team
+
+    def __init__(self, shapeshifter = False, hp_lock = 0):
         if shapeshifter:
             self.team = 1
             self.idle_animation = get_sprites(self.name + "Shapeshifter", 'Idle')
@@ -5666,7 +5670,7 @@ class WaterElemental():
 
 class FireElemental():
     obj_type = "player"
-    name = "FireElemental"
+    name = "Fire Elemental"
     description = "The archers are fearless amazones, that can handle their bows with legendary skill. They are equipped with magical quivers that never get empty." 
     s_moving_type = "ground - 3"
     s_speed = "normal"
@@ -5681,8 +5685,8 @@ class FireElemental():
     team = 0
     ranged = True
         #type: teleport0 air1 ground2
-    move_type = 2
-    move_limit = 3
+    move_type = 3
+    move_limit = 20
     speed = 5
     atk_damage = 8
     atk_speed = 9
@@ -5959,8 +5963,10 @@ class FireElemental():
         self.alive = False
 
 
-    def __init__(self, shapeshifter = False, hp_lock = 0, team = 0):
+    def define_team(self, team):
         self.team = team
+
+    def __init__(self, shapeshifter = False, hp_lock = 0):
         if shapeshifter:
             self.team = 1
             self.idle_animation = get_sprites(self.name + "Shapeshifter", 'Idle')
@@ -5977,7 +5983,7 @@ class FireElemental():
 
 class EarthElemental():
     obj_type = "player"
-    name = "EarthElemental"
+    name = "Earth Elemental"
     description = "The archers are fearless amazones, that can handle their bows with legendary skill. They are equipped with magical quivers that never get empty." 
     s_moving_type = "ground - 3"
     s_speed = "normal"
@@ -5992,8 +5998,8 @@ class EarthElemental():
     team = 0
     ranged = True
         #type: teleport0 air1 ground2
-    move_type = 2
-    move_limit = 3
+    move_type = 3
+    move_limit = 20
     speed = 5
     atk_damage = 8
     atk_speed = 9
@@ -6269,9 +6275,10 @@ class EarthElemental():
     def die(self):
         self.alive = False
 
-
-    def __init__(self, shapeshifter = False, hp_lock = 0, team = 0):
+    def define_team(self, team):
         self.team = team
+
+    def __init__(self, shapeshifter = False, hp_lock = 0):
         if shapeshifter:
             self.team = 1
             self.idle_animation = get_sprites(self.name + "Shapeshifter", 'Idle')
@@ -6698,41 +6705,38 @@ class GameBoard:
     def select(self):
         if not self.choosing_action[0]:
             #sq is for square
+            self.spell_text = ''
             if self.selected_sq == ():
                 if self.board_data[self.player_board_y][self.player_board_x] != None:
                     self.selected_sq = (self.board_data[self.player_board_y][self.player_board_x],(self.player_board_x, self.player_board_y))
                     self.board_warn =  self.selected_sq[0][0].name + '  [' + self.selected_sq[0][0].s_moving_type + ']'
                     self.move_count = (0,0)
             else:
-                if self.board_data[self.player_board_y][self.player_board_x] == None:
+                is_elemental = "Elemental" in self.selected_sq[0][0].name
+                if self.board_data[self.player_board_y][self.player_board_x] == None and (not is_elemental):
                     self.board_data[self.player_board_y][self.player_board_x] = self.selected_sq[0]
                     self.board_data[self.selected_sq[1][1]][self.selected_sq[1][0]] = None
                     self.board_warn =  ''
                     self.next_turn()
                     self.selected_sq = ()
-                elif self.board_data[self.player_board_y][self.player_board_x][0].team == self.board_data[self.selected_sq[1][1]][self.selected_sq[1][0]][0].team:
-                    if self.board_data[self.player_board_y][self.player_board_x][0].name == self.board_data[self.selected_sq[1][1]][self.selected_sq[1][0]][0].name and self.board_data[self.selected_sq[1][1]][self.selected_sq[1][0]][0].name in ["Wizard", "Sorceress"]:
-                        spells = []
-                        if self.board_data[self.selected_sq[1][1]][self.selected_sq[1][0]][0].name == "Wizard":
-                            spells = self.wizard_spells
-                        elif self.board_data[self.selected_sq[1][1]][self.selected_sq[1][0]][0].name == "Sorceress":
-                            spells = self.sorceress_spells
-                        self.choosing_action = (True, spells)
-
-                        self.choosen_spell = 0
-                    elif self.board_data[self.player_board_y][self.player_board_x][0].name == self.board_data[self.selected_sq[1][1]][self.selected_sq[1][0]][0].name:
+                elif self.board_data[self.player_board_y][self.player_board_x] != None:
+                    if self.board_data[self.player_board_y][self.player_board_x][0].team == self.selected_sq[0][0].team and not is_elemental:
+                        if self.board_data[self.player_board_y][self.player_board_x][0].name == self.selected_sq[0][0].name and self.selected_sq[0][0].name in ["Wizard", "Sorceress"]:
+                            self.choosing_action = (True, self.selected_sq[0][0])
+                            self.choosen_spell = 0
+                        elif self.board_data[self.player_board_y][self.player_board_x][0].name == self.selected_sq[0][0].name:
+                            self.selected_sq = ()
+                        self.board_warn = ''
+                    elif not self.board_data[self.player_board_y][self.player_board_x] == self.selected_sq[0]:
+                        if self.board_data[self.player_board_y][self.player_board_x][0].team == 0:
+                            self.light_fighter = (self.board_data[self.player_board_y][self.player_board_x], (self.player_board_y, self.player_board_x))
+                            self.dark_fighter = self.selected_sq
+                        else:
+                            self.light_fighter = self.selected_sq
+                            self.dark_fighter = (self.board_data[self.player_board_y][self.player_board_x], (self.player_board_y, self.player_board_x))
+                        start_duel(self.selected_sq[0][0], self.board_data[self.player_board_y][self.player_board_x][0], (self.player_board_x, self.player_board_y))
+                        self.board_warn =  ''
                         self.selected_sq = ()
-                    self.board_warn = ''
-                elif not self.board_data[self.player_board_y][self.player_board_x] == self.selected_sq[0]:
-                    if self.board_data[self.player_board_y][self.player_board_x][0].team == 0:
-                        self.light_fighter = (self.board_data[self.player_board_y][self.player_board_x], (self.player_board_y, self.player_board_x))
-                        self.dark_fighter = self.selected_sq
-                    else:
-                        self.light_fighter = self.selected_sq
-                        self.dark_fighter = (self.board_data[self.player_board_y][self.player_board_x], (self.player_board_y, self.player_board_x))
-                    start_duel(self.selected_sq[0][0], self.board_data[self.player_board_y][self.player_board_x][0], (self.player_board_x, self.player_board_y))
-                    self.board_warn =  ''
-                    self.selected_sq = ()
 
     def move_on_board(self, direc):
         def check_move(vertical, horizontal):
@@ -6801,26 +6805,46 @@ class GameBoard:
     
     def show_spells(self):
         self.board_warn = "Choose your action"
-        self.spell_text = self.choosing_action[1][self.choosen_spell]
+        self.spell_text = self.choosing_action[1].spells[self.choosen_spell]
     
     def perform_spell(self):
-        if self.choosing_action[1][self.choosen_spell] == "Summon Elemental":
+        if self.choosing_action[1].spells[self.choosen_spell] == "Summon Elemental":
             if self.choosing_action[1].name == "Wizard":
-                elemental = elementals[random.randint(0, len(self.elementals) -1)]
+                elemental = self.elementals[random.randint(0, len(self.elementals) -1)]
                 self.spawn_anywhere(elemental, 0)
+                self.choosing_action[1].spells.remove("Summon Elemental")
+                self.board_warn = ("An " if elemental[0].name[0] in "A E" else "A ") + elemental[0].name + " appears!"
+                self.spell_text = "Send it to the target"
             elif self.choosing_action[1].name == "Sorceress":
-                elemental = elementals[random.randint(0, len(self.elementals) -1)]
+                elemental = self.elementals[random.randint(0, len(self.elementals) -1)]
+                print(elemental)
                 self.spawn_anywhere(elemental, 1)
+                self.choosing_action[1].spells.remove("Summon Elemental")
+                self.board_warn = ("An " if elemental[0].name[0] in "A E" else "A ") + elemental[0].name + " appears!"
+                self.spell_text = "Send it to the target"
             self.choosing_action = (False, None)
-                    
+            self.choosen_spell = 0
+        elif self.choosing_action[1].spells[self.choosen_spell] == "Shift Time":
+            self.choosing_action[1].spells.remove("Shift Time")
+            self.board_warn = "Shift Time"
+            self.spell_text = "The flow of time is reversed"
+            self.cycle *= -1
+            self.choosing_action = (False, None)
+            self.selected_sq = ()
+            self.choosen_spell = 0
+            self.next_turn()
+
     def spawn_anywhere(self, piece, team = -1):
         if team == -1:
             pass
         else:
             if team == 0:
-                self.selected_sq = (piece(team= team),(0, 4))
+                piece[0].define_team(0)
+                self.selected_sq = (piece, (4, 0))
             elif team == 1:
-                self.selected_sq = (piece(team= team),(8, 4))
+                print(piece)
+                piece[0].define_team(1)
+                self.selected_sq = (piece, (4, 8))
 
 
 
@@ -6846,8 +6870,8 @@ def board():
     pygame.draw.rect(screen, _MAIN_BOARD._PLAYERS_COLOR[_MAIN_BOARD.turn_player], Rect(_MAIN_BOARD.board_x + (56*_MAIN_BOARD.player_board_y), _MAIN_BOARD.board_y + (56*_MAIN_BOARD.player_board_x), 56, 56), 4)
     pygame.draw.rect(screen, (80, 112, 188), Rect(25, 500, 320, 80), 0)
     pygame.draw.rect(screen, (56, 74, 176), Rect(25, 500, 320, 80), 3)
-    screen.blit(player_info, (55, 520))
-    screen.blit(spell_string, (55, 545))
+    screen.blit(player_info, (40, 520))
+    screen.blit(spell_string, (40, 545))
     
 
 
@@ -6893,13 +6917,13 @@ def start_duel(fighter1, fighter2, pos):
             dueler1 = Wizard(True, dueler0.base_hp)
         elif dueler0.name == "Phoenix":
             dueler1 = Phoenix(True, dueler0.base_hp)
-        elif dueler0.name == "FireElemental":
+        elif dueler0.name == "Fire Elemental":
             dueler1 = FireElemental(True, dueler0.base_hp)
-        elif dueler0.name == "WaterElemental":
+        elif dueler0.name == "Water Elemental":
             dueler1 = WaterElemental(True, dueler0.base_hp)
-        elif dueler0.name == "AirElemental":
+        elif dueler0.name == "Air Elemental":
             dueler1 = AirElemental(True, dueler0.base_hp)
-        elif dueler0.name == "EarthElemental":
+        elif dueler0.name == "Earth Elemental":
             dueler1 = EarthElemental(True, dueler0.base_hp)
     if _MAIN_BOARD.board_color_data[pos[1]][pos[0]] == (164, 200, 252):
         if not "Elemental" in dueler0.name:
@@ -6946,11 +6970,11 @@ def finish_duel(winner):
     dueler1.extra_hp = 0
     dueler1 = None
     dueler0 = None
-    _MAIN_BOARD.next_turn()
     if winner == 0:
         _MAIN_BOARD.finished_fight(0, fighting_pos)
     elif winner == 1:
         _MAIN_BOARD.finished_fight(1, fighting_pos)
+    _MAIN_BOARD.next_turn()
     light_projectiles.clear()
     dark_projectiles.clear()
     arena_collisions.clear()
@@ -7092,13 +7116,14 @@ while running:
                         if event.key == K_RIGHT or event.key == K_d:
                             _MAIN_BOARD.move_on_board((0,1))
                     else:
+                        print(_MAIN_BOARD.choosing_action[1].spells)
                         if event.key == K_RETURN or event.key == K_SPACE:
                             _MAIN_BOARD.perform_spell()
                         if event.key == K_UP or event.key == K_w:
                             if _MAIN_BOARD.choosen_spell > 0:
                                 _MAIN_BOARD.choosen_spell -= 1
                         if event.key == K_DOWN or event.key == K_s:
-                            if _MAIN_BOARD.choosen_spell + 1 < len(_MAIN_BOARD.choosing_action[1]):
+                            if _MAIN_BOARD.choosen_spell + 1 < len(_MAIN_BOARD.choosing_action[1].spells):
                                 _MAIN_BOARD.choosen_spell += 1
 
             #rules keys
