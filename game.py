@@ -2395,7 +2395,7 @@ class Wizard():
 
 
     ##SPELLS
-    spells = ["Teleport", "Heal", "Revive", "Exchange", "Shift Time", "Summon Elemental", "Imprison"]
+    spells = ["Teleport", "Heal", "Revive", "Exchange", "Shift Time", "Summon Elemental", "Imprison", "Cease Conjuring"]
 
 
     ##SPRITES
@@ -2714,7 +2714,7 @@ class Sorceress():
 
 
     ##SPELLS
-    spells = ["Teleport", "Heal", "Revive", "Exchange", "Shift Time", "Summon Elemental", "Imprison"]
+    spells = ["Teleport", "Heal", "Revive", "Exchange", "Shift Time", "Summon Elemental", "Imprison", "Cease Conjuring"]
 
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
@@ -6592,7 +6592,7 @@ class GameBoard:
     _TILE_COLORS = [(164, 200, 252), (124,156,220), (80,112,188), (56, 74, 176), (48, 32, 152), (0, 44, 92)]
     _ENERGY_SQUARES = [(0, 4), (4,0), (4,4), (4,8), (8,4)]
 
-    board_x = 256 + 128
+    board_x = 384 + 64
     board_y = 64
     light_square = pygame.image.load(r'Resources\Sprites\Tiles\220220220LightTile.png')
     board_color_data = [[ _TILE_COLORS[5] ,_TILE_COLORS[0], _TILE_COLORS[5], 0, _TILE_COLORS[0], 0, _TILE_COLORS[5], _TILE_COLORS[0], _TILE_COLORS[5]], [_TILE_COLORS[0] , _TILE_COLORS[5],0, _TILE_COLORS[0], 0, _TILE_COLORS[0], 0, _TILE_COLORS[5], _TILE_COLORS[0]], [_TILE_COLORS[5] ,0,_TILE_COLORS[0], _TILE_COLORS[5], 0, _TILE_COLORS[5], _TILE_COLORS[0], 0, _TILE_COLORS[5]], [(220,220,220) , _TILE_COLORS[0], _TILE_COLORS[5], _TILE_COLORS[0], 0, _TILE_COLORS[0], _TILE_COLORS[5], _TILE_COLORS[0], 0], [0, 0, 0, 0, 0, 0, 0, 0, 0], [0 , _TILE_COLORS[5], _TILE_COLORS[0], _TILE_COLORS[5], 0, _TILE_COLORS[5], _TILE_COLORS[0], _TILE_COLORS[5], 0], [_TILE_COLORS[0] ,0,_TILE_COLORS[5], _TILE_COLORS[0], 0, _TILE_COLORS[0], _TILE_COLORS[5], 0, _TILE_COLORS[0]], [_TILE_COLORS[5] , _TILE_COLORS[0], 0, _TILE_COLORS[5], 0, _TILE_COLORS[5], 0, _TILE_COLORS[0], _TILE_COLORS[5]], [_TILE_COLORS[0] , _TILE_COLORS[5], _TILE_COLORS[0], 0, _TILE_COLORS[5], 0, _TILE_COLORS[0], _TILE_COLORS[5], _TILE_COLORS[0]]]
@@ -6624,6 +6624,9 @@ class GameBoard:
     spell_selection = ''
     teleporter_placeholder = None
     exchange_placeholder = None
+    reviving =  False
+    chars2revive = []
+    revive_opt = 0
 
     def __init__(self):
         Golem_Piece1 = (Golem(), pygame.transform.scale(pygame.image.load(Golem.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
@@ -6689,8 +6692,6 @@ class GameBoard:
         for es_sq in self._ENERGY_SQUARES:
             es_x, es_y = es_sq
             screen.blit(self.energy_square_frames[self.es_cur_anim], (self.board_x + (56*es_y), self.board_y + (56*es_x)))
-        if self.selected_sq != ():
-            self.move_selected_piece()
         for i in range(0, 9):
             for j in range(0,9):
                 if self.board_data[i][j] != None:
@@ -6764,7 +6765,7 @@ class GameBoard:
                             self.board_warn =  ''
                             self.selected_sq = ()
                         elif is_elemental: 
-                            self.spell_text = "power points are spell proof"
+                            self.spell_text = 'power points are spell proof'
                         else:
                             if self.board_data[self.player_board_y][self.player_board_x][0].team == 0:
                                 self.light_fighter = (self.board_data[self.player_board_y][self.player_board_x], (self.player_board_y, self.player_board_x))
@@ -6821,7 +6822,7 @@ class GameBoard:
             self.board_data[self.light_fighter[1][0]][self.light_fighter[1][1]] = None
             self.board_data[position[1]][position[0]] = self.light_fighter[0]
         elif piece == 1:
-            self.board_data[self.dark_fighter[1][0]][self.dark_fighter[1][1]] = None
+            self.board_data[self.dark_fighter[1][1]][self.dark_fighter[1][0]] = None
             self.board_data[position[1]][position[0]] = self.dark_fighter[0]
         self.light_fighter = None
         self.dark_fighter = None
@@ -6898,7 +6899,6 @@ class GameBoard:
             self.board_warn = "Exchange"
             self.spell_text = "Choose an Icon to transpose"
         elif self.choosing_action[1].spells[self.choosen_spell] == "Revive":
-            self.choosing_action[1].spells.remove("Revive")
             self.spell_selection = 'revive'
             allies_dead = self.find_dead_allies(self.choosing_action[1].team)
             if len(allies_dead) == 0:
@@ -6909,12 +6909,73 @@ class GameBoard:
                 self.choosen_spell = 0
                 self.spell_selection = ''
             else:
-                self.board_warn = f"{str(allies_dead)}"
+                if not self.check_charmed():
+                    self.board_warn = "Alas there is no opening"
+                    self.spell_text = "in the charmed square"  
+                    self.choosing_action = (False, None)
+                    self.selected_sq = ()
+                    self.choosen_spell = 0
+                    self.spell_selection = ''
+                    return
+                self.choosing_action[1].spells.remove("Revive")
+                self.reviving = True
+                for char in allies_dead:
+                    while allies_dead.count(char)-1:
+                        allies_dead.remove(char)
+                allies_dead = self.transform(allies_dead)
+                self.chars2revive = allies_dead
+        elif self.choosing_action[1].spells[self.choosen_spell] == "Cease Conjuring":
+            self.choosing_action = (False, None)
+            self.selected_sq = ()
+            self.choosen_spell = 0
+            self.spell_selection = ''
+            self.board_warn = ''
+            self.spell_text = ''  
 
-
+            
+    def transform(self, chars):
+        ret = []
+        for char in chars:
+            if char == "Knight":
+                ret.append((Knight(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE))))
+            elif char == "Archer":
+                ret.append((Archer(), pygame.transform.scale(pygame.image.load(Archer.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE))))
+            elif char == "Unicorn":
+                ret.append((Unicorn(), pygame.transform.scale(pygame.image.load(Unicorn.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE))))
+            elif char == "Valkyrie":
+                ret.append((Valkyrie(), pygame.transform.scale(pygame.image.load(Valkyrie.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE))))
+            elif char == "Golem":
+                ret.append((Golem(), pygame.transform.scale(pygame.image.load(Golem.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE))))
+            elif char == "Djinni":
+                ret.append((Djinni(), pygame.transform.scale(pygame.image.load(Djinni.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE))))
+            elif char == "Wizard":
+                ret.append((Wizard(), pygame.transform.scale(pygame.image.load(Wizard.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE))))
+            elif char == "Phoenix":
+                ret.append((Phoenix(), pygame.transform.scale(pygame.image.load(Phoenix.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE))))
+            elif char == "Goblin":
+                ret.append((Goblin(), pygame.transform.scale(pygame.image.load(Goblin.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE))))
+            elif char == "Manticore":
+                ret.append((Manticore(), pygame.transform.scale(pygame.image.load(Manticore.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE))))
+            elif char == "Banshee":
+                ret.append((Banshee(), pygame.transform.scale(pygame.image.load(Banshee.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE))))
+            elif char == "Troll":
+                ret.append((Troll(), pygame.transform.scale(pygame.image.load(Troll.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE))))
+            elif char == "Basilisk":
+                ret.append((Basilisk(), pygame.transform.scale(pygame.image.load(Basilisk.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE))))
+            elif char == "Shapeshifter":
+                ret.append((Shapeshifter(), pygame.transform.scale(pygame.image.load(Shapeshifter.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE))))
+            elif char == "Sorceress":
+                ret.append((Sorceress(), pygame.transform.scale(pygame.image.load(Sorceress.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE))))
+            elif char == "Dragon":
+                ret.append((Dragon(), pygame.transform.scale(pygame.image.load(Dragon.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE))))
+        return ret
+    
     def spawn_anywhere(self, piece, team = -1):
         if team == -1:
-            pass
+            if not piece[0].team:
+                self.selected_sq = (piece, (4, 0))
+            elif piece[0].team:
+                self.selected_sq = (piece, (4, 8))
         else:
             if team == 0:
                 piece[0].define_team(0)
@@ -6934,7 +6995,11 @@ class GameBoard:
                 self.choosen_spell = 0
                 self.next_turn()
         elif self.board_data[self.player_board_y][self.player_board_x] != None and (self.player_board_y, self.player_board_x) in self._ENERGY_SQUARES:
-            self.spell_text = "power points are spell proof"
+            self.board_warn =  'power points are spell proof'
+            self.spell_text = 'Cancelling spell'
+            self.choosing_action = (False, None)
+            self.choosen_spell = 0
+            self.spell_selection = ''  
 
     def imprison(self):
         if self.board_data[self.player_board_y][self.player_board_x] != None and not (self.player_board_y, self.player_board_x) in self._ENERGY_SQUARES:
@@ -6947,7 +7012,12 @@ class GameBoard:
                 self.choosen_spell = 0
                 self.next_turn()
         elif self.board_data[self.player_board_y][self.player_board_x] != None and (self.player_board_y, self.player_board_x) in self._ENERGY_SQUARES:
-            self.spell_text = "power points are spell proof"
+            self.board_warn =  'power points are spell proof'
+            self.spell_text = 'Cancelling spell'
+            self.choosing_action = (False, None)
+            self.choosen_spell = 0
+            self.spell_selection = ''
+            
     
     def teleport(self):
         if self.teleporter_placeholder == None:
@@ -6956,7 +7026,11 @@ class GameBoard:
                     self.teleporter_placeholder = (self.board_data[self.player_board_y][self.player_board_x], (self.player_board_y, self.player_board_x))
                     self.spell_text = 'where will you teleport it?'
             elif self.board_data[self.player_board_y][self.player_board_x] != None and (self.player_board_y, self.player_board_x) in self._ENERGY_SQUARES:
-                self.spell_text = "power points are spell proof"
+                self.board_warn =  'power points are spell proof'
+                self.spell_text = 'Cancelling spell'
+                self.choosing_action = (False, None)
+                self.choosen_spell = 0
+                self.spell_selection = ''
         elif self.teleporter_placeholder != None:
             if self.board_data[self.player_board_y][self.player_board_x] == None and not (self.player_board_y, self.player_board_x) in self._ENERGY_SQUARES:
                 if (self.player_board_y, self.player_board_x) != self.teleporter_placeholder[1]:
@@ -6990,7 +7064,6 @@ class GameBoard:
                     self.next_turn()
                     self.teleporter_placeholder = None
 
-
     def exchange(self):
         if self.exchange_placeholder == None:
             if self.board_data[self.player_board_y][self.player_board_x] != None and not (self.player_board_y, self.player_board_x) in self._ENERGY_SQUARES:
@@ -6998,7 +7071,12 @@ class GameBoard:
                     self.exchange_placeholder = (self.board_data[self.player_board_y][self.player_board_x], (self.player_board_y, self.player_board_x))
                     self.spell_text = 'exchange with which icon?'
             elif self.board_data[self.player_board_y][self.player_board_x] != None and (self.player_board_y, self.player_board_x) in self._ENERGY_SQUARES:
-                self.spell_text = "power points are spell proof"
+                self.board_warn =  'power points are spell proof'
+                self.spell_text = 'Cancelling spell'
+                self.choosing_action = (False, None)
+                self.choosen_spell = 0
+                self.spell_selection = ''
+                self.exchange_placeholder = None
         elif self.exchange_placeholder != None:
             if self.board_data[self.player_board_y][self.player_board_x] != None and not (self.player_board_y, self.player_board_x) in self._ENERGY_SQUARES:
                 if (self.player_board_y, self.player_board_x) != self.exchange_placeholder[1]:
@@ -7029,6 +7107,94 @@ class GameBoard:
                             dead.remove(self.board_data[i][j][0].name)
         return dead
 
+
+    def select_revival(self, change):
+        if change == -1:
+            if self.revive_opt > 0:
+                self.revive_opt -= 1
+        elif change == 1:
+            if self.revive_opt < len(self.chars2revive) -1:
+                self.revive_opt += 1
+        elif change == 0:
+            self.spawn_anywhere(self.chars2revive[self.revive_opt])
+            self.revive_opt = 0
+            self.chars2revive = []
+            self.reviving = False
+        elif change == 2:
+            if self.check_charmed(1):
+                self.board_data[self.player_board_y][self.player_board_x] = self.selected_sq[0]
+                self.spell_selection = ''
+                self.selected_sq = ()
+                self.board_warn = ""
+                self.spell_text = ""  
+                self.choosing_action = (False, None)
+                self.choosen_spell = 0
+                self.next_turn()
+
+    def check_charmed(self, opt=0):
+        if opt == 0:
+            print(self.player_board_y, self.board_data[self.player_board_y][self.player_board_x], self.board_data[self.player_board_y + 1][self.player_board_x])
+            if self.player_board_x > 0:
+                if self.board_data[self.player_board_y][self.player_board_x - 1] == None:
+                    return True
+            if self.player_board_x < 8:
+                if self.board_data[self.player_board_y][self.player_board_x + 1] == None:
+                    return True
+            if self.player_board_y > 0:
+                if self.board_data[self.player_board_y - 1][self.player_board_x] == None:
+                    return True
+            if self.player_board_y < 8:
+                if self.board_data[self.player_board_y + 1][self.player_board_x] == None:
+                    return True
+            if self.player_board_y < 8 and self.player_board_x < 8:
+                if self.board_data[self.player_board_y + 1][self.player_board_x + 1] == None:
+                    return True
+            if self.player_board_y > 0 and self.player_board_x < 8:
+                if self.board_data[self.player_board_y - 1][self.player_board_x + 1] == None:
+                    return True
+            if self.player_board_y > 0 and self.player_board_x > 0:
+                if self.board_data[self.player_board_y - 1][self.player_board_x - 1] == None:
+                    return True
+            if self.player_board_y < 8 and self.player_board_x > 0:
+                if self.board_data[self.player_board_y + 1][self.player_board_x - 1] == None:
+                    return True
+            return False
+        elif opt == 1:
+            if not self.board_data[self.player_board_y][self.player_board_x] == None:
+                return False
+            if self.player_board_x > 0:
+                if self.board_data[self.player_board_y][self.player_board_x - 1] != None:
+                    if self.board_data[self.player_board_y][self.player_board_x - 1][0].name in ["Wizard", "Sorceress"]:
+                        return True
+            if self.player_board_x < 8:
+                if self.board_data[self.player_board_y][self.player_board_x + 1] != None:
+                    if self.board_data[self.player_board_y][self.player_board_x + 1][0].name in ["Wizard", "Sorceress"]:
+                        return True
+            if self.player_board_y > 0:
+                if self.board_data[self.player_board_y - 1][self.player_board_x] != None:
+                    if self.board_data[self.player_board_y - 1][self.player_board_x][0].name in ["Wizard", "Sorceress"]:
+                        return True
+            if self.player_board_y < 8:
+                if self.board_data[self.player_board_y + 1][self.player_board_x] != None:
+                    if self.board_data[self.player_board_y + 1][self.player_board_x][0].name in ["Wizard", "Sorceress"]:
+                        return True
+            if self.player_board_y < 8 and self.player_board_x < 8:
+                if self.board_data[self.player_board_y + 1][self.player_board_x + 1] != None:
+                    if self.board_data[self.player_board_y + 1][self.player_board_x + 1][0].name in ["Wizard", "Sorceress"]:
+                        return True
+            if self.player_board_y > 0 and self.player_board_x < 8:
+                if self.board_data[self.player_board_y - 1][self.player_board_x + 1] != None:
+                    if self.board_data[self.player_board_y - 1][self.player_board_x + 1][0].name in ["Wizard", "Sorceress"]:
+                        return True
+            if self.player_board_y > 0 and self.player_board_x > 0:
+                if self.board_data[self.player_board_y - 1][self.player_board_x - 1] != None:
+                    if self.board_data[self.player_board_y - 1][self.player_board_x - 1][0].name in ["Wizard", "Sorceress"]:
+                        return True
+            if self.player_board_y < 8 and self.player_board_x > 0:
+                if self.board_data[self.player_board_y + 1][self.player_board_x - 1] != None:
+                    if self.board_data[self.player_board_y + 1][self.player_board_x - 1][0].name in ["Wizard", "Sorceress"]:
+                        return True
+
 _MAIN_BOARD = GameBoard()
 
 def board():
@@ -7048,7 +7214,23 @@ def board():
     
 
     _MAIN_BOARD.draw_board()
-    pygame.draw.rect(screen, _MAIN_BOARD._PLAYERS_COLOR[_MAIN_BOARD.turn_player], Rect(_MAIN_BOARD.board_x + (56*_MAIN_BOARD.player_board_y), _MAIN_BOARD.board_y + (56*_MAIN_BOARD.player_board_x), 56, 56), 4)
+    if _MAIN_BOARD.reviving:
+        for i in range(0, len(_MAIN_BOARD.chars2revive)):
+            #print(len(_MAIN_BOARD.chars2revive))
+            if _MAIN_BOARD.chars2revive[i][0].team:
+                pygame.draw.rect(screen, (0, 44, 92), Rect(960, _MAIN_BOARD.board_y + 56*i + 4*i, 56, 56), 0)
+                screen.blit(_MAIN_BOARD.chars2revive[i][1], (960 - _MAIN_BOARD.chars2revive[i][0].char_x_offset, _MAIN_BOARD.board_y + 56*i - _MAIN_BOARD.chars2revive[i][0].char_y_offset))
+            elif not _MAIN_BOARD.chars2revive[i][0].team:
+                pygame.draw.rect(screen, (164, 200, 252), Rect(384, _MAIN_BOARD.board_y + 56*i + 4*i, 56, 56), 0)
+                screen.blit(_MAIN_BOARD.chars2revive[i][1], (384 - _MAIN_BOARD.chars2revive[i][0].char_x_offset, _MAIN_BOARD.board_y + 56*i - _MAIN_BOARD.chars2revive[i][0].char_y_offset))
+        if _MAIN_BOARD.selected_sq[0][0].team == 0:
+            pygame.draw.rect(screen, _MAIN_BOARD._PLAYERS_COLOR[_MAIN_BOARD.turn_player], Rect(384, _MAIN_BOARD.board_y + (56*_MAIN_BOARD.revive_opt) + (4*_MAIN_BOARD.revive_opt) , 56, 56), 4)
+        else:
+            pygame.draw.rect(screen, _MAIN_BOARD._PLAYERS_COLOR[_MAIN_BOARD.turn_player], Rect(960, _MAIN_BOARD.board_y + (56*_MAIN_BOARD.revive_opt) + (4*_MAIN_BOARD.revive_opt) , 56, 56), 4)
+    else:
+        pygame.draw.rect(screen, _MAIN_BOARD._PLAYERS_COLOR[_MAIN_BOARD.turn_player], Rect(_MAIN_BOARD.board_x + (56*_MAIN_BOARD.player_board_y), _MAIN_BOARD.board_y + (56*_MAIN_BOARD.player_board_x), 56, 56), 4)
+    if _MAIN_BOARD.selected_sq != ():
+            _MAIN_BOARD.move_selected_piece()
     pygame.draw.rect(screen, (80, 112, 188), Rect(25, 500, 320, 80), 0)
     pygame.draw.rect(screen, (56, 74, 176), Rect(25, 500, 320, 80), 3)
     screen.blit(player_info, (40, 520))
@@ -7241,8 +7423,6 @@ def arena():
         pygame.draw.rect(screen, (155,155,155) , dueler0.hitbox(), 0) #hitbox
     if _DEBUG:
         pygame.draw.rect(screen, (155,155,155) , dueler1.hitbox(), 0)
-    #print(dueler1.name, 'is', dueler1.alive, dueler1.hp(), ':', dueler1.base_hp, '+', dueler1.extra_hp)
-    #print(dueler0.name, 'is', dueler0.alive, dueler0.hp(), ':', dueler0.base_hp, '+', dueler0.extra_hp)
 
 """ 
 ~~~~~~~~~~~~~~~~~~
@@ -7316,14 +7496,26 @@ while running:
                                     _MAIN_BOARD.heal()
                                 elif _MAIN_BOARD.spell_selection == 'exchange':
                                     _MAIN_BOARD.exchange()
+                                elif _MAIN_BOARD.reviving:
+                                    _MAIN_BOARD.select_revival(0)
+                                elif _MAIN_BOARD.spell_selection == 'revive':
+                                    _MAIN_BOARD.select_revival(2)
                             if event.key == K_UP or event.key == K_w:
-                                _MAIN_BOARD.move_on_board((-1,0), False)
+                                if _MAIN_BOARD.reviving:
+                                    _MAIN_BOARD.select_revival(-1)
+                                else:
+                                    _MAIN_BOARD.move_on_board((-1,0), False)
                             if event.key == K_DOWN or event.key == K_s:
-                                _MAIN_BOARD.move_on_board((1,0), False)
+                                if _MAIN_BOARD.reviving:
+                                    _MAIN_BOARD.select_revival(1)
+                                else:
+                                    _MAIN_BOARD.move_on_board((1,0), False)
                             if event.key == K_LEFT or event.key == K_a:
-                                _MAIN_BOARD.move_on_board((0,-1), False)
+                                if not _MAIN_BOARD.reviving:
+                                    _MAIN_BOARD.move_on_board((0,-1), False)
                             if event.key == K_RIGHT or event.key == K_d:
-                                _MAIN_BOARD.move_on_board((0,1), False)
+                                if not _MAIN_BOARD.reviving:
+                                    _MAIN_BOARD.move_on_board((0,1), False)
 
             #rules keys
             elif current_scene == 'rules':
