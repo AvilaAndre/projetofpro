@@ -260,6 +260,7 @@ class Knight():
     extra_hp = 0
     hp = lambda x: x.base_hp + x.extra_hp
     alive = True
+    imprisoned = False
     orientation = True
     direction = (1,0)
     performing_action = False
@@ -572,6 +573,7 @@ class Unicorn():
     extra_hp = 0
     hp = lambda x: x.base_hp + x.extra_hp
     alive = True
+    imprisoned = False
     orientation = True
     direction = (1,0)
     performing_action = False
@@ -879,6 +881,7 @@ class Valkyrie():
     extra_hp = 0
     hp = lambda x: x.base_hp + x.extra_hp
     alive = True
+    imprisoned = False
     orientation = True
     direction = (1,0)
     performing_action = False
@@ -1186,6 +1189,7 @@ class Djinni():
     extra_hp = 0
     hp = lambda x: x.base_hp + x.extra_hp
     alive = True
+    imprisoned = False
     orientation = True
     direction = (1,0)
     performing_action = False
@@ -1493,6 +1497,7 @@ class Archer():
     extra_hp = 0
     hp = lambda x: x.base_hp + x.extra_hp
     alive = True
+    imprisoned = False
     orientation = True
     direction = (1,0)
     performing_action = False
@@ -1803,6 +1808,7 @@ class Golem():
     extra_hp = 0
     hp = lambda x: x.base_hp + x.extra_hp
     alive = True
+    imprisoned = False
     orientation = True
     direction = (1,0)
     performing_action = False
@@ -2110,6 +2116,7 @@ class Phoenix():
     extra_hp = 0
     hp = lambda x: x.base_hp + x.extra_hp
     alive = True
+    imprisoned = False
     orientation = True
     direction = (1,0)
     performing_action = False
@@ -2355,6 +2362,7 @@ class Wizard():
     extra_hp = 0
     hp = lambda x: x.base_hp + x.extra_hp
     alive = True
+    imprisoned = False
     orientation = True
     direction = (1,0)
     performing_action = False
@@ -2673,6 +2681,7 @@ class Sorceress():
     extra_hp = 0
     hp = lambda x: x.base_hp + x.extra_hp
     alive = True
+    imprisoned = False
     orientation = True
     direction = (1,0)
     performing_action = False
@@ -2986,6 +2995,7 @@ class Manticore():
     extra_hp = 0
     hp = lambda x: x.base_hp + x.extra_hp
     alive = True
+    imprisoned = False
     orientation = True
     direction = (1,0)
     performing_action = False
@@ -3293,6 +3303,7 @@ class Troll():
     extra_hp = 0
     hp = lambda x: x.base_hp + x.extra_hp
     alive = True
+    imprisoned = False
     orientation = True
     direction = (1,0)
     performing_action = False
@@ -3601,6 +3612,7 @@ class Goblin():
     extra_hp = 0
     hp = lambda x: x.base_hp + x.extra_hp
     alive = True
+    imprisoned = False
     orientation = True
     direction = (1,0)
     performing_action = False
@@ -3911,6 +3923,7 @@ class Banshee():
     extra_hp = 0
     hp = lambda x: x.base_hp + x.extra_hp
     alive = True
+    imprisoned = False
     orientation = True
     direction = (1,0)
     performing_action = False
@@ -4153,6 +4166,7 @@ class Dragon():
     extra_hp = 0
     hp = lambda x: x.base_hp + x.extra_hp
     alive = True
+    imprisoned = False
     orientation = True
     direction = (1,0)
     performing_action = False
@@ -4459,6 +4473,7 @@ class Shapeshifter():
     extra_hp = 0
     hp = lambda x: x.base_hp + x.extra_hp
     alive = True
+    imprisoned = False
     orientation = True
     direction = (1,0)
     performing_action = False
@@ -4761,6 +4776,7 @@ class Basilisk():
     extra_hp = 0
     hp = lambda x: x.base_hp + x.extra_hp
     alive = True
+    imprisoned = False
     orientation = True
     direction = (1,0)
     performing_action = False
@@ -5070,6 +5086,7 @@ class AirElemental():
     extra_hp = 0
     hp = lambda x: x.base_hp + x.extra_hp
     alive = True
+    imprisoned = False
     orientation = True
     direction = (1,0)
     performing_action = False
@@ -5383,6 +5400,7 @@ class WaterElemental():
     extra_hp = 0
     hp = lambda x: x.base_hp + x.extra_hp
     alive = True
+    imprisoned = False
     orientation = True
     direction = (1,0)
     performing_action = False
@@ -5696,6 +5714,7 @@ class FireElemental():
     extra_hp = 0
     hp = lambda x: x.base_hp + x.extra_hp
     alive = True
+    imprisoned = False
     orientation = True
     direction = (1,0)
     performing_action = False
@@ -6009,6 +6028,7 @@ class EarthElemental():
     extra_hp = 0
     hp = lambda x: x.base_hp + x.extra_hp
     alive = True
+    imprisoned = False
     orientation = True
     direction = (1,0)
     performing_action = False
@@ -6601,6 +6621,9 @@ class GameBoard:
     es_cur_anim = 0
     es_anim_cycle = 1
     es_clock = -1
+    spell_selection = ''
+    teleporter_placeholder = None
+    exchange_placeholder = None
 
     def __init__(self):
         Golem_Piece1 = (Golem(), pygame.transform.scale(pygame.image.load(Golem.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
@@ -6643,7 +6666,6 @@ class GameBoard:
         AirElemental_Piece = (AirElemental(), pygame.transform.scale(pygame.image.load(AirElemental.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
         WaterElemental_Piece = (WaterElemental(), pygame.transform.scale(pygame.image.load(WaterElemental.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
         FireElemental_Piece = (FireElemental(), pygame.transform.scale(pygame.image.load(FireElemental.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
-
 
         self.board_data = [[Valkyrie_Piece1 , Golem_Piece1, Unicorn_Piece2, Djinni_Piece1, Wizard_Piece1, Phoenix_Piece1, Unicorn_Piece1, Golem_Piece2, Valkyrie_Piece2], [Archer_Piece1, Knight_Piece1 , Knight_Piece2, Knight_Piece3, Knight_Piece4, Knight_Piece5, Knight_Piece6, Knight_Piece7, Archer_Piece2], [None , None, None, None, None, None, None, None, None], [None, None, None, None, None, None, None, None, None], [None, None, None, None, None, None, None, None, None], [None , None, None, None, None, None, None, None, None], [None ,None ,None, None, None, None, None, None, None], [Manticore_Piece1 , Goblin_Piece1, Goblin_Piece2, Goblin_Piece3, Goblin_Piece4, Goblin_Piece5, Goblin_Piece6, Goblin_Piece7, Manticore_Piece2], [Banshee_Piece1 , Troll_Piece1, Basilisk_Piece1, Shapeshifter_Piece1, Sorceress_Piece1, Dragon_Piece1, Basilisk_Piece2, Troll_Piece2, Banshee_Piece2]]
         self.elementals = [EarthElemental_Piece, AirElemental_Piece, WaterElemental_Piece, FireElemental_Piece]
@@ -6708,9 +6730,12 @@ class GameBoard:
             self.spell_text = ''
             if self.selected_sq == ():
                 if self.board_data[self.player_board_y][self.player_board_x] != None:
-                    self.selected_sq = (self.board_data[self.player_board_y][self.player_board_x],(self.player_board_x, self.player_board_y))
-                    self.board_warn =  self.selected_sq[0][0].name + '  [' + self.selected_sq[0][0].s_moving_type + ']'
-                    self.move_count = (0,0)
+                    if not self.board_data[self.player_board_y][self.player_board_x][0].imprisoned:
+                        self.selected_sq = (self.board_data[self.player_board_y][self.player_board_x],(self.player_board_x, self.player_board_y))
+                        self.board_warn =  self.selected_sq[0][0].name + '  [' + self.selected_sq[0][0].s_moving_type + ']'
+                        self.move_count = (0,0)
+                    elif self.board_data[self.player_board_y][self.player_board_x][0].imprisoned:
+                        self.board_warn = "Alas, game icon is imprisoned"
             else:
                 is_elemental = "Elemental" in self.selected_sq[0][0].name
                 if self.board_data[self.player_board_y][self.player_board_x] == None and (not is_elemental):
@@ -6728,18 +6753,33 @@ class GameBoard:
                             self.selected_sq = ()
                         self.board_warn = ''
                     elif not self.board_data[self.player_board_y][self.player_board_x] == self.selected_sq[0]:
-                        if self.board_data[self.player_board_y][self.player_board_x][0].team == 0:
-                            self.light_fighter = (self.board_data[self.player_board_y][self.player_board_x], (self.player_board_y, self.player_board_x))
-                            self.dark_fighter = self.selected_sq
+                        if is_elemental and not (self.player_board_y, self.player_board_x) in self._ENERGY_SQUARES:
+                            if self.board_data[self.player_board_y][self.player_board_x][0].team == 0:
+                                self.light_fighter = (self.board_data[self.player_board_y][self.player_board_x], (self.player_board_y, self.player_board_x))
+                                self.dark_fighter = self.selected_sq
+                            else:
+                                self.light_fighter = self.selected_sq
+                                self.dark_fighter = (self.board_data[self.player_board_y][self.player_board_x], (self.player_board_y, self.player_board_x))
+                            start_duel(self.selected_sq[0][0], self.board_data[self.player_board_y][self.player_board_x][0], (self.player_board_x, self.player_board_y))
+                            self.board_warn =  ''
+                            self.selected_sq = ()
+                        elif is_elemental: 
+                            self.spell_text = "power points are spell proof"
                         else:
-                            self.light_fighter = self.selected_sq
-                            self.dark_fighter = (self.board_data[self.player_board_y][self.player_board_x], (self.player_board_y, self.player_board_x))
-                        start_duel(self.selected_sq[0][0], self.board_data[self.player_board_y][self.player_board_x][0], (self.player_board_x, self.player_board_y))
-                        self.board_warn =  ''
-                        self.selected_sq = ()
+                            if self.board_data[self.player_board_y][self.player_board_x][0].team == 0:
+                                self.light_fighter = (self.board_data[self.player_board_y][self.player_board_x], (self.player_board_y, self.player_board_x))
+                                self.dark_fighter = self.selected_sq
+                            else:
+                                self.light_fighter = self.selected_sq
+                                self.dark_fighter = (self.board_data[self.player_board_y][self.player_board_x], (self.player_board_y, self.player_board_x))
+                            start_duel(self.selected_sq[0][0], self.board_data[self.player_board_y][self.player_board_x][0], (self.player_board_x, self.player_board_y))
+                            self.board_warn =  ''
+                            self.selected_sq = ()
 
-    def move_on_board(self, direc):
+    def move_on_board(self, direc, counting = True):
         def check_move(vertical, horizontal):
+            if not counting:
+                return True
             if self.selected_sq == ():
                 return True
             move_count = (self.move_count[0] + vertical, self.move_count[1] + horizontal)
@@ -6778,11 +6818,11 @@ class GameBoard:
 
     def finished_fight(self, piece, position):
         if piece == 0:
+            self.board_data[self.light_fighter[1][0]][self.light_fighter[1][1]] = None
             self.board_data[position[1]][position[0]] = self.light_fighter[0]
-            self.board_data[self.light_fighter[1][1]][self.light_fighter[1][0]] = None
         elif piece == 1:
+            self.board_data[self.dark_fighter[1][0]][self.dark_fighter[1][1]] = None
             self.board_data[position[1]][position[0]] = self.dark_fighter[0]
-            self.board_data[self.dark_fighter[1][1]][self.dark_fighter[1][0]] = None
         self.light_fighter = None
         self.dark_fighter = None
 
@@ -6796,6 +6836,10 @@ class GameBoard:
                         self.board_data[i][j][0].orientation = False
                     if not self.board_data[i][j][0].alive or 'Elemental' in self.board_data[i][j][0].name:
                         self.board_data[i][j] = None
+                    if self.cur_color == 0 and self.board_data[i][j][0].team == 0:
+                        self.board_data[i][j][0].imprisoned = False
+                    elif self.cur_color == 5 and self.board_data[i][j][0].team == 1:
+                        self.board_data[i][j][0].imprisoned = False
     
     def animate_board(self):
         for i in range(0, 9):
@@ -6805,7 +6849,8 @@ class GameBoard:
     
     def show_spells(self):
         self.board_warn = "Choose your action"
-        self.spell_text = self.choosing_action[1].spells[self.choosen_spell]
+        if self.choosen_spell < len(self.choosing_action[1].spells):
+            self.spell_text = self.choosing_action[1].spells[self.choosen_spell]
     
     def perform_spell(self):
         if self.choosing_action[1].spells[self.choosen_spell] == "Summon Elemental":
@@ -6817,7 +6862,6 @@ class GameBoard:
                 self.spell_text = "Send it to the target"
             elif self.choosing_action[1].name == "Sorceress":
                 elemental = self.elementals[random.randint(0, len(self.elementals) -1)]
-                print(elemental)
                 self.spawn_anywhere(elemental, 1)
                 self.choosing_action[1].spells.remove("Summon Elemental")
                 self.board_warn = ("An " if elemental[0].name[0] in "A E" else "A ") + elemental[0].name + " appears!"
@@ -6833,6 +6877,40 @@ class GameBoard:
             self.selected_sq = ()
             self.choosen_spell = 0
             self.next_turn()
+        elif self.choosing_action[1].spells[self.choosen_spell] == "Imprison":
+            self.choosing_action[1].spells.remove("Imprison")
+            self.spell_selection = 'imprison'
+            self.board_warn = "Imprison"
+            self.spell_text = "Which foe will you imprison?" 
+        elif self.choosing_action[1].spells[self.choosen_spell] == "Heal":
+            self.choosing_action[1].spells.remove("Heal")
+            self.spell_selection = 'heal'
+            self.board_warn = "Heal"
+            self.spell_text = "Which icon will you heal?" 
+        elif self.choosing_action[1].spells[self.choosen_spell] == "Teleport":
+            self.choosing_action[1].spells.remove("Teleport")
+            self.spell_selection = 'teleport'
+            self.board_warn = "Teleport"
+            self.spell_text = "Which icon will you teleport?"
+        elif self.choosing_action[1].spells[self.choosen_spell] == "Exchange":
+            self.choosing_action[1].spells.remove("Exchange")
+            self.spell_selection = 'exchange'
+            self.board_warn = "Exchange"
+            self.spell_text = "Choose an Icon to transpose"
+        elif self.choosing_action[1].spells[self.choosen_spell] == "Revive":
+            self.choosing_action[1].spells.remove("Revive")
+            self.spell_selection = 'revive'
+            allies_dead = self.find_dead_allies(self.choosing_action[1].team)
+            if len(allies_dead) == 0:
+                self.board_warn = "Happily Master,"
+                self.spell_text = "all your icons live"  
+                self.choosing_action = (False, None)
+                self.selected_sq = ()
+                self.choosen_spell = 0
+                self.spell_selection = ''
+            else:
+                self.board_warn = f"{str(allies_dead)}"
+
 
     def spawn_anywhere(self, piece, team = -1):
         if team == -1:
@@ -6842,11 +6920,114 @@ class GameBoard:
                 piece[0].define_team(0)
                 self.selected_sq = (piece, (4, 0))
             elif team == 1:
-                print(piece)
                 piece[0].define_team(1)
                 self.selected_sq = (piece, (4, 8))
 
+    def heal(self):
+        if self.board_data[self.player_board_y][self.player_board_x] != None and not (self.player_board_y, self.player_board_x) in self._ENERGY_SQUARES:
+            if self.board_data[self.player_board_y][self.player_board_x][0].team == self.selected_sq[0][0].team:
+                self.board_data[self.player_board_y][self.player_board_x][0].heal(20)
+                self.spell_selection = ''
+                self.spell_text = ''
+                self.choosing_action = (False, None)
+                self.selected_sq = ()
+                self.choosen_spell = 0
+                self.next_turn()
+        elif self.board_data[self.player_board_y][self.player_board_x] != None and (self.player_board_y, self.player_board_x) in self._ENERGY_SQUARES:
+            self.spell_text = "power points are spell proof"
 
+    def imprison(self):
+        if self.board_data[self.player_board_y][self.player_board_x] != None and not (self.player_board_y, self.player_board_x) in self._ENERGY_SQUARES:
+            if self.board_data[self.player_board_y][self.player_board_x][0].team != self.selected_sq[0][0].team:
+                self.board_data[self.player_board_y][self.player_board_x][0].imprisoned = True
+                self.spell_selection = ''
+                self.spell_text = ''
+                self.choosing_action = (False, None)
+                self.selected_sq = ()
+                self.choosen_spell = 0
+                self.next_turn()
+        elif self.board_data[self.player_board_y][self.player_board_x] != None and (self.player_board_y, self.player_board_x) in self._ENERGY_SQUARES:
+            self.spell_text = "power points are spell proof"
+    
+    def teleport(self):
+        if self.teleporter_placeholder == None:
+            if self.board_data[self.player_board_y][self.player_board_x] != None and not (self.player_board_y, self.player_board_x) in self._ENERGY_SQUARES:
+                if self.board_data[self.player_board_y][self.player_board_x][0].team == self.selected_sq[0][0].team:
+                    self.teleporter_placeholder = (self.board_data[self.player_board_y][self.player_board_x], (self.player_board_y, self.player_board_x))
+                    self.spell_text = 'where will you teleport it?'
+            elif self.board_data[self.player_board_y][self.player_board_x] != None and (self.player_board_y, self.player_board_x) in self._ENERGY_SQUARES:
+                self.spell_text = "power points are spell proof"
+        elif self.teleporter_placeholder != None:
+            if self.board_data[self.player_board_y][self.player_board_x] == None and not (self.player_board_y, self.player_board_x) in self._ENERGY_SQUARES:
+                if (self.player_board_y, self.player_board_x) != self.teleporter_placeholder[1]:
+                    self.board_data[self.player_board_y][self.player_board_x] = self.teleporter_placeholder[0]
+                    self.board_data[self.teleporter_placeholder[1][0]][self.teleporter_placeholder[1][1]] = None
+                    self.spell_selection = ''
+                    self.spell_text = ''
+                    self.choosing_action = (False, None)
+                    self.selected_sq = ()
+                    self.choosen_spell = 0
+                    self.next_turn()
+                    self.teleporter_placeholder = None
+            elif self.board_data[self.player_board_y][self.player_board_x] != None and (self.player_board_y, self.player_board_x) in self._ENERGY_SQUARES:
+                self.spell_text = "power points are spell proof"
+            elif self.board_data[self.player_board_y][self.player_board_x] != None:
+                if (self.player_board_y, self.player_board_x) in self._ENERGY_SQUARES:
+                    self.spell_text = "power points are spell proof"
+                elif self.board_data[self.player_board_y][self.player_board_x][0].team != self.selected_sq[0][0].team:
+                    if self.board_data[self.player_board_y][self.player_board_x][0].team == 0:
+                        self.light_fighter = (self.board_data[self.player_board_y][self.player_board_x], (self.player_board_y, self.player_board_x))
+                        self.dark_fighter = self.teleporter_placeholder
+                    else:
+                        self.light_fighter = self.teleporter_placeholder
+                        self.dark_fighter = (self.board_data[self.player_board_y][self.player_board_x], (self.player_board_y, self.player_board_x))
+                    start_duel(self.teleporter_placeholder[0][0], self.board_data[self.player_board_y][self.player_board_x][0], (self.player_board_x, self.player_board_y))
+                    self.spell_selection = ''
+                    self.spell_text = ''
+                    self.choosing_action = (False, None)
+                    self.selected_sq = ()
+                    self.choosen_spell = 0
+                    self.next_turn()
+                    self.teleporter_placeholder = None
+
+
+    def exchange(self):
+        if self.exchange_placeholder == None:
+            if self.board_data[self.player_board_y][self.player_board_x] != None and not (self.player_board_y, self.player_board_x) in self._ENERGY_SQUARES:
+                if self.board_data[self.player_board_y][self.player_board_x][0].team == self.selected_sq[0][0].team:
+                    self.exchange_placeholder = (self.board_data[self.player_board_y][self.player_board_x], (self.player_board_y, self.player_board_x))
+                    self.spell_text = 'exchange with which icon?'
+            elif self.board_data[self.player_board_y][self.player_board_x] != None and (self.player_board_y, self.player_board_x) in self._ENERGY_SQUARES:
+                self.spell_text = "power points are spell proof"
+        elif self.exchange_placeholder != None:
+            if self.board_data[self.player_board_y][self.player_board_x] != None and not (self.player_board_y, self.player_board_x) in self._ENERGY_SQUARES:
+                if (self.player_board_y, self.player_board_x) != self.exchange_placeholder[1]:
+                    exchanged = self.board_data[self.player_board_y][self.player_board_x]
+                    self.board_data[self.player_board_y][self.player_board_x] = self.exchange_placeholder[0]
+                    self.board_data[self.exchange_placeholder[1][0]][self.exchange_placeholder[1][1]] = exchanged
+                    self.spell_selection = ''
+                    self.spell_text = ''
+                    self.choosing_action = (False, None)
+                    self.selected_sq = ()
+                    self.choosen_spell = 0
+                    self.next_turn()
+                    self.exchange_placeholder = None
+            elif self.board_data[self.player_board_y][self.player_board_x] != None and (self.player_board_y, self.player_board_x) in self._ENERGY_SQUARES:
+                self.spell_text = "power points are spell proof"
+
+    def find_dead_allies(self, team):
+        dead = []
+        if team == 0:
+            dead = ["Golem", "Golem", "Knight", "Knight", "Knight", "Knight", "Knight", "Knight", "Knight", "Valkyrie", "Valkyrie", "Unicorn", "Unicorn", "Djinni", "Phoenix", "Wizard", "Archer", "Archer"]
+        elif team == 1:
+            dead = ["Manticore", "Manticore", "Goblin", "Goblin", "Goblin", "Goblin", "Goblin", "Goblin", "Goblin", "Banshee", "Banshee", "Troll", "Troll", "Basilisk", "Basilisk", "Sorceress", "Dragon", "Shapeshifter"] 
+        for i in range(0, 9):
+            for j in range(0,9):
+                if self.board_data[i][j] != None:
+                    if self.board_data[i][j][0].team == team:
+                        if self.board_data[i][j][0].alive:
+                            dead.remove(self.board_data[i][j][0].name)
+        return dead
 
 _MAIN_BOARD = GameBoard()
 
@@ -7116,15 +7297,33 @@ while running:
                         if event.key == K_RIGHT or event.key == K_d:
                             _MAIN_BOARD.move_on_board((0,1))
                     else:
-                        print(_MAIN_BOARD.choosing_action[1].spells)
-                        if event.key == K_RETURN or event.key == K_SPACE:
-                            _MAIN_BOARD.perform_spell()
-                        if event.key == K_UP or event.key == K_w:
-                            if _MAIN_BOARD.choosen_spell > 0:
-                                _MAIN_BOARD.choosen_spell -= 1
-                        if event.key == K_DOWN or event.key == K_s:
-                            if _MAIN_BOARD.choosen_spell + 1 < len(_MAIN_BOARD.choosing_action[1].spells):
-                                _MAIN_BOARD.choosen_spell += 1
+                        if _MAIN_BOARD.spell_selection == '':
+                            if event.key == K_RETURN or event.key == K_SPACE:
+                                _MAIN_BOARD.perform_spell()
+                            if event.key == K_UP or event.key == K_w:
+                                if _MAIN_BOARD.choosen_spell > 0:
+                                    _MAIN_BOARD.choosen_spell -= 1
+                            if event.key == K_DOWN or event.key == K_s:
+                                if _MAIN_BOARD.choosen_spell + 1 < len(_MAIN_BOARD.choosing_action[1].spells):
+                                    _MAIN_BOARD.choosen_spell += 1
+                        else:
+                            if event.key == K_RETURN or event.key == K_SPACE:
+                                if _MAIN_BOARD.spell_selection == 'imprison':
+                                    _MAIN_BOARD.imprison()
+                                elif _MAIN_BOARD.spell_selection == 'teleport':
+                                    _MAIN_BOARD.teleport()
+                                elif _MAIN_BOARD.spell_selection == 'heal':
+                                    _MAIN_BOARD.heal()
+                                elif _MAIN_BOARD.spell_selection == 'exchange':
+                                    _MAIN_BOARD.exchange()
+                            if event.key == K_UP or event.key == K_w:
+                                _MAIN_BOARD.move_on_board((-1,0), False)
+                            if event.key == K_DOWN or event.key == K_s:
+                                _MAIN_BOARD.move_on_board((1,0), False)
+                            if event.key == K_LEFT or event.key == K_a:
+                                _MAIN_BOARD.move_on_board((0,-1), False)
+                            if event.key == K_RIGHT or event.key == K_d:
+                                _MAIN_BOARD.move_on_board((0,1), False)
 
             #rules keys
             elif current_scene == 'rules':
@@ -7234,7 +7433,7 @@ while running:
         if playing == False:
             game_scene()
         else:
-            if _MAIN_BOARD.choosing_action[0]:
+            if _MAIN_BOARD.choosing_action[0] and _MAIN_BOARD.spell_selection == '':
                 _MAIN_BOARD.show_spells()
             board()
     elif current_scene == "rules":
