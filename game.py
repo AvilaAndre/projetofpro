@@ -5,6 +5,11 @@ _DEBUG = False
 _GAMETITLE = 'Archon Type Game!'
 pygame.init()
 pygame.font.init()
+pygame.mixer.init()
+#MUSIC
+title_music = r'Resources\Sound\Music\01_-_Archon_-_NES_-_Title.ogg'
+board_music = r'Resources\Sound\Music\02_-_Archon_-_NES_-_Board.ogg'
+arena_music = r'Resources\Sound\Music\03_-_Archon_-_NES_-_Combat.ogg'
 
 ##FONTS
 myfont = pygame.font.SysFont("Comic Sans MS", 30)
@@ -25,12 +30,16 @@ _PROJ_SIZE = 30
 width, height = 64*16, 64*10
 screen=pygame.display.set_mode((width, height))
 
+
 clock = pygame.time.Clock()
 
-current_scene = 'menu'
+current_scene = ""
 playing = False
 animation_line = []
 
+icon = pygame.image.load(r'Resources\Icon\Icon.png')
+pygame.display.set_icon(icon)
+title_background = pygame.image.load(r'Resources\Background\TitleBackground.png')
 
 def get_sprites(character, directory):
     spritesheet = []
@@ -6330,12 +6339,12 @@ key_selected = 0
 
 def menu():
     global playing, key_selected
+    screen.blit(title_background, (0,0))
     playing = False
     if key_selected > 3:
         key_selected = 3
     if key_selected < 0:
         key_selected = 0
-    screen.fill((255,255,255))
     label = title_gm_font.render(_GAMETITLE, 1, (00, 00, 00))
     option1 = big_gm_font.render('Start', 1, (00, 00, 00))
     option2 = big_gm_font.render('Rules', 1, (00, 00, 00))
@@ -6364,7 +6373,7 @@ rules_sel = 0
 rules_screen = 0
 def rules():
     global rules_sel
-    screen.fill((255,255,255))
+    screen.blit(title_background, (0,0))
     #LOGIC
     
     if rules_sel > len(rules_buttons) -1:
@@ -7255,7 +7264,7 @@ def start_duel(fighter1, fighter2, pos):
     dead.clear()
     arena_finish_clock = 15
     arena_finish_var = 0
-    current_scene = "arena"
+    switch_scene("arena")
     fighting_pos = pos
     if fighter1.team == 1:
         dueler1 = fighter1
@@ -7341,7 +7350,7 @@ def finish_duel(winner):
     light_projectiles.clear()
     dark_projectiles.clear()
     arena_collisions.clear()
-    current_scene = "game"
+    switch_scene("game")
     
 fg_begun = False
 arena_ground = pygame.Rect(80, 8, 864, 624)
@@ -7433,12 +7442,46 @@ running = True
 transition = 0 
 trans_clock = 0
 
+def switch_scene(scene, board = False):
+    global current_scene, playing, title_music, board_music, arena_music
+    if current_scene != scene:
+        if scene == "menu" and current_scene in ["menu", "rules", "options"]:
+            current_scene = scene
+            return
+        elif scene == "rules" and current_scene in ["menu", "rules", "options"]:
+            current_scene = scene
+            return
+        elif scene == "options" and current_scene in ["menu", "rules", "options"]:
+            current_scene = scene
+            return
+        elif scene in ["menu", "rules", "options"]:
+            pygame.mixer.music.load(title_music)
+            pygame.mixer.music.play(-1)
+        elif scene == "game" and playing:
+            pygame.mixer.music.load(board_music)
+            pygame.mixer.music.play(-1)
+        elif scene == "arena":
+            pygame.mixer.music.load(arena_music)
+            pygame.mixer.music.play(-1)
+        current_scene = scene
+    elif board:
+        pygame.mixer.music.load(board_music)
+        pygame.mixer.music.play(-1)
+
+
 while running:
+    #print(current_scene)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
             #menu keys
+            if event.type == pygame.KEYDOWN:
+                if event.key == K_m:
+                    if pygame.mixer.music.get_volume() > 0.5:
+                        pygame.mixer.music.set_volume(0)
+                    elif pygame.mixer.music.get_volume() < 0.5 :
+                        pygame.mixer.music.set_volume(1)
             if current_scene == 'menu':
                 if event.type == pygame.KEYDOWN:
                     if event.key == K_UP or event.key == K_w:
@@ -7447,11 +7490,11 @@ while running:
                         key_selected += 1
                     if event.key == K_RETURN or event.key == K_SPACE:
                         if key_selected == 0:
-                            current_scene = "game"
+                            switch_scene("game")
                         elif key_selected == 1:
-                            current_scene = "rules"
+                            switch_scene("rules")
                         elif key_selected == 2:
-                            current_scene = "options"
+                            switch_scene("options")
                         elif key_selected == 3:
                             running = False
                             pygame.quit()
@@ -7461,6 +7504,7 @@ while running:
             elif current_scene == 'game' and not playing:
                  if event.type == pygame.KEYDOWN:
                     playing = True
+                    switch_scene("game", True)
                     _MAIN_BOARD.next_turn()
             #game keys
             elif current_scene == 'game' and playing:
@@ -7523,7 +7567,7 @@ while running:
                     if rules_screen == 0 or rules_screen > 4:
                         if event.key == K_RETURN or event.key == K_SPACE:
                             if rules_sel == 0:
-                                current_scene = 'menu'
+                                switch_scene("menu")
                             if rules_sel == 1:
                                 rules_screen = 3
                             if rules_sel == 2:
@@ -7617,7 +7661,8 @@ while running:
                     elif event.key == K_DOWN or event.key == K_s:
                         opts_sel -= 1
             
-
+    if current_scene == "":
+        switch_scene("menu")
     #SCENE MANAGEMENT
     if current_scene == 'menu':
         menu()
