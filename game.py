@@ -1,7 +1,7 @@
 import pygame, sys, time, os, math, random
 from pygame.locals import *
 
-_DEBUG = False
+_DEBUG = True
 _GAMETITLE = 'Archon Type Game!'
 pygame.init()
 pygame.font.init()
@@ -55,6 +55,7 @@ def get_sprites(character, directory):
 """
 
 class DamageArea():
+    obj_type = "area"
     name = ''
     sprite = ''
     team = 2
@@ -208,7 +209,6 @@ class Projectile():
             self.sprite = sprite
         self.x, self.y = (self.x + (character.proj_correction[correction][0] + self.hitbox_x)*2.6, self.y + (character.proj_correction[correction][1] + self.hitbox_y)*2.6)
 
-    ##TODO: FIX
     def hitbox(self):
         return pygame.Rect(self.x- self.hitbox_x * 2.6, self.y- self.hitbox_y*2.6, self.width *2.6, self.height*2.6)
 
@@ -236,8 +236,18 @@ class Projectile():
                             rect.take_damage(self.dmg)
                             if self.team == 0:
                                 light_projectiles.remove(self)
+                                return
                             else:
                                 dark_projectiles.remove(self)
+                                return 
+        if not arena_ground.contains(self.hitbox()):
+            if self.team == 0:
+                light_projectiles.remove(self)
+                return
+            else:
+                dark_projectiles.remove(self)
+                return 
+
 
 """
 ~~~~CHARACTERS~~~~
@@ -263,10 +273,10 @@ class Knight():
     move_type = 2
     move_limit = 3
     speed = 5
-    atk_damage = 8
+    atk_damage = 5
     atk_speed = 3
-    atk_cooldown = 0.75 * 60
-    max_hp= 9.5
+    atk_cooldown = 0.33 * 60
+    max_hp= 4.5
     base_hp = max_hp
     extra_hp = 0
     hp = lambda x: x.base_hp + x.extra_hp
@@ -286,20 +296,20 @@ class Knight():
 
     #projectile
     proj_dir = (0,0)
-    proj_width = 10
-    proj_height = 4
+    proj_width = 6
+    proj_height = 6
                     #Corrections 
     proj_correction = [
-    (34,26), #RightAttackFront
-    (33,17), #RightAttackUp
-    (36,19), #RightAttackFrontUp
-    (35,33), #RightAttackFrontDown
-    (33,35), #RightAttackDown
-    (14,26), #LeftAttackFront
-    (16,18), #LeftAttackUp
-    (14,19), #LeftAttackFrontUp
-    (14,34), #LeftAttackFrontDown
-    (16,35)  #LeftAttackDown #    AQUI
+    (48,27), #RightAttackFront
+    (34,9), #RightAttackUp
+    (44,16), #RightAttackFrontUp
+    (41,41), #RightAttackFrontDown
+    (32,46), #RightAttackDown
+    (1,27), #LeftAttackFront
+    (16,9), #LeftAttackUp
+    (4,16), #LeftAttackFrontUp
+    (8,41), #LeftAttackFrontDown
+    (16,46)  #LeftAttackDown #    AQUI
     ]
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
@@ -440,7 +450,7 @@ class Knight():
         if not arena_ground.contains(self.hitbox()):
             colliding = True
         for rect in arena_collisions:
-            if rect != self:
+            if rect != self and rect.obj_type != "player":
                 if self.hitbox().colliderect(rect.hitbox()):
                     colliding = True
 
@@ -752,7 +762,7 @@ class Unicorn():
         if not arena_ground.contains(self.hitbox()):
             colliding = True
         for rect in arena_collisions:
-            if rect != self:
+            if rect != self and rect.obj_type != "player":
                 if self.hitbox().colliderect(rect.hitbox()):
                     colliding = True
 
@@ -1062,7 +1072,7 @@ class Valkyrie():
         if not arena_ground.contains(self.hitbox()):
             colliding = True
         for rect in arena_collisions:
-            if rect != self:
+            if rect != self and rect.obj_type != "player":
                 if self.hitbox().colliderect(rect.hitbox()):
                     colliding = True
 
@@ -1372,7 +1382,7 @@ class Djinni():
         if not arena_ground.contains(self.hitbox()):
             colliding = True
         for rect in arena_collisions:
-            if rect != self:
+            if rect != self and rect.obj_type != "player":
                 if self.hitbox().colliderect(rect.hitbox()):
                     colliding = True
 
@@ -1685,7 +1695,7 @@ class Archer():
         if not arena_ground.contains(self.hitbox()):
             colliding = True
         for rect in arena_collisions:
-            if rect != self:
+            if rect != self and rect.obj_type != "player":
                 if self.hitbox().colliderect(rect.hitbox()):
                     colliding = True
 
@@ -1995,7 +2005,7 @@ class Golem():
         if not arena_ground.contains(self.hitbox()):
             colliding = True
         for rect in arena_collisions:
-            if rect != self:
+            if rect != self and rect.obj_type != "player":
                 if self.hitbox().colliderect(rect.hitbox()):
                     colliding = True
 
@@ -2155,19 +2165,6 @@ class Phoenix():
     #area
     my_area = None
     area_radius = 28
-                    #Corrections 
-    proj_correction = [
-    (34,26), #RightAttackFront
-    (33,17), #RightAttackUp
-    (36,19), #RightAttackFrontUp
-    (35,33), #RightAttackFrontDown
-    (33,35), #RightAttackDown
-    (14,26), #LeftAttackFront
-    (16,18), #LeftAttackUp
-    (14,19), #LeftAttackFrontUp
-    (14,34), #LeftAttackFrontDown
-    (16,35)  #LeftAttackDown 
-    ]
 
     ##AUDIO
     run_sound = pygame.mixer.Sound(r'Resources\Sound\audio\phoenix_wing_flap.wav')
@@ -2262,7 +2259,7 @@ class Phoenix():
         if not arena_ground.contains(self.hitbox()):
             colliding = True
         for rect in arena_collisions:
-            if rect != self:
+            if rect != self and rect.obj_type != "player":
                 if self.hitbox().colliderect(rect.hitbox()):
                     colliding = True
 
@@ -2582,7 +2579,7 @@ class Wizard():
         if not arena_ground.contains(self.hitbox()):
             colliding = True
         for rect in arena_collisions:
-            if rect != self:
+            if rect != self and rect.obj_type != "player":
                 if self.hitbox().colliderect(rect.hitbox()):
                     colliding = True
 
@@ -2918,7 +2915,7 @@ class Sorceress():
         if not arena_ground.contains(self.hitbox()):
             colliding = True
         for rect in arena_collisions:
-            if rect != self:
+            if rect != self and rect.obj_type != "player":
                 if self.hitbox().colliderect(rect.hitbox()):
                     colliding = True
 
@@ -3229,7 +3226,7 @@ class Manticore():
         if not arena_ground.contains(self.hitbox()):
             colliding = True
         for rect in arena_collisions:
-            if rect != self:
+            if rect != self and rect.obj_type != "player":
                 if self.hitbox().colliderect(rect.hitbox()):
                     colliding = True
 
@@ -3539,7 +3536,7 @@ class Troll():
         if not arena_ground.contains(self.hitbox()):
             colliding = True
         for rect in arena_collisions:
-            if rect != self:
+            if rect != self and rect.obj_type != "player":
                 if self.hitbox().colliderect(rect.hitbox()):
                     colliding = True
 
@@ -3853,7 +3850,7 @@ class Goblin():
         if not arena_ground.contains(self.hitbox()):
             colliding = True
         for rect in arena_collisions:
-            if rect != self:
+            if rect != self and rect.obj_type != "player":
                 if self.hitbox().colliderect(rect.hitbox()):
                     colliding = True
 
@@ -4112,7 +4109,7 @@ class Banshee():
         if not arena_ground.contains(self.hitbox()):
             colliding = True
         for rect in arena_collisions:
-            if rect != self:
+            if rect != self and rect.obj_type != "player":
                 if self.hitbox().colliderect(rect.hitbox()):
                     colliding = True
 
@@ -4216,28 +4213,28 @@ class Banshee():
 
 class Dragon():
     name = "Dragon"
-    description = "Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn." 
-    s_moving_type = "ground - 4"
+    description = "The dragon, a monstrous reptile, is virtually without opponent in the arena. One wave of ember of its feverent breath already kills many creatures, the second one is defintely deadly. It is very movable and very hard to kill, its value is only outranged by the sorceress."
+    s_moving_type = "air - 4"
     s_speed = "normal"
-    s_attack_type = "energy bolts"
-    s_attack_strength = "moderate"
-    s_attack_speed = "fast"
-    s_attack_interval = "short"
-    s_life_span = "average"
-    s_number_of_chars = "2"
+    s_attack_type = "feverent breath"
+    s_attack_strength = "very high"
+    s_attack_speed = "middle"
+    s_attack_interval = "long"
+    s_life_span = "very long"
+    s_number_of_chars = "1"
     
     obj_type = "player"
     #STAT NUMBERS
     team = 1
     ranged = True
         #type: teleport0 air1 ground2
-    move_type = 0
-    move_limit = 3
+    move_type = 1
+    move_limit = 4
     speed = 5
-    atk_damage = 8
-    atk_speed = 9
-    atk_cooldown = 0.75 * 60
-    max_hp= 9.5
+    atk_damage = 10
+    atk_speed = 7
+    atk_cooldown = 2 * 60
+    max_hp= 16.5
     base_hp = max_hp
     extra_hp = 0
     hp = lambda x: x.base_hp + x.extra_hp
@@ -4247,10 +4244,10 @@ class Dragon():
     direction = (1,0)
     performing_action = False
     can_attack = True
-    char_x_offset = 18
-    char_y_offset = 17
-    char_width = 12 #TODO: get character dimensions
-    char_height = 19
+    char_x_offset = 14
+    char_y_offset = 22
+    char_width = 22 
+    char_height = 15
     #Position
     x = 0
     y = 0
@@ -4261,16 +4258,16 @@ class Dragon():
     proj_height = 4
                     #Corrections 
     proj_correction = [
-    (34,26), #RightAttackFront
-    (33,17), #RightAttackUp
-    (36,19), #RightAttackFrontUp
-    (35,33), #RightAttackFrontDown
-    (33,35), #RightAttackDown
-    (14,26), #LeftAttackFront
-    (16,18), #LeftAttackUp
-    (14,19), #LeftAttackFrontUp
-    (14,34), #LeftAttackFrontDown
-    (16,35)  #LeftAttackDown 
+    (46,21), #RightAttackFront
+    (34,9), #RightAttackUp
+    (43,12), #RightAttackFrontUp
+    (42,27), #RightAttackFrontDown
+    (40,29), #RightAttackDown
+    (4,21), #LeftAttackFront
+    (15,9), #LeftAttackUp
+    (6,12), #LeftAttackFrontUp
+    (7,27), #LeftAttackFrontDown
+    (9,29)  #LeftAttackDown 
     ]
 
     ##AUDIO
@@ -4415,7 +4412,7 @@ class Dragon():
         if not arena_ground.contains(self.hitbox()):
             colliding = True
         for rect in arena_collisions:
-            if rect != self:
+            if rect != self and rect.obj_type != "player":
                 if self.hitbox().colliderect(rect.hitbox()):
                     colliding = True
 
@@ -4719,7 +4716,7 @@ class Shapeshifter():
         if not arena_ground.contains(self.hitbox()):
             colliding = True
         for rect in arena_collisions:
-            if rect != self:
+            if rect != self and rect.obj_type != "player":
                 if self.hitbox().colliderect(rect.hitbox()):
                     colliding = True
 
@@ -5031,7 +5028,7 @@ class Basilisk():
         if not arena_ground.contains(self.hitbox()):
             colliding = True
         for rect in arena_collisions:
-            if rect != self:
+            if rect != self and rect.obj_type != "player":
                 if self.hitbox().colliderect(rect.hitbox()):
                     colliding = True
 
@@ -5346,7 +5343,7 @@ class AirElemental():
         if not arena_ground.contains(self.hitbox()):
             colliding = True
         for rect in arena_collisions:
-            if rect != self:
+            if rect != self and rect.obj_type != "player":
                 if self.hitbox().colliderect(rect.hitbox()):
                     colliding = True
 
@@ -5662,7 +5659,7 @@ class WaterElemental():
         if not arena_ground.contains(self.hitbox()):
             colliding = True
         for rect in arena_collisions:
-            if rect != self:
+            if rect != self and rect.obj_type != "player":
                 if self.hitbox().colliderect(rect.hitbox()):
                     colliding = True
 
@@ -5978,7 +5975,7 @@ class FireElemental():
         if not arena_ground.contains(self.hitbox()):
             colliding = True
         for rect in arena_collisions:
-            if rect != self:
+            if rect != self and rect.obj_type != "player":
                 if self.hitbox().colliderect(rect.hitbox()):
                     colliding = True
 
@@ -6294,7 +6291,7 @@ class EarthElemental():
         if not arena_ground.contains(self.hitbox()):
             colliding = True
         for rect in arena_collisions:
-            if rect != self:
+            if rect != self and rect.obj_type != "player":
                 if self.hitbox().colliderect(rect.hitbox()):
                     colliding = True
 
@@ -6957,6 +6954,7 @@ class GameBoard:
                         self.board_data[i][j][0].orientation = False
                     if not self.board_data[i][j][0].alive or 'Elemental' in self.board_data[i][j][0].name:
                         self.board_data[i][j] = None
+                        continue
                     if self.cur_color == 0 and self.board_data[i][j][0].team == 0:
                         self.board_data[i][j][0].imprisoned = False
                     elif self.cur_color == 5 and self.board_data[i][j][0].team == 1:
