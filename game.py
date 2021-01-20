@@ -1,7 +1,7 @@
 import pygame, sys, time, os, math, random
 from pygame.locals import *
 
-_DEBUG = True
+_DEBUG = False
 _GAMETITLE = 'Archon Type Game!'
 pygame.init()
 pygame.font.init()
@@ -159,6 +159,7 @@ class Projectile:
     angle = 0
     width= 10
     height = 10
+    
     def __init__(self, direction, character):
         self.ranged = character.ranged
         self.team = character.team
@@ -241,6 +242,14 @@ class Projectile:
         for rect in arena_collisions:
             if rect != self:
                 if self.hitbox().colliderect(rect.hitbox()):
+                    if rect.obj_type == "barrier":
+                        if rect.team != self.team:
+                            if self.team == 0:
+                                light_projectiles.remove(self)
+                                return
+                            else:
+                                dark_projectiles.remove(self)
+                                return 
                     if rect.obj_type == "player":
                         if rect.team != self.team:
                             rect.take_damage(self.dmg)
@@ -262,13 +271,40 @@ class Projectile:
 """
 ~~~~OBSTACLE~~~~
 """
-class Obstacle:
+class Barrier:
+    obj_type = "barrier"
+    team = 1
     x = 0
     y = 0
+    sprites = [r'Resources\Sprites\Tiles\Obstacle\Sprites\Obstacle2.png', r'Resources\Sprites\Tiles\Obstacle\Sprites\Obstacle1.png', r'Resources\Sprites\Tiles\Obstacle\Sprites\Obstacle3.png']
+    cycle = 0
+    cycle_limit = 120
+    cycle_ct = 0
 
-    def __init(self, x, y):
+    def __init__(self, x, y, val):
         self.x = x
         self.y = y
+        self.cycle = val
+        self.sprite = pygame.transform.scale(pygame.image.load(self.sprites[self.cycle]),  (_CHARS_SIZE, _CHARS_SIZE))
+    
+    def hitbox(self):
+        return pygame.Rect(self.x + 18 * 2.6, self.y + 17*2.6, 12*2.6, 14*2.6)
+    
+
+    def update(self):
+        self.cycle_ct += 1
+        if self.cycle_ct > self.cycle_limit:
+            self.cycle = 0
+            self.cycle_ct = 0
+            self.cycle_limit = random.randint(200, 601)
+            cycle_alternator = random.randint(-1, 2)
+            self.cycle += cycle_alternator
+            if self.cycle >= len(self.sprites):
+                self.cycle = len(self.sprites) -1
+            elif self.cycle < 0:
+                self.cycle = 0
+            self.team = self.cycle
+        self.sprite = pygame.transform.scale(pygame.image.load(self.sprites[self.cycle]),  (_CHARS_SIZE, _CHARS_SIZE))
 
 
 """
@@ -7537,6 +7573,8 @@ def start_duel(fighter1, fighter2, pos):
     dueler0.orientation = False
     arena_collisions.append(dueler1)
     arena_collisions.append(dueler0)
+    for _ in range(0, random.randint(4, 9)):
+        arena_collisions.append(Barrier(random.randint(150, 640), random.randint(-88, 480), random.randint(0, 2)))
 
 def finish_duel(winner):
     global current_scene, dueler1, dueler0
@@ -7552,6 +7590,7 @@ def finish_duel(winner):
     light_projectiles.clear()
     dark_projectiles.clear()
     arena_collisions.clear()
+    obstacles.clear()
     switch_scene("game")
     
 fg_begun = False
@@ -7561,6 +7600,7 @@ dark_projectiles = []
 light_areas = []
 dark_areas = []
 obstacles = []
+
 
 def arena():
     ##dueler0 Light, Dueler1 Dark
@@ -7592,8 +7632,10 @@ def arena():
     for area in light_areas:
         area.move()
 
-    for obs in obstacles:
-        obs.update()
+    for obs in arena_collisions:
+        if obs.obj_type == "barrier":
+            obs.update()
+    
     if len(dead) != 0:
         if arena_finish_clock <= 0:
             if dueler0.alive and not dueler1.alive:
@@ -7624,6 +7666,11 @@ def arena():
         screen.blit(pygame.transform.flip(dueler1.texture, dueler1.orientation, False), (dueler1.x, dueler1.y))
     if dueler0.alive:
         screen.blit(pygame.transform.flip(dueler0.texture, dueler0.orientation, False), (dueler0.x, dueler0.y))
+    for obst in arena_collisions:
+        if obst.obj_type == "barrier":
+            screen.blit(obst.sprite, (obst.x, obst.y))
+            if _DEBUG:
+                pygame.draw.rect(screen, (0,0,0), obst.hitbox(), 0)
     for proj in light_projectiles:
         if proj.ranged:
             screen.blit(proj.sprite, (proj.x, proj.y))
@@ -7639,6 +7686,7 @@ def arena():
     if _DEBUG:
         pygame.draw.rect(screen, (155,155,155) , dueler1.hitbox(), 0)
 
+
 """ 
 ~~~~~~~~~~~~~~~~~~
 """
@@ -7649,6 +7697,7 @@ transition = 0
 trans_clock = 0
 game_volume = 0.5
 pygame.mixer.music.set_volume(game_volume)
+
 def switch_scene(scene, board = False):
     global current_scene, playing, title_music, board_music, arena_music
     if current_scene != scene:
@@ -7677,7 +7726,7 @@ def switch_scene(scene, board = False):
 
 
 while running:
-    #print(current_scene)
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
