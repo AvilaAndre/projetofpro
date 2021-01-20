@@ -10,7 +10,9 @@ pygame.mixer.init()
 title_music = r'Resources\Sound\Music\01_-_Archon_-_NES_-_Title.ogg'
 board_music = r'Resources\Sound\Music\02_-_Archon_-_NES_-_Board.ogg'
 arena_music = r'Resources\Sound\Music\03_-_Archon_-_NES_-_Combat.ogg'
-
+#SOUND
+sel_sound = pygame.mixer.Sound(r'Resources\Sound\audio\select2.wav')
+hurt_sound = pygame.mixer.Sound(r'Resources\Sound\audio\hurt.wav')
 ##FONTS
 myfont = pygame.font.SysFont("Comic Sans MS", 30)
 title_font = pygame.font.SysFont("Comic Sans MS", 80)
@@ -467,6 +469,8 @@ class Knight():
 
 
     def take_damage(self, damage):
+        hurt_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+        hurt_sound.play()
         if damage <= self.extra_hp:
             self.extra_hp -= damage
         elif damage > self.extra_hp:
@@ -775,6 +779,8 @@ class Unicorn():
     
     
     def take_damage(self, damage):
+        hurt_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+        hurt_sound.play()
         if damage <= self.extra_hp:
             self.extra_hp -= damage
         elif damage > self.extra_hp:
@@ -1083,6 +1089,8 @@ class Valkyrie():
     
 
     def take_damage(self, damage):
+        hurt_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+        hurt_sound.play()
         if damage <= self.extra_hp:
             self.extra_hp -= damage
         elif damage > self.extra_hp:
@@ -1391,6 +1399,8 @@ class Djinni():
     
 
     def take_damage(self, damage):
+        hurt_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+        hurt_sound.play()
         if damage <= self.extra_hp:
             self.extra_hp -= damage
         elif damage > self.extra_hp:
@@ -1702,6 +1712,8 @@ class Archer():
     
 
     def take_damage(self, damage):
+        hurt_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+        hurt_sound.play()
         if damage <= self.extra_hp:
             self.extra_hp -= damage
         elif damage > self.extra_hp:
@@ -2010,6 +2022,8 @@ class Golem():
     
 
     def take_damage(self, damage):
+        hurt_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+        hurt_sound.play()
         if damage <= self.extra_hp:
             self.extra_hp -= damage
         elif damage > self.extra_hp:
@@ -2154,6 +2168,10 @@ class Phoenix():
     (14,34), #LeftAttackFrontDown
     (16,35)  #LeftAttackDown 
     ]
+
+    ##AUDIO
+    run_sound = pygame.mixer.Sound(r'Resources\Sound\audio\phoenix_wing_flap.wav')
+    explosion_sound = pygame.mixer.Sound(r'Resources\Sound\audio\phoenix_explosion.wav')
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
     run_animation = get_sprites(name, 'Run')
@@ -2192,6 +2210,9 @@ class Phoenix():
                     self.anim_clock = -1
                     self.current_sprite = self.idle_animation[self.cur_key]
         elif self.current_animation == "moving":
+            if self.cur_key == 2 and self.anim_clock == 2:
+                self.run_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+                self.run_sound.play()
             if self.cur_key+2 > len(self.run_animation):
                 self.cur_key = 0
                 self.anim_clock = -1
@@ -2254,11 +2275,15 @@ class Phoenix():
         self.finished_attack = False
     
     def shoot(self):
+        self.explosion_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+        self.explosion_sound.play()
         self.my_area = DamageArea(self)
     
     
 
     def take_damage(self, damage):
+        hurt_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+        hurt_sound.play()
         if self.current_animation != "Attack":
             if damage <= self.extra_hp:
                 self.extra_hp -= damage
@@ -2405,13 +2430,14 @@ class Wizard():
 
     ##SPELLS
     spells = ["Teleport", "Heal", "Revive", "Exchange", "Shift Time", "Summon Elemental", "Imprison", "Cease Conjuring"]
-
+    casting_spell = False
 
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
     run_animation = get_sprites(name, 'Run')
     hit_animation = get_sprites(name, 'Hit')
-    
+    spell_animation = get_sprites(name, "SpellCast")
+
     attack_front_animation = get_sprites(name, 'AttackFront')
     attack_front_up_animation = get_sprites(name, 'AttackFrontUp')
     attack_front_down_animation = get_sprites(name, 'AttackFrontDown')
@@ -2434,10 +2460,23 @@ class Wizard():
         if self.animation_change != self.current_animation:
             self.cur_key = -1
             self.animation_change = self.current_animation
-
+        if self.casting_spell:
+            self.current_animation = "casting spell"
         #CLOCK CHANGE
         self.anim_clock += 1
-        if self.current_animation == "idle":
+        if self.current_animation == "casting spell":
+            if self.cur_key+2 > len(self.spell_animation):
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.casting_spell = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 5:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.spell_animation[self.cur_key]
+        elif self.current_animation == "idle":
             if self.cur_key+2 > len(self.idle_animation):
                 self.cur_key = 0
                 self.anim_clock = -1
@@ -2570,6 +2609,8 @@ class Wizard():
     
 
     def take_damage(self, damage):
+        hurt_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+        hurt_sound.play()
         if damage <= self.extra_hp:
             self.extra_hp -= damage
         elif damage > self.extra_hp:
@@ -2724,11 +2765,13 @@ class Sorceress():
 
     ##SPELLS
     spells = ["Teleport", "Heal", "Revive", "Exchange", "Shift Time", "Summon Elemental", "Imprison", "Cease Conjuring"]
+    casting_spell = False
 
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
     run_animation = get_sprites(name, 'Run')
     hit_animation = get_sprites(name, 'Hit')
+    spell_animation = get_sprites(name, "SpellCast")
     
     attack_front_animation = get_sprites(name, 'AttackFront')
     attack_front_up_animation = get_sprites(name, 'AttackFrontUp')
@@ -2753,9 +2796,23 @@ class Sorceress():
             self.cur_key = -1
             self.animation_change = self.current_animation
 
+        if self.casting_spell:
+            self.current_animation = "casting spell"
         #CLOCK CHANGE
         self.anim_clock += 1
-        if self.current_animation == "idle":
+        if self.current_animation == "casting spell":
+            if self.cur_key+2 > len(self.spell_animation):
+                self.current_animation = "idle"
+                self.performing_action = False
+                self.casting_spell = False
+                self.cur_key = 0
+                self.anim_clock = -1
+            else: 
+                if self.anim_clock > 5:
+                    self.cur_key += 1
+                    self.anim_clock = -1
+                    self.current_sprite = self.spell_animation[self.cur_key]
+        elif self.current_animation == "idle":
             if self.cur_key+2 > len(self.idle_animation):
                 self.cur_key = 0
                 self.anim_clock = -1
@@ -2889,6 +2946,8 @@ class Sorceress():
 
 
     def take_damage(self, damage):
+        hurt_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+        hurt_sound.play()
         if damage <= self.extra_hp:
             self.extra_hp -= damage
         elif damage > self.extra_hp:
@@ -3197,6 +3256,8 @@ class Manticore():
     
 
     def take_damage(self, damage):
+        hurt_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+        hurt_sound.play()
         if damage <= self.extra_hp:
             self.extra_hp -= damage
         elif damage > self.extra_hp:
@@ -3505,6 +3566,8 @@ class Troll():
     
 
     def take_damage(self, damage):
+        hurt_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+        hurt_sound.play()
         if damage <= self.extra_hp:
             self.extra_hp -= damage
         elif damage > self.extra_hp:
@@ -3818,6 +3881,8 @@ class Goblin():
     
 
     def take_damage(self, damage):
+        hurt_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+        hurt_sound.play()
         if damage <= self.extra_hp:
             self.extra_hp -= damage
         elif damage > self.extra_hp:
@@ -4064,6 +4129,8 @@ class Banshee():
     
 
     def take_damage(self, damage):
+        hurt_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+        hurt_sound.play()
         if damage <= self.extra_hp:
             self.extra_hp -= damage
         elif damage > self.extra_hp:
@@ -4205,6 +4272,10 @@ class Dragon():
     (14,34), #LeftAttackFrontDown
     (16,35)  #LeftAttackDown 
     ]
+
+    ##AUDIO
+    run_sound = pygame.mixer.Sound(r'Resources\Sound\audio\dragon_wing_flap.wav')
+    fire_sound = pygame.mixer.Sound( r'Resources\Sound\audio\dragon_howl.wav')
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
     run_animation = get_sprites(name, 'Run')
@@ -4245,6 +4316,9 @@ class Dragon():
                     self.anim_clock = -1
                     self.current_sprite = self.idle_animation[self.cur_key]
         elif self.current_animation == "moving":
+            if self.cur_key == 2 and self.anim_clock == 2:
+                self.run_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+                self.run_sound.play()
             if self.cur_key+2 > len(self.run_animation):
                 self.cur_key = 0
                 self.anim_clock = -1
@@ -4363,11 +4437,15 @@ class Dragon():
         self.current_animation = attack_anim
     
     def shoot(self):
+        self.fire_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+        self.fire_sound.play()
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
     
 
     def take_damage(self, damage):
+        hurt_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+        hurt_sound.play()
         if damage <= self.extra_hp:
             self.extra_hp -= damage
         elif damage > self.extra_hp:
@@ -4669,6 +4747,8 @@ class Shapeshifter():
 
 
     def take_damage(self, damage):
+        hurt_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+        hurt_sound.play()
         if damage <= self.extra_hp:
             self.extra_hp -= damage
         elif damage > self.extra_hp:
@@ -4979,6 +5059,8 @@ class Basilisk():
 
 
     def take_damage(self, damage):
+        hurt_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+        hurt_sound.play()
         if damage <= self.extra_hp:
             self.extra_hp -= damage
         elif damage > self.extra_hp:
@@ -5291,6 +5373,8 @@ class AirElemental():
     
 
     def take_damage(self, damage):
+        hurt_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+        hurt_sound.play()
         if damage <= self.extra_hp:
             self.extra_hp -= damage
         elif damage > self.extra_hp:
@@ -5605,6 +5689,8 @@ class WaterElemental():
     
 
     def take_damage(self, damage):
+        hurt_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+        hurt_sound.play()
         if damage <= self.extra_hp:
             self.extra_hp -= damage
         elif damage > self.extra_hp:
@@ -5919,6 +6005,8 @@ class FireElemental():
     
 
     def take_damage(self, damage):
+        hurt_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+        hurt_sound.play()
         if damage <= self.extra_hp:
             self.extra_hp -= damage
         elif damage > self.extra_hp:
@@ -6233,6 +6321,8 @@ class EarthElemental():
     
 
     def take_damage(self, damage):
+        hurt_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+        hurt_sound.play()
         if damage <= self.extra_hp:
             self.extra_hp -= damage
         elif damage > self.extra_hp:
@@ -6540,9 +6630,11 @@ def fit_in_box(text, width, height, color):
 ~~~~~~~~~~~~~~~~
 """
 
-opts_buttons = [(840, 570, 140, 55), (840, 270, 140, 55)]
+opts_buttons = [(840, 570, 140, 55), (830, 307, 154, 35), (830, 240, 154, 35)]
 opts_sel = 0
 
+#KEYS
+keyboard = pygame.image.load(r'Resources\UI\Controls.png')
 
 def options():
     global opts_sel
@@ -6554,14 +6646,33 @@ def options():
     if opts_sel < 0:
         opts_sel = 0
     #TEXT
-
+    controls = small_medium_gm_font.render("Controls", 1, (0,0,0))
+    volume = small_medium_gm_font.render(f"Volume: {round(game_volume,2)}", 1, (0,0,0))
     go_back_button = medium_gm_font.render('Back', 1, (00,00,00))
+    keys = small_medium_gm_font.render("Keys:", 1, (0,0,0))
+    keysawsd = small_medium_gm_font.render("->  A,W,S,D moves the Light team's character and board selection.", 1, (188, 156, 88))
+    keysshift = small_medium_gm_font.render("->  Left Shift selects and attacks for the Light team.", 1, (188, 156, 88))
+    keysarrows = small_medium_gm_font.render("->  The arrows move the Dark team's character and board selection.", 1, (64, 94, 160))
+    keysenter = small_medium_gm_font.render("->  Enter selects and attacks for the Dark team.", 1, (64, 94, 160))
+    keysmute = small_medium_gm_font.render("->  By pressing M you can mute and unmute music and sound effects in game.", 1,  (255, 66, 37))
+    keysnj = small_medium_gm_font.render("->  J raises and N lowers the game's volume at anytime.", 1, (214, 117, 7))
     
     #DRAW
-    screen.fill((255, 100, 100))
+    screen.fill((255, 255, 255))
     screen.blit(go_back_button, (860, 580))
+    screen.blit(controls, (300, 70))
+    screen.blit(pygame.transform.scale(keyboard, (724, 224)), (50, 100))
+    screen.blit(volume, (830, 280))
+    pygame.draw.polygon(screen, (0,0,0), [(877, 270), (907, 245), (937, 270)])
+    pygame.draw.polygon(screen, (0,0,0), [(877, 312), (907, 337), (937, 312)])
     pygame.draw.rect(screen, (0,0,0) , Rect(opts_buttons[opts_sel][0], opts_buttons[opts_sel][1], opts_buttons[opts_sel][2], opts_buttons[opts_sel][3]), 4)
-
+    screen.blit(keys, (200, 340))
+    screen.blit(keysawsd, (10, 380))
+    screen.blit(keysshift, (10, 420))
+    screen.blit(keysarrows, (10, 460))
+    screen.blit(keysenter, (10, 500))
+    screen.blit(keysmute, (10, 540))
+    screen.blit(keysnj, (10, 580))
 
 
 
@@ -6828,7 +6939,7 @@ class GameBoard:
 
     def finished_fight(self, piece, position):
         if piece == 0:
-            self.board_data[self.light_fighter[1][0]][self.light_fighter[1][1]] = None
+            self.board_data[self.light_fighter[1][1]][self.light_fighter[1][0]] = None
             self.board_data[position[1]][position[0]] = self.light_fighter[0]
         elif piece == 1:
             self.board_data[self.dark_fighter[1][1]][self.dark_fighter[1][0]] = None
@@ -6868,18 +6979,21 @@ class GameBoard:
                 elemental = self.elementals[random.randint(0, len(self.elementals) -1)]
                 self.spawn_anywhere(elemental, 0)
                 self.choosing_action[1].spells.remove("Summon Elemental")
+                self.choosing_action[1].casting_spell = True
                 self.board_warn = ("An " if elemental[0].name[0] in "A E" else "A ") + elemental[0].name + " appears!"
                 self.spell_text = "Send it to the target"
             elif self.choosing_action[1].name == "Sorceress":
                 elemental = self.elementals[random.randint(0, len(self.elementals) -1)]
                 self.spawn_anywhere(elemental, 1)
                 self.choosing_action[1].spells.remove("Summon Elemental")
+                self.choosing_action[1].casting_spell = True
                 self.board_warn = ("An " if elemental[0].name[0] in "A E" else "A ") + elemental[0].name + " appears!"
                 self.spell_text = "Send it to the target"
             self.choosing_action = (False, None)
             self.choosen_spell = 0
         elif self.choosing_action[1].spells[self.choosen_spell] == "Shift Time":
             self.choosing_action[1].spells.remove("Shift Time")
+            self.choosing_action[1].casting_spell = True
             self.board_warn = "Shift Time"
             self.spell_text = "The flow of time is reversed"
             self.cycle *= -1
@@ -6889,21 +7003,25 @@ class GameBoard:
             self.next_turn()
         elif self.choosing_action[1].spells[self.choosen_spell] == "Imprison":
             self.choosing_action[1].spells.remove("Imprison")
+            self.choosing_action[1].casting_spell = True
             self.spell_selection = 'imprison'
             self.board_warn = "Imprison"
             self.spell_text = "Which foe will you imprison?" 
         elif self.choosing_action[1].spells[self.choosen_spell] == "Heal":
             self.choosing_action[1].spells.remove("Heal")
+            self.choosing_action[1].casting_spell = True
             self.spell_selection = 'heal'
             self.board_warn = "Heal"
             self.spell_text = "Which icon will you heal?" 
         elif self.choosing_action[1].spells[self.choosen_spell] == "Teleport":
             self.choosing_action[1].spells.remove("Teleport")
+            self.choosing_action[1].casting_spell = True
             self.spell_selection = 'teleport'
             self.board_warn = "Teleport"
             self.spell_text = "Which icon will you teleport?"
         elif self.choosing_action[1].spells[self.choosen_spell] == "Exchange":
             self.choosing_action[1].spells.remove("Exchange")
+            self.choosing_action[1].casting_spell = True
             self.spell_selection = 'exchange'
             self.board_warn = "Exchange"
             self.spell_text = "Choose an Icon to transpose"
@@ -6927,6 +7045,7 @@ class GameBoard:
                     self.spell_selection = ''
                     return
                 self.choosing_action[1].spells.remove("Revive")
+                self.choosing_action[1].casting_spell = True
                 self.reviving = True
                 for char in allies_dead:
                     while allies_dead.count(char)-1:
@@ -7441,7 +7560,8 @@ es_mlsecs = 0
 running = True
 transition = 0 
 trans_clock = 0
-
+game_volume = 0.5
+pygame.mixer.music.set_volume(game_volume)
 def switch_scene(scene, board = False):
     global current_scene, playing, title_music, board_music, arena_music
     if current_scene != scene:
@@ -7478,10 +7598,18 @@ while running:
             #menu keys
             if event.type == pygame.KEYDOWN:
                 if event.key == K_m:
-                    if pygame.mixer.music.get_volume() > 0.5:
+                    if pygame.mixer.music.get_volume() > 0.04:
                         pygame.mixer.music.set_volume(0)
-                    elif pygame.mixer.music.get_volume() < 0.5 :
-                        pygame.mixer.music.set_volume(1)
+                    elif pygame.mixer.music.get_volume() == 0 :
+                        pygame.mixer.music.set_volume(game_volume)
+                if event.key == K_n:
+                    if game_volume > 0.04:
+                        game_volume -= 0.05
+                        pygame.mixer.music.set_volume(game_volume)
+                if event.key == K_j:
+                    if game_volume < 0.96:
+                        game_volume += 0.05
+                        pygame.mixer.music.set_volume(game_volume)
             if current_scene == 'menu':
                 if event.type == pygame.KEYDOWN:
                     if event.key == K_UP or event.key == K_w:
@@ -7489,6 +7617,8 @@ while running:
                     elif event.key == K_DOWN or event.key == K_s:
                         key_selected += 1
                     if event.key == K_RETURN or event.key == K_SPACE:
+                        sel_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+                        sel_sound.play()
                         if key_selected == 0:
                             switch_scene("game")
                         elif key_selected == 1:
@@ -7567,6 +7697,8 @@ while running:
                     if rules_screen == 0 or rules_screen > 4:
                         if event.key == K_RETURN or event.key == K_SPACE:
                             if rules_sel == 0:
+                                sel_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+                                sel_sound.play()
                                 switch_scene("menu")
                             if rules_sel == 1:
                                 rules_screen = 3
@@ -7579,6 +7711,8 @@ while running:
                     elif rules_screen == 1:
                         
                         if event.key == K_RETURN or event.key == K_SPACE:
+                            sel_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+                            sel_sound.play()
                             if char_view_sel == 0:
                                 rules_screen = 0
                             elif char_view_sel == 1:
@@ -7613,6 +7747,8 @@ while running:
 
                     elif rules_screen == 3:
                         if event.key == K_RETURN or event.key == K_SPACE:
+                            sel_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+                            sel_sound.play()
                             if char_view_sel == 0:
                                 rules_screen = 0
                             elif char_view_sel == 1:
@@ -7655,7 +7791,17 @@ while running:
                 if event.type == pygame.KEYDOWN:
                     if event.key == K_RETURN or event.key == K_SPACE:
                         if opts_sel == 0:
+                            sel_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+                            sel_sound.play()
                             current_scene = 'menu'
+                        if opts_sel == 1:
+                            if game_volume > 0.04:
+                                game_volume -= 0.05
+                                pygame.mixer.music.set_volume(game_volume)
+                        if opts_sel == 2:
+                            if game_volume < 0.96:
+                                game_volume += 0.05
+                                pygame.mixer.music.set_volume(game_volume)
                     if event.key == K_UP or event.key == K_w:
                         opts_sel += 1
                     elif event.key == K_DOWN or event.key == K_s:
