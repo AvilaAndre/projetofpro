@@ -10,6 +10,7 @@ pygame.mixer.init()
 title_music = r'Resources\Sound\Music\01_-_Archon_-_NES_-_Title.ogg'
 board_music = r'Resources\Sound\Music\02_-_Archon_-_NES_-_Board.ogg'
 arena_music = r'Resources\Sound\Music\03_-_Archon_-_NES_-_Combat.ogg'
+end_music = r'Resources\Sound\Music\04_-_Archon_-_NES_-_You_Lose.ogg'
 #SOUND
 sel_sound = pygame.mixer.Sound(r'Resources\Sound\audio\select2.wav')
 hurt_sound = pygame.mixer.Sound(r'Resources\Sound\audio\hurt.wav')
@@ -170,7 +171,7 @@ class Projectile:
             light_projectiles.append(self)
         else:
             dark_projectiles.append(self)
-        self.speed = character.atk_speed
+        self.speed = character.atk_speed = 1.0 *20
         self.dmg = character.atk_damage
         if self.ranged:
             sprite = pygame.image.load(r'Resources\Sprites\Characters\{0}\Projectile\Projectile.png'.format(character.name))
@@ -327,12 +328,11 @@ class Knight():
     #STAT NUMBERS
     team = 0
     ranged = False
-        #type: teleport0 air1 ground2
     move_type = 2
     move_limit = 3
     speed = 5
     atk_damage = 5
-    atk_speed = 3
+    atk_speed = 1.0 *20
     atk_cooldown = 0.33 * 60
     max_hp= 4.5
     base_hp = max_hp
@@ -346,7 +346,7 @@ class Knight():
     can_attack = True
     char_x_offset = 18
     char_y_offset = 17
-    char_width = 12 #TODO: get character dimensions
+    char_width = 12 
     char_height = 19
     #Position
     x = 0
@@ -356,18 +356,18 @@ class Knight():
     proj_dir = (0,0)
     proj_width = 6
     proj_height = 6
-                    #Corrections 
+    #Corrections 
     proj_correction = [
-    (48,27), #RightAttackFront
-    (34,9), #RightAttackUp
-    (44,16), #RightAttackFrontUp
-    (41,41), #RightAttackFrontDown
-    (32,46), #RightAttackDown
-    (1,27), #LeftAttackFront
-    (16,9), #LeftAttackUp
-    (4,16), #LeftAttackFrontUp
-    (8,41), #LeftAttackFrontDown
-    (16,46)  #LeftAttackDown #    AQUI
+    (40,27), #RightAttackFront
+    (30,9), #RightAttackUp
+    (38,16), #RightAttackFrontUp
+    (38,38), #RightAttackFrontDown
+    (30,42), #RightAttackDown
+    (2,27), #LeftAttackFront
+    (12,9), #LeftAttackUp
+    (5,14), #LeftAttackFrontUp
+    (7,38), #LeftAttackFrontDown
+    (16,42)  #LeftAttackDown
     ]
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
@@ -440,7 +440,7 @@ class Knight():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_animation[self.cur_key]
@@ -453,7 +453,7 @@ class Knight():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_up_animation[self.cur_key]
@@ -466,7 +466,7 @@ class Knight():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_down_animation[self.cur_key]
@@ -479,7 +479,7 @@ class Knight():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_up_animation[self.cur_key]
@@ -492,7 +492,7 @@ class Knight():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_down_animation[self.cur_key]
@@ -643,14 +643,13 @@ class Unicorn():
     #STAT NUMBERS
     team = 0
     ranged = True
-        #type: teleport0 air1 ground2
-    move_type = 0
-    move_limit = 3
+    move_type = 2
+    move_limit = 4
     speed = 5
-    atk_damage = 8
-    atk_speed = 9
-    atk_cooldown = 0.75 * 60
-    max_hp= 9.5
+    atk_damage = 9
+    atk_speed = 1.0 *20
+    atk_cooldown = 1 * 60
+    max_hp= 8.5
     base_hp = max_hp
     extra_hp = 0
     hp = lambda x: x.base_hp + x.extra_hp
@@ -660,10 +659,10 @@ class Unicorn():
     direction = (1,0)
     performing_action = False
     can_attack = True
-    char_x_offset = 18
-    char_y_offset = 17
-    char_width = 12 #TODO: get character dimensions
-    char_height = 19
+    char_x_offset = 12
+    char_y_offset = 21
+    char_width = 24
+    char_height = 16
     #Position
     x = 0
     y = 0
@@ -674,16 +673,16 @@ class Unicorn():
     proj_height = 4
                     #Corrections 
     proj_correction = [
-    (34,26), #RightAttackFront
-    (33,17), #RightAttackUp
-    (36,19), #RightAttackFrontUp
-    (35,33), #RightAttackFrontDown
-    (33,35), #RightAttackDown
-    (14,26), #LeftAttackFront
-    (16,18), #LeftAttackUp
-    (14,19), #LeftAttackFrontUp
-    (14,34), #LeftAttackFrontDown
-    (16,35)  #LeftAttackDown 
+    (41,22), #RightAttackFront
+    (34,9), #RightAttackUp
+    (36,14), #RightAttackFrontUp
+    (40,30), #RightAttackFrontDown
+    (36,34), #RightAttackDown
+    (9,22), #LeftAttackFront
+    (15,9), #LeftAttackUp
+    (13,14), #LeftAttackFrontUp
+    (9,30), #LeftAttackFrontDown
+    (13,34)  #LeftAttackDown 
     ]
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
@@ -753,7 +752,7 @@ class Unicorn():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_animation[self.cur_key]
@@ -766,7 +765,7 @@ class Unicorn():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_up_animation[self.cur_key]
@@ -779,7 +778,7 @@ class Unicorn():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_down_animation[self.cur_key]
@@ -792,7 +791,7 @@ class Unicorn():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_up_animation[self.cur_key]
@@ -805,7 +804,7 @@ class Unicorn():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_down_animation[self.cur_key]
@@ -940,7 +939,7 @@ class Unicorn():
 
 class Valkyrie():
     name = "Valkyrie"
-    description = "Valkyries are pretty, blonde warriors of the legion of Valhalla. Every one of it is equipped with two big talents: firstly the ability to walk through the air as if it was solid ground; and secondly a bewitched spear that after been thrown returns to its thrower." #TODO: Valkyrie's description 
+    description = "Valkyries are pretty, blonde warriors of the legion of Valhalla. Every one of it is equipped with two big talents: firstly the ability to walk through the air as if it was solid ground; and secondly a bewitched spear that after been thrown returns to its thrower." 
     s_moving_type = "air - 3"
     s_speed = "normal"
     s_attack_type = "spear"
@@ -954,14 +953,13 @@ class Valkyrie():
     #STAT NUMBERS
     team = 0
     ranged = True
-        #type: teleport0 air1 ground2
-    move_type = 0
+    move_type = 1
     move_limit = 3
     speed = 5
-    atk_damage = 8
-    atk_speed = 9
+    atk_damage = 7
+    atk_speed = 0.5 *20
     atk_cooldown = 0.75 * 60
-    max_hp= 9.5
+    max_hp= 7.5
     base_hp = max_hp
     extra_hp = 0
     hp = lambda x: x.base_hp + x.extra_hp
@@ -972,9 +970,9 @@ class Valkyrie():
     performing_action = False
     can_attack = True
     char_x_offset = 18
-    char_y_offset = 17
-    char_width = 12 #TODO: get character dimensions
-    char_height = 19
+    char_y_offset = 16
+    char_width = 12 
+    char_height = 20
     #Position
     x = 0
     y = 0
@@ -985,16 +983,16 @@ class Valkyrie():
     proj_height = 4
                     #Corrections 
     proj_correction = [
-    (34,26), #RightAttackFront
-    (33,17), #RightAttackUp
-    (36,19), #RightAttackFrontUp
-    (35,33), #RightAttackFrontDown
-    (33,35), #RightAttackDown
-    (14,26), #LeftAttackFront
-    (16,18), #LeftAttackUp
-    (14,19), #LeftAttackFrontUp
-    (14,34), #LeftAttackFrontDown
-    (16,35)  #LeftAttackDown 
+    (44,16), #RightAttackFront
+    (15,12), #RightAttackUp
+    (37,11), #RightAttackFrontUp
+    (39,29), #RightAttackFrontDown
+    (34,38), #RightAttackDown
+    (6,16), #LeftAttackFront
+    (34,12), #LeftAttackUp
+    (10,11), #LeftAttackFrontUp
+    (10,29), #LeftAttackFrontDown
+    (15,38)  #LeftAttackDown 
     ]
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
@@ -1064,7 +1062,7 @@ class Valkyrie():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_animation[self.cur_key]
@@ -1077,7 +1075,7 @@ class Valkyrie():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_up_animation[self.cur_key]
@@ -1090,7 +1088,7 @@ class Valkyrie():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_down_animation[self.cur_key]
@@ -1103,7 +1101,7 @@ class Valkyrie():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_up_animation[self.cur_key]
@@ -1116,7 +1114,7 @@ class Valkyrie():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_down_animation[self.cur_key]
@@ -1251,28 +1249,27 @@ class Valkyrie():
 
 class Djinni():
     name = "Djinni"
-    description = "Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn." 
-    s_moving_type = "ground - 4"
+    description = "The djinni is a magical creature from another dimension, a flying thing from tempest and storm in the shape of a big and enormously muscular man whose body seems to be partially solid and partially turbulenced air. As cousin of the wind the djinni can rouse a small tornado with a gesture and control it with its thoughts." 
+    s_moving_type = "air - 4"
     s_speed = "normal"
-    s_attack_type = "energy bolts" #TODO:Djinni's description
+    s_attack_type = "twister" 
     s_attack_strength = "moderate"
-    s_attack_speed = "fast"
+    s_attack_speed = "middle"
     s_attack_interval = "short"
-    s_life_span = "average"
-    s_number_of_chars = "2"
+    s_life_span = "long"
+    s_number_of_chars = "1"
     
     obj_type = "player"
     #STAT NUMBERS
     team = 0
     ranged = True
-        #type: teleport0 air1 ground2
-    move_type = 0
-    move_limit = 3
+    move_type = 1
+    move_limit = 4
     speed = 5
-    atk_damage = 8
-    atk_speed = 9
-    atk_cooldown = 0.75 * 60
-    max_hp= 9.5
+    atk_damage = 6
+    atk_speed = .8 *20
+    atk_cooldown = 0.66 * 60
+    max_hp= 14.5
     base_hp = max_hp
     extra_hp = 0
     hp = lambda x: x.base_hp + x.extra_hp
@@ -1282,10 +1279,10 @@ class Djinni():
     direction = (1,0)
     performing_action = False
     can_attack = True
-    char_x_offset = 18
-    char_y_offset = 17
-    char_width = 12 #TODO: get character dimensions
-    char_height = 19
+    char_x_offset = 19
+    char_y_offset = 18
+    char_width = 10 
+    char_height = 18
     #Position
     x = 0
     y = 0
@@ -1296,16 +1293,16 @@ class Djinni():
     proj_height = 4
                     #Corrections 
     proj_correction = [
-    (34,26), #RightAttackFront
-    (33,17), #RightAttackUp
-    (36,19), #RightAttackFrontUp
-    (35,33), #RightAttackFrontDown
-    (33,35), #RightAttackDown
-    (14,26), #LeftAttackFront
-    (16,18), #LeftAttackUp
-    (14,19), #LeftAttackFrontUp
-    (14,34), #LeftAttackFrontDown
-    (16,35)  #LeftAttackDown 
+    (40,26), #RightAttackFront
+    (30,13), #RightAttackUp
+    (39,15), #RightAttackFrontUp
+    (41,37), #RightAttackFrontDown
+    (33,38), #RightAttackDown
+    (8,26), #LeftAttackFront
+    (19,13), #LeftAttackUp
+    (10,15), #LeftAttackFrontUp
+    (8,37), #LeftAttackFrontDown
+    (16,38)  #LeftAttackDown 
     ]
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
@@ -1375,7 +1372,7 @@ class Djinni():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_animation[self.cur_key]
@@ -1388,7 +1385,7 @@ class Djinni():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_up_animation[self.cur_key]
@@ -1401,7 +1398,7 @@ class Djinni():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_down_animation[self.cur_key]
@@ -1414,7 +1411,7 @@ class Djinni():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_up_animation[self.cur_key]
@@ -1427,7 +1424,7 @@ class Djinni():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_down_animation[self.cur_key]
@@ -1576,14 +1573,13 @@ class Archer():
     #STAT NUMBERS
     team = 0
     ranged = True
-        #type: teleport0 air1 ground2
     move_type = 2
     move_limit = 3
     speed = 5
-    atk_damage = 8
-    atk_speed = 9
+    atk_damage = 5
+    atk_speed = 0.7 *20
     atk_cooldown = 0.75 * 60
-    max_hp= 9.5
+    max_hp= 4.5
     base_hp = max_hp
     extra_hp = 0
     hp = lambda x: x.base_hp + x.extra_hp
@@ -1594,8 +1590,8 @@ class Archer():
     performing_action = False
     can_attack = True
     char_x_offset = 18
-    char_y_offset = 17
-    char_width = 12 #TODO: get character dimensions
+    char_y_offset = 18
+    char_width = 12 
     char_height = 19
     #Position
     x = 0
@@ -1607,16 +1603,16 @@ class Archer():
     proj_height = 4
                     #Corrections 
     proj_correction = [
-    (34,26), #RightAttackFront
-    (33,17), #RightAttackUp
-    (36,19), #RightAttackFrontUp
-    (35,33), #RightAttackFrontDown
-    (33,35), #RightAttackDown
-    (14,26), #LeftAttackFront
-    (16,18), #LeftAttackUp
-    (14,19), #LeftAttackFrontUp
-    (14,34), #LeftAttackFrontDown
-    (16,35)  #LeftAttackDown #    AQUI
+    (40,29), #RightAttackFront
+    (34,15), #RightAttackUp
+    (42,14), #RightAttackFrontUp
+    (38,41), #RightAttackFrontDown
+    (34,38), #RightAttackDown
+    (10,29), #LeftAttackFront
+    (16,15), #LeftAttackUp
+    (7,14), #LeftAttackFrontUp
+    (10,41), #LeftAttackFrontDown
+    (16,38)  #LeftAttackDown
     ]
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
@@ -1689,7 +1685,7 @@ class Archer():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_animation[self.cur_key]
@@ -1702,7 +1698,7 @@ class Archer():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_up_animation[self.cur_key]
@@ -1715,7 +1711,7 @@ class Archer():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_down_animation[self.cur_key]
@@ -1728,7 +1724,7 @@ class Archer():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_up_animation[self.cur_key]
@@ -1741,7 +1737,7 @@ class Archer():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_down_animation[self.cur_key]
@@ -1876,14 +1872,14 @@ class Archer():
 
 class Golem():
     name = "Golem"
-    description = "Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn." 
-    s_moving_type = "ground - 4"
-    s_speed = "normal"
-    s_attack_type = "energy bolts"
-    s_attack_strength = "moderate" #TODO: GOLEM's description
-    s_attack_speed = "fast"
-    s_attack_interval = "short"
-    s_life_span = "average"
+    description = "A golem is an artificial creature, formed out of stone and gleaming metal and brought to life by magic. The shape is roughly based on a human but well twice as big. Its weapons are stone chippings which it throws with destructive power." 
+    s_moving_type = "ground - 3"
+    s_speed = "slow"
+    s_attack_type = "stone chippings"
+    s_attack_strength = "high" 
+    s_attack_speed = "slow"
+    s_attack_interval = "long"
+    s_life_span = "long"
     s_number_of_chars = "2"
     
     obj_type = "player"
@@ -1891,13 +1887,13 @@ class Golem():
     team = 0
     ranged = True
         #type: teleport0 air1 ground2
-    move_type = 0
+    move_type = 2
     move_limit = 3
-    speed = 5
-    atk_damage = 8
-    atk_speed = 9
-    atk_cooldown = 0.75 * 60
-    max_hp= 9.5
+    speed = 4
+    atk_damage = 10
+    atk_speed = 0.5 *20
+    atk_cooldown = 0.6 * 60
+    max_hp= 14.5
     base_hp = max_hp
     extra_hp = 0
     hp = lambda x: x.base_hp + x.extra_hp
@@ -1908,29 +1904,29 @@ class Golem():
     performing_action = False
     can_attack = True
     char_x_offset = 18
-    char_y_offset = 17
-    char_width = 12 #TODO: get character dimensions
-    char_height = 19
+    char_y_offset = 20
+    char_width = 17
+    char_height = 23
     #Position
     x = 0
     y = 0
 
     #projectile
     proj_dir = (0,0)
-    proj_width = 10
-    proj_height = 4
-                    #Corrections 
+    proj_width = 14
+    proj_height = 10
+    #Corrections 
     proj_correction = [
-    (34,26), #RightAttackFront
-    (33,17), #RightAttackUp
-    (36,19), #RightAttackFrontUp
-    (35,33), #RightAttackFrontDown
-    (33,35), #RightAttackDown
-    (14,26), #LeftAttackFront
-    (16,18), #LeftAttackUp
-    (14,19), #LeftAttackFrontUp
-    (14,34), #LeftAttackFrontDown
-    (16,35)  #LeftAttackDown 
+    (50,11), #RightAttackFront
+    (45,19), #RightAttackUp
+    (46,5), #RightAttackFrontUp
+    (51,33), #RightAttackFrontDown
+    (45,33), #RightAttackDown
+    (14,11), #LeftAttackFront
+    (16,19), #LeftAttackUp
+    (14,5), #LeftAttackFrontUp
+    (14,33), #LeftAttackFrontDown
+    (16,33)  #LeftAttackDown 
     ]
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
@@ -2000,7 +1996,7 @@ class Golem():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_animation[self.cur_key]
@@ -2013,7 +2009,7 @@ class Golem():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_up_animation[self.cur_key]
@@ -2026,7 +2022,7 @@ class Golem():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_down_animation[self.cur_key]
@@ -2039,7 +2035,7 @@ class Golem():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_up_animation[self.cur_key]
@@ -2052,7 +2048,7 @@ class Golem():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_down_animation[self.cur_key]
@@ -2187,28 +2183,27 @@ class Golem():
 
 class Phoenix():
     name = "Phoenix"
-    description = "Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn." 
-    s_moving_type = "ground - 4"
+    description = "The phoenix is a burning bird with immense size and power. In a fight it can explode in a boiling mass of fire that scorches everything in its radius and burns every opponent that was uncareful enough to come near the white glowing core. The phoenix is not only immune against its own fire but it can also - during its metamorphose - not be hurt by any known attack." 
+    s_moving_type = "air - 5"
     s_speed = "normal"
-    s_attack_type = "energy bolts"
-    s_attack_strength = "moderate"
-    s_attack_speed = "fast"
-    s_attack_interval = "short"
-    s_life_span = "average"
-    s_number_of_chars = "2"
+    s_attack_type = "ferverent explosion"
+    s_attack_strength = "high"
+    s_attack_speed = "slow"
+    s_attack_interval = "long"
+    s_life_span = "long"
+    s_number_of_chars = "1"
     
     obj_type = "player"
     #STAT NUMBERS
     team = 0
     ranged = True
-        #type: teleport0 air1 ground2
     move_type = 1
-    move_limit = 3
+    move_limit = 5
     speed = 5
-    atk_damage = 8
-    atk_speed = 9
-    atk_cooldown = 0.75 * 60
-    max_hp= 9.5
+    atk_damage = 10
+    atk_speed = 1.0 *20
+    atk_cooldown = 0.6 * 60
+    max_hp= 11.5
     base_hp = max_hp
     extra_hp = 0
     hp = lambda x: x.base_hp + x.extra_hp
@@ -2218,10 +2213,10 @@ class Phoenix():
     direction = (1,0)
     performing_action = False
     can_attack = True
-    char_x_offset = 18
-    char_y_offset = 17
-    char_width = 12 #TODO: get character dimensions
-    char_height = 19
+    char_x_offset = 15
+    char_y_offset = 15
+    char_width = 18
+    char_height = 18
     #Position
     x = 0
     y = 0
@@ -2305,7 +2300,7 @@ class Phoenix():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 10:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_animation[self.cur_key]
@@ -2432,26 +2427,25 @@ class Phoenix():
 
 class Wizard():
     name = "Wizard"
-    description = "Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn." 
-    s_moving_type = "ground - 4"
+    description = "A very old man, who juggles with supernatural powers, the wizard is the leader of the light side. In a fight it throws destructive fireballs. It seldom takes the risk to leave its force field, as it usually uses one of the seven magical spells." 
+    s_moving_type = "teleport - 3"
     s_speed = "normal"
-    s_attack_type = "energy bolts"
+    s_attack_type = "fireball"
     s_attack_strength = "moderate"
-    s_attack_speed = "fast"
-    s_attack_interval = "short"
+    s_attack_speed = "middle"
+    s_attack_interval = "average"
     s_life_span = "average"
-    s_number_of_chars = "2"
+    s_number_of_chars = "1"
     
     obj_type = "player"
     #STAT NUMBERS
     team = 0
     ranged = True
-        #type: teleport0 air1 ground2
     move_type = 0
     move_limit = 3
     speed = 5
-    atk_damage = 8
-    atk_speed = 9
+    atk_damage = 10
+    atk_speed = 0.8 *20
     atk_cooldown = 0.75 * 60
     max_hp= 9.5
     base_hp = max_hp
@@ -2465,7 +2459,7 @@ class Wizard():
     can_attack = True
     char_x_offset = 18
     char_y_offset = 17
-    char_width = 12 #TODO: get character dimensions
+    char_width = 12 
     char_height = 19
     #Position
     x = 0
@@ -2477,7 +2471,7 @@ class Wizard():
     proj_height = 4
                     #Corrections 
     proj_correction = [
-    (34,26), #RightAttackFront
+    (36,28), #RightAttackFront
     (33,17), #RightAttackUp
     (36,19), #RightAttackFrontUp
     (35,33), #RightAttackFrontDown
@@ -2576,7 +2570,7 @@ class Wizard():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_animation[self.cur_key]
@@ -2589,7 +2583,7 @@ class Wizard():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_up_animation[self.cur_key]
@@ -2602,7 +2596,7 @@ class Wizard():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_down_animation[self.cur_key]
@@ -2615,7 +2609,7 @@ class Wizard():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_up_animation[self.cur_key]
@@ -2628,7 +2622,7 @@ class Wizard():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_down_animation[self.cur_key]
@@ -2766,28 +2760,26 @@ class Wizard():
 
 
 class Sorceress():
-    #TODO: Sorceress info
     name = "Sorceress"
-    description = "Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn." 
-    s_moving_type = "ground - 4"
+    description = "It resembles the wizard only in strength, apart from that the eternal young and pretty sorceress is exactly the counterpart. Its light beams are faster than the wizards fireballs, but a bit weaker. Boisterous in the fight, but safest on its black force field, where it is most of the time used to cast spells." 
+    s_moving_type = "teleport - 3"
     s_speed = "normal"
-    s_attack_type = "energy bolts"
+    s_attack_type = "light beams"
     s_attack_strength = "moderate"
     s_attack_speed = "fast"
-    s_attack_interval = "short"
+    s_attack_interval = "average"
     s_life_span = "average"
-    s_number_of_chars = "2"
+    s_number_of_chars = "1"
     
     obj_type = "player"
     #STAT NUMBERS
     team = 1
     ranged = True
-        #type: teleport0 air1 ground2
     move_type = 0
     move_limit = 3
     speed = 5
     atk_damage = 8
-    atk_speed = 9
+    atk_speed = 0.9 *20
     atk_cooldown = 0.75 * 60
     max_hp= 9.5
     base_hp = max_hp
@@ -2799,9 +2791,9 @@ class Sorceress():
     direction = (1,0)
     performing_action = False
     can_attack = True
-    char_x_offset = 18
+    char_x_offset = 19
     char_y_offset = 17
-    char_width = 12 #TODO: get character dimensions
+    char_width = 12 
     char_height = 19
     #Position
     x = 0
@@ -2913,7 +2905,7 @@ class Sorceress():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_animation[self.cur_key]
@@ -2926,7 +2918,7 @@ class Sorceress():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_up_animation[self.cur_key]
@@ -2939,7 +2931,7 @@ class Sorceress():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_down_animation[self.cur_key]
@@ -2952,7 +2944,7 @@ class Sorceress():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_up_animation[self.cur_key]
@@ -2965,7 +2957,7 @@ class Sorceress():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_down_animation[self.cur_key]
@@ -3101,28 +3093,26 @@ class Sorceress():
 
 class Manticore():
     name = "Manticore"
-    description = "The archers are fearless amazones, that can handle their bows with legendary skill. They are equipped with magical quivers that never get empty." 
+    description = "The manticore resembles a big golden lion with a humanoid face and a tail similar to the one of a scorpion. This disgusting thing teems with big spikes which it can shoot with surprising precision." 
     s_moving_type = "ground - 3"
     s_speed = "normal"
-    s_attack_type = "arrow"
+    s_attack_type = "spikes"
     s_attack_strength = "low"
-    s_attack_speed = "middle"
+    s_attack_speed = "slow"
     s_attack_interval = "average"
-    s_life_span = "short"
+    s_life_span = "average"
     s_number_of_chars = "2"
 
     obj_type = "player"
-    #STAT NUMBERS
     team = 1
     ranged = True
-        #type: teleport0 air1 ground2
-    move_type = 0
+    move_type = 2
     move_limit = 3
     speed = 5
-    atk_damage = 8
-    atk_speed = 9
+    atk_damage = 4
+    atk_speed = 0.5 *20 
     atk_cooldown = 0.75 * 60
-    max_hp= 9.5
+    max_hp= 7.5
     base_hp = max_hp
     extra_hp = 0
     hp = lambda x: x.base_hp + x.extra_hp
@@ -3132,10 +3122,10 @@ class Manticore():
     direction = (1,0)
     performing_action = False
     can_attack = True
-    char_x_offset = 18
-    char_y_offset = 17
-    char_width = 12 #TODO: get character dimensions
-    char_height = 19
+    char_x_offset = 15
+    char_y_offset = 26
+    char_width = 18 
+    char_height = 10
     #Position
     x = 0
     y = 0
@@ -3146,16 +3136,16 @@ class Manticore():
     proj_height = 4
                     #Corrections 
     proj_correction = [
-    (34,26), #RightAttackFront
-    (33,17), #RightAttackUp
-    (36,19), #RightAttackFrontUp
-    (35,33), #RightAttackFrontDown
-    (33,35), #RightAttackDown
-    (14,26), #LeftAttackFront
-    (16,18), #LeftAttackUp
-    (14,19), #LeftAttackFrontUp
-    (14,34), #LeftAttackFrontDown
-    (16,35)  #LeftAttackDown 
+    (27,22), #RightAttackFront
+    (23,15), #RightAttackUp
+    (25,18), #RightAttackFrontUp
+    (25,28), #RightAttackFrontDown
+    (23,32), #RightAttackDown
+    (17,22), #LeftAttackFront
+    (26,15), #LeftAttackUp
+    (24,18), #LeftAttackFrontUp
+    (24,28), #LeftAttackFrontDown
+    (26,32)  #LeftAttackDown 
     ]
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
@@ -3225,7 +3215,7 @@ class Manticore():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_animation[self.cur_key]
@@ -3238,7 +3228,7 @@ class Manticore():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_up_animation[self.cur_key]
@@ -3251,7 +3241,7 @@ class Manticore():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_down_animation[self.cur_key]
@@ -3264,7 +3254,7 @@ class Manticore():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_up_animation[self.cur_key]
@@ -3277,7 +3267,7 @@ class Manticore():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_down_animation[self.cur_key]
@@ -3412,14 +3402,14 @@ class Manticore():
 
 class Troll():
     name = "Troll"
-    description = "Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn." 
-    s_moving_type = "ground - 4"
-    s_speed = "normal"
-    s_attack_type = "energy bolts"
-    s_attack_strength = "moderate" #TODO: GOLEM's description
-    s_attack_speed = "fast"
-    s_attack_interval = "short"
-    s_life_span = "average"
+    description = 'An inhabitant of caves and dark places. The deformed troll is a "waggly" giant,' + " dull but strong, clumsy but very tough. Like the golem it doesn't carry any weapons but grabs rocks, tree stumps and whatever it gets into its hands and throws these massive items onto its enemies"
+    s_moving_type = "ground - 3"
+    s_speed = "slow"
+    s_attack_type = "tree logs"
+    s_attack_strength = "high" 
+    s_attack_speed = "slow"
+    s_attack_interval = "long"
+    s_life_span = "long"
     s_number_of_chars = "2"
     
     obj_type = "player"
@@ -3427,13 +3417,13 @@ class Troll():
     team = 1
     ranged = True
         #type: teleport0 air1 ground2
-    move_type = 0
+    move_type = 2
     move_limit = 3
-    speed = 5
-    atk_damage = 8
-    atk_speed = 9
-    atk_cooldown = 0.75 * 60
-    max_hp= 9.5
+    speed = 4
+    atk_damage = 10
+    atk_speed = 0.5 *20
+    atk_cooldown = 0.6 * 60
+    max_hp= 13.5
     base_hp = max_hp
     extra_hp = 0
     hp = lambda x: x.base_hp + x.extra_hp
@@ -3444,29 +3434,29 @@ class Troll():
     performing_action = False
     can_attack = True
     char_x_offset = 18
-    char_y_offset = 17
-    char_width = 12 #TODO: get character dimensions
-    char_height = 19
+    char_y_offset = 20
+    char_width = 17
+    char_height = 23
     #Position
     x = 0
     y = 0
 
     #projectile
     proj_dir = (0,0)
-    proj_width = 10
-    proj_height = 4
-                    #Corrections 
+    proj_width = 14
+    proj_height = 10
+    #Corrections 
     proj_correction = [
-    (34,26), #RightAttackFront
-    (33,17), #RightAttackUp
-    (36,19), #RightAttackFrontUp
-    (35,33), #RightAttackFrontDown
-    (33,35), #RightAttackDown
-    (14,26), #LeftAttackFront
-    (16,18), #LeftAttackUp
-    (14,19), #LeftAttackFrontUp
-    (14,34), #LeftAttackFrontDown
-    (16,35)  #LeftAttackDown 
+    (50,11), #RightAttackFront
+    (45,19), #RightAttackUp
+    (46,5), #RightAttackFrontUp
+    (51,33), #RightAttackFrontDown
+    (45,33), #RightAttackDown
+    (14,11), #LeftAttackFront
+    (16,19), #LeftAttackUp
+    (14,5), #LeftAttackFrontUp
+    (14,33), #LeftAttackFrontDown
+    (16,33)  #LeftAttackDown 
     ]
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
@@ -3536,7 +3526,7 @@ class Troll():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_animation[self.cur_key]
@@ -3549,7 +3539,7 @@ class Troll():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_up_animation[self.cur_key]
@@ -3562,7 +3552,7 @@ class Troll():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_down_animation[self.cur_key]
@@ -3575,7 +3565,7 @@ class Troll():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_up_animation[self.cur_key]
@@ -3588,7 +3578,7 @@ class Troll():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_down_animation[self.cur_key]
@@ -3721,14 +3711,13 @@ class Troll():
         animation_line.append(self)
 
 class Goblin():
-
     obj_type = "player"
     #STATS
     name = "Goblin"
-    description = "The knights are soldiers going on foot that are armed and primed against enemies that are much bigger than they are. Although they cannot withstand more than one attack from many of their enemies, they are no cannon (or dragon) fodder. Provided that they are fast and intelligent their speed of their attacks gives them the chance to survive and to triumph."
+    description = "Goblins are ugly dwarfs with bad nature, unfriendly and often boisterous. Their enemies only hold them at bay on the squares of the sorceress. On the dark squares their gnarled clubs are more than up to the swords of the knights and if they are played well, they can also win against stronger enemies."
     s_moving_type = "ground - 3"
     s_speed = "normal"
-    s_attack_type = "sword"
+    s_attack_type = "club"
     s_attack_strength = "low"
     s_attack_speed = "instant"
     s_attack_interval = "very short"
@@ -3742,10 +3731,10 @@ class Goblin():
     move_type = 2
     move_limit = 3
     speed = 5
-    atk_damage = 8
-    atk_speed = 3
-    atk_cooldown = 0.75 * 60
-    max_hp= 9.5
+    atk_damage = 5
+    atk_speed = 1.0 *20
+    atk_cooldown = 0.33 * 60
+    max_hp= 4.5
     base_hp = max_hp
     extra_hp = 0
     hp = lambda x: x.base_hp + x.extra_hp
@@ -3757,7 +3746,7 @@ class Goblin():
     can_attack = True
     char_x_offset = 18
     char_y_offset = 17
-    char_width = 12 #TODO: get character dimensions
+    char_width = 13
     char_height = 19
     #Position
     x = 0
@@ -3765,20 +3754,20 @@ class Goblin():
 
     #projectile
     proj_dir = (0,0)
-    proj_width = 10
-    proj_height = 4
+    proj_width = 6
+    proj_height = 6
                     #Corrections 
     proj_correction = [
-    (34,26), #RightAttackFront
-    (33,17), #RightAttackUp
-    (36,19), #RightAttackFrontUp
-    (35,33), #RightAttackFrontDown
-    (33,35), #RightAttackDown
-    (14,26), #LeftAttackFront
-    (16,18), #LeftAttackUp
-    (14,19), #LeftAttackFrontUp
-    (14,34), #LeftAttackFrontDown
-    (16,35)  #LeftAttackDown #    AQUI
+    (40,27), #RightAttackFront
+    (30,9), #RightAttackUp
+    (38,16), #RightAttackFrontUp
+    (38,38), #RightAttackFrontDown
+    (30,42), #RightAttackDown
+    (2,27), #LeftAttackFront
+    (12,9), #LeftAttackUp
+    (5,14), #LeftAttackFrontUp
+    (7,38), #LeftAttackFrontDown
+    (16,42)  #LeftAttackDown
     ]
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
@@ -3851,7 +3840,7 @@ class Goblin():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_animation[self.cur_key]
@@ -3864,7 +3853,7 @@ class Goblin():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_up_animation[self.cur_key]
@@ -3877,7 +3866,7 @@ class Goblin():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_down_animation[self.cur_key]
@@ -3890,7 +3879,7 @@ class Goblin():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_up_animation[self.cur_key]
@@ -3903,7 +3892,7 @@ class Goblin():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_down_animation[self.cur_key]
@@ -4038,13 +4027,13 @@ class Goblin():
 
 class Banshee():
     name = "Banshee"
-    description = "Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn." 
-    s_moving_type = "ground - 4"
+    description = "The banshee is an immaterialized undead that can deprive the enemies that are in its reach (the shaded area around it) of their soul with its keen." 
+    s_moving_type = "air - 3"
     s_speed = "normal"
-    s_attack_type = "energy bolts"
+    s_attack_type = "keen"
     s_attack_strength = "moderate"
-    s_attack_speed = "fast"
-    s_attack_interval = "short"
+    s_attack_speed = "very fast"
+    s_attack_interval = "long"
     s_life_span = "average"
     s_number_of_chars = "2"
     
@@ -4052,14 +4041,13 @@ class Banshee():
     #STAT NUMBERS
     team = 1
     ranged = True
-        #type: teleport0 air1 ground2
     move_type = 1
     move_limit = 3
     speed = 5
     atk_damage = 8
-    atk_speed = 9
-    atk_cooldown = 0.75 * 60
-    max_hp= 9.5
+    atk_speed = 1.0 *20
+    atk_cooldown = 0.6 * 60
+    max_hp= 7.5
     base_hp = max_hp
     extra_hp = 0
     hp = lambda x: x.base_hp + x.extra_hp
@@ -4071,8 +4059,8 @@ class Banshee():
     can_attack = True
     char_x_offset = 18
     char_y_offset = 17
-    char_width = 12 #TODO: get character dimensions
-    char_height = 19
+    char_width = 12 
+    char_height = 18
     #Position
     x = 0
     y = 0
@@ -4080,19 +4068,7 @@ class Banshee():
     #area
     my_area = None
     area_radius = 28
-                    #Corrections 
-    proj_correction = [
-    (34,26), #RightAttackFront
-    (33,17), #RightAttackUp
-    (36,19), #RightAttackFrontUp
-    (35,33), #RightAttackFrontDown
-    (33,35), #RightAttackDown
-    (14,26), #LeftAttackFront
-    (16,18), #LeftAttackUp
-    (14,19), #LeftAttackFrontUp
-    (14,34), #LeftAttackFrontDown
-    (16,35)  #LeftAttackDown 
-    ]
+
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
     run_animation = get_sprites(name, 'Run')
@@ -4161,7 +4137,7 @@ class Banshee():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 10:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_animation[self.cur_key % 4]
@@ -4298,12 +4274,11 @@ class Dragon():
     #STAT NUMBERS
     team = 1
     ranged = True
-        #type: teleport0 air1 ground2
     move_type = 1
     move_limit = 4
     speed = 5
     atk_damage = 10
-    atk_speed = 7
+    atk_speed = 0.7 *20
     atk_cooldown = 2 * 60
     max_hp= 16.5
     base_hp = max_hp
@@ -4415,7 +4390,7 @@ class Dragon():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_animation[self.cur_key]
@@ -4428,7 +4403,7 @@ class Dragon():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_up_animation[self.cur_key]
@@ -4441,7 +4416,7 @@ class Dragon():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_down_animation[self.cur_key]
@@ -4454,7 +4429,7 @@ class Dragon():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_up_animation[self.cur_key]
@@ -4467,7 +4442,7 @@ class Dragon():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_down_animation[self.cur_key]
@@ -4603,26 +4578,26 @@ class Dragon():
 
 class Shapeshifter():
     name = "Shapeshifter"
-    description = "Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn." 
-    s_moving_type = "ground - 4"
-    s_speed = "normal"
-    s_attack_type = "energy bolts"
-    s_attack_strength = "moderate"
-    s_attack_speed = "fast"
-    s_attack_interval = "short"
-    s_life_span = "average"
-    s_number_of_chars = "2"
+    description = 'The shapeshifter is a so-called "look-alike", a demoniac creature without true form or shape. During a fight it turns into the reflection of its opponent, strongest at skills at which the enemy is weakest. It has no fixed life span; all wounds will heal as soon as it adopts a new shape.' 
+    s_moving_type = "air - 5"
+    s_speed = "variable"
+    s_attack_type = "variable"
+    s_attack_strength = "variable"
+    s_attack_speed = "variable"
+    s_attack_interval = "variable"
+    s_life_span = "variable"
+    s_number_of_chars = "1"
     
     obj_type = "player"
     #STAT NUMBERS
     team = 1
     ranged = True
         #type: teleport0 air1 ground2
-    move_type = 0
-    move_limit = 3
+    move_type = 1
+    move_limit = 5
     speed = 5
     atk_damage = 8
-    atk_speed = 9
+    atk_speed = 1.0 *20
     atk_cooldown = 0.75 * 60
     max_hp= 9.5
     base_hp = max_hp
@@ -4636,7 +4611,7 @@ class Shapeshifter():
     can_attack = True
     char_x_offset = 18
     char_y_offset = 17
-    char_width = 12 #TODO: get character dimensions
+    char_width = 12 
     char_height = 19
     #Position
     x = 0
@@ -4720,7 +4695,7 @@ class Shapeshifter():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_animation[self.cur_key]
@@ -4733,7 +4708,7 @@ class Shapeshifter():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_up_animation[self.cur_key]
@@ -4746,7 +4721,7 @@ class Shapeshifter():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_down_animation[self.cur_key]
@@ -4759,7 +4734,7 @@ class Shapeshifter():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_up_animation[self.cur_key]
@@ -4772,7 +4747,7 @@ class Shapeshifter():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_down_animation[self.cur_key]
@@ -4906,31 +4881,28 @@ class Shapeshifter():
         animation_line.append(self)
 
 class Basilisk():
-
-
     name = "Basilisk"
-    description = "Resembles a big white horse with a lions tail and a sharp, spiral horn on its forehead. The unicorn is quick and agile. This wonderful creature can fire a glaring energy bolt from its magical horn." 
-    s_moving_type = "ground - 4"
+    description = "The basilisk is a small reptile with the scabby body of a lizard. Although it is comparatively short-lived, its quick moves and deadly gaze make it a serious opponent."
+    s_moving_type = "ground - 3"
     s_speed = "normal"
-    s_attack_type = "energy bolts"
-    s_attack_strength = "moderate"
+    s_attack_type = "eye laser"
+    s_attack_strength = "high"
     s_attack_speed = "fast"
     s_attack_interval = "short"
     s_life_span = "average"
     s_number_of_chars = "2"
-    
+
     obj_type = "player"
     #STAT NUMBERS
     team = 1
     ranged = True
-        #type: teleport0 air1 ground2
-    move_type = 0
+    move_type = 2
     move_limit = 3
     speed = 5
-    atk_damage = 8
-    atk_speed = 9
-    atk_cooldown = 0.75 * 60
-    max_hp= 9.5
+    atk_damage = 9
+    atk_speed = 1.0 *20
+    atk_cooldown = 1.0 * 60
+    max_hp= 5.5
     base_hp = max_hp
     extra_hp = 0
     hp = lambda x: x.base_hp + x.extra_hp
@@ -4940,10 +4912,10 @@ class Basilisk():
     direction = (1,0)
     performing_action = False
     can_attack = True
-    char_x_offset = 18
-    char_y_offset = 17
-    char_width = 12 #TODO: get character dimensions
-    char_height = 19
+    char_x_offset = 15
+    char_y_offset = 24
+    char_width = 18 
+    char_height = 12
     #Position
     x = 0
     y = 0
@@ -4954,16 +4926,16 @@ class Basilisk():
     proj_height = 4
                     #Corrections 
     proj_correction = [
-    (34,26), #RightAttackFront
-    (33,17), #RightAttackUp
-    (36,19), #RightAttackFrontUp
-    (35,33), #RightAttackFrontDown
-    (33,35), #RightAttackDown
-    (14,26), #LeftAttackFront
-    (16,18), #LeftAttackUp
-    (14,19), #LeftAttackFrontUp
-    (14,34), #LeftAttackFrontDown
-    (16,35)  #LeftAttackDown 
+    (38,28), #RightAttackFront
+    (34,20), #RightAttackUp
+    (38,23), #RightAttackFrontUp
+    (39,35), #RightAttackFrontDown
+    (37,36), #RightAttackDown
+    (11,28), #LeftAttackFront
+    (15,20), #LeftAttackUp
+    (11,23), #LeftAttackFrontUp
+    (10,35), #LeftAttackFrontDown
+    (12,36)  #LeftAttackDown 
     ]
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
@@ -5033,7 +5005,7 @@ class Basilisk():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_animation[self.cur_key]
@@ -5046,7 +5018,7 @@ class Basilisk():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_up_animation[self.cur_key]
@@ -5059,7 +5031,7 @@ class Basilisk():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_down_animation[self.cur_key]
@@ -5072,7 +5044,7 @@ class Basilisk():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_up_animation[self.cur_key]
@@ -5085,7 +5057,7 @@ class Basilisk():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_down_animation[self.cur_key]
@@ -5223,27 +5195,17 @@ class Basilisk():
 class AirElemental():
     obj_type = "player"
     name = "Air Elemental"
-    description = "The archers are fearless amazones, that can handle their bows with legendary skill. They are equipped with magical quivers that never get empty." 
-    s_moving_type = "ground - 3"
-    s_speed = "normal"
-    s_attack_type = "arrow"
-    s_attack_strength = "low"
-    s_attack_speed = "middle"
-    s_attack_interval = "average"
-    s_life_span = "short"
-    s_number_of_chars = "2"
 
     #STAT NUMBERS
     team = 0
     ranged = True
-        #type: teleport0 air1 ground2
     move_type = 3
     move_limit = 20
     speed = 5
-    atk_damage = 8
-    atk_speed = 9
-    atk_cooldown = 0.75 * 60
-    max_hp= 9.5
+    atk_damage = 5
+    atk_speed = 0.7 *20
+    atk_cooldown = 0.85 * 60
+    max_hp= 11.5
     base_hp = max_hp
     extra_hp = 0
     hp = lambda x: x.base_hp + x.extra_hp
@@ -5253,10 +5215,10 @@ class AirElemental():
     direction = (1,0)
     performing_action = False
     can_attack = True
-    char_x_offset = 18
-    char_y_offset = 17
-    char_width = 12 #TODO: get character dimensions
-    char_height = 19
+    char_x_offset = 17
+    char_y_offset = 14
+    char_width = 14
+    char_height = 20
     #Position
     x = 0
     y = 0
@@ -5265,18 +5227,18 @@ class AirElemental():
     proj_dir = (0,0)
     proj_width = 10
     proj_height = 4
-                    #Corrections 
+    #Corrections 
     proj_correction = [
-    (34,26), #RightAttackFront
-    (33,17), #RightAttackUp
-    (36,19), #RightAttackFrontUp
-    (35,33), #RightAttackFrontDown
-    (33,35), #RightAttackDown
-    (14,26), #LeftAttackFront
-    (16,18), #LeftAttackUp
-    (14,19), #LeftAttackFrontUp
-    (14,34), #LeftAttackFrontDown
-    (16,35)  #LeftAttackDown #    AQUI
+    (43,28), #RightAttackFront
+    (33,13), #RightAttackUp
+    (44,13), #RightAttackFrontUp
+    (44,36), #RightAttackFrontDown
+    (33,39), #RightAttackDown
+    (4,28), #LeftAttackFront
+    (14,13), #LeftAttackUp
+    (5,13), #LeftAttackFrontUp
+    (5,36), #LeftAttackFrontDown
+    (14,39)  #LeftAttackDown 
     ]
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
@@ -5349,7 +5311,7 @@ class AirElemental():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_animation[self.cur_key]
@@ -5362,7 +5324,7 @@ class AirElemental():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_up_animation[self.cur_key]
@@ -5375,7 +5337,7 @@ class AirElemental():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_down_animation[self.cur_key]
@@ -5388,7 +5350,7 @@ class AirElemental():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_up_animation[self.cur_key]
@@ -5401,7 +5363,7 @@ class AirElemental():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_down_animation[self.cur_key]
@@ -5540,15 +5502,6 @@ class AirElemental():
 class WaterElemental():
     obj_type = "player"
     name = "Water Elemental"
-    description = "The archers are fearless amazones, that can handle their bows with legendary skill. They are equipped with magical quivers that never get empty." 
-    s_moving_type = "ground - 3"
-    s_speed = "normal"
-    s_attack_type = "arrow"
-    s_attack_strength = "low"
-    s_attack_speed = "middle"
-    s_attack_interval = "average"
-    s_life_span = "short"
-    s_number_of_chars = "2"
 
     #STAT NUMBERS
     team = 0
@@ -5557,10 +5510,10 @@ class WaterElemental():
     move_type = 3
     move_limit = 20
     speed = 5
-    atk_damage = 8
-    atk_speed = 9
-    atk_cooldown = 0.75 * 60
-    max_hp= 9.5
+    atk_damage = 6
+    atk_speed = 0.5 *20
+    atk_cooldown = 0.6 * 60
+    max_hp= 13.5
     base_hp = max_hp
     extra_hp = 0
     hp = lambda x: x.base_hp + x.extra_hp
@@ -5572,7 +5525,7 @@ class WaterElemental():
     can_attack = True
     char_x_offset = 18
     char_y_offset = 17
-    char_width = 12 #TODO: get character dimensions
+    char_width = 12 
     char_height = 19
     #Position
     x = 0
@@ -5582,18 +5535,18 @@ class WaterElemental():
     proj_dir = (0,0)
     proj_width = 10
     proj_height = 4
-                    #Corrections 
+    #Corrections 
     proj_correction = [
-    (34,26), #RightAttackFront
-    (33,17), #RightAttackUp
-    (36,19), #RightAttackFrontUp
-    (35,33), #RightAttackFrontDown
-    (33,35), #RightAttackDown
-    (14,26), #LeftAttackFront
-    (16,18), #LeftAttackUp
-    (14,19), #LeftAttackFrontUp
-    (14,34), #LeftAttackFrontDown
-    (16,35)  #LeftAttackDown #    AQUI
+    (41,27), #RightAttackFront
+    (33,18), #RightAttackUp
+    (37,22), #RightAttackFrontUp
+    (37,34), #RightAttackFrontDown
+    (34,36), #RightAttackDown
+    (8,27), #LeftAttackFront
+    (15,18), #LeftAttackUp
+    (12,22), #LeftAttackFrontUp
+    (12,34), #LeftAttackFrontDown
+    (15,36)  #LeftAttackDown 
     ]
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
@@ -5666,7 +5619,7 @@ class WaterElemental():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_animation[self.cur_key]
@@ -5679,7 +5632,7 @@ class WaterElemental():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_up_animation[self.cur_key]
@@ -5692,7 +5645,7 @@ class WaterElemental():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_down_animation[self.cur_key]
@@ -5705,7 +5658,7 @@ class WaterElemental():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_up_animation[self.cur_key]
@@ -5718,7 +5671,7 @@ class WaterElemental():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_down_animation[self.cur_key]
@@ -5857,16 +5810,6 @@ class WaterElemental():
 class FireElemental():
     obj_type = "player"
     name = "Fire Elemental"
-    description = "The archers are fearless amazones, that can handle their bows with legendary skill. They are equipped with magical quivers that never get empty." 
-    s_moving_type = "ground - 3"
-    s_speed = "normal"
-    s_attack_type = "arrow"
-    s_attack_strength = "low"
-    s_attack_speed = "middle"
-    s_attack_interval = "average"
-    s_life_span = "short"
-    s_number_of_chars = "2"
-
     #STAT NUMBERS
     team = 0
     ranged = True
@@ -5874,9 +5817,9 @@ class FireElemental():
     move_type = 3
     move_limit = 20
     speed = 5
-    atk_damage = 8
-    atk_speed = 9
-    atk_cooldown = 0.75 * 60
+    atk_damage = 9
+    atk_speed = 0.8 *20
+    atk_cooldown = 1 * 60
     max_hp= 9.5
     base_hp = max_hp
     extra_hp = 0
@@ -5887,10 +5830,10 @@ class FireElemental():
     direction = (1,0)
     performing_action = False
     can_attack = True
-    char_x_offset = 18
+    char_x_offset = 17
     char_y_offset = 17
-    char_width = 12 #TODO: get character dimensions
-    char_height = 19
+    char_width = 14
+    char_height = 18
     #Position
     x = 0
     y = 0
@@ -5899,18 +5842,18 @@ class FireElemental():
     proj_dir = (0,0)
     proj_width = 10
     proj_height = 4
-                    #Corrections 
+    #Corrections 
     proj_correction = [
-    (34,26), #RightAttackFront
-    (33,17), #RightAttackUp
-    (36,19), #RightAttackFrontUp
-    (35,33), #RightAttackFrontDown
-    (33,35), #RightAttackDown
-    (14,26), #LeftAttackFront
-    (16,18), #LeftAttackUp
-    (14,19), #LeftAttackFrontUp
-    (14,34), #LeftAttackFrontDown
-    (16,35)  #LeftAttackDown #    AQUI
+    (39,23), #RightAttackFront
+    (28,10), #RightAttackUp
+    (32,12), #RightAttackFrontUp
+    (32,42), #RightAttackFrontDown
+    (28,44), #RightAttackDown
+    (9,23), #LeftAttackFront
+    (20,10), #LeftAttackUp
+    (16,12), #LeftAttackFrontUp
+    (16,42), #LeftAttackFrontDown
+    (20,44)  #LeftAttackDown
     ]
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
@@ -5983,7 +5926,7 @@ class FireElemental():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_animation[self.cur_key]
@@ -5996,7 +5939,7 @@ class FireElemental():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_up_animation[self.cur_key]
@@ -6009,7 +5952,7 @@ class FireElemental():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_down_animation[self.cur_key]
@@ -6022,7 +5965,7 @@ class FireElemental():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_up_animation[self.cur_key]
@@ -6035,7 +5978,7 @@ class FireElemental():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_down_animation[self.cur_key]
@@ -6174,15 +6117,6 @@ class FireElemental():
 class EarthElemental():
     obj_type = "player"
     name = "Earth Elemental"
-    description = "The archers are fearless amazones, that can handle their bows with legendary skill. They are equipped with magical quivers that never get empty." 
-    s_moving_type = "ground - 3"
-    s_speed = "normal"
-    s_attack_type = "arrow"
-    s_attack_strength = "low"
-    s_attack_speed = "middle"
-    s_attack_interval = "average"
-    s_life_span = "short"
-    s_number_of_chars = "2"
 
     #STAT NUMBERS
     team = 0
@@ -6190,11 +6124,11 @@ class EarthElemental():
         #type: teleport0 air1 ground2
     move_type = 3
     move_limit = 20
-    speed = 5
-    atk_damage = 8
-    atk_speed = 9
-    atk_cooldown = 0.75 * 60
-    max_hp= 9.5
+    speed = 4
+    atk_damage = 9
+    atk_speed = 0.5 *20
+    atk_cooldown = 0.6 * 60
+    max_hp= 16.5
     base_hp = max_hp
     extra_hp = 0
     hp = lambda x: x.base_hp + x.extra_hp
@@ -6204,10 +6138,10 @@ class EarthElemental():
     direction = (1,0)
     performing_action = False
     can_attack = True
-    char_x_offset = 18
-    char_y_offset = 17
-    char_width = 12 #TODO: get character dimensions
-    char_height = 19
+    char_x_offset = 17
+    char_y_offset = 14
+    char_width = 14
+    char_height = 22
     #Position
     x = 0
     y = 0
@@ -6218,16 +6152,16 @@ class EarthElemental():
     proj_height = 4
                     #Corrections 
     proj_correction = [
-    (34,26), #RightAttackFront
-    (33,17), #RightAttackUp
-    (36,19), #RightAttackFrontUp
-    (35,33), #RightAttackFrontDown
-    (33,35), #RightAttackDown
-    (14,26), #LeftAttackFront
-    (16,18), #LeftAttackUp
-    (14,19), #LeftAttackFrontUp
-    (14,34), #LeftAttackFrontDown
-    (16,35)  #LeftAttackDown #    AQUI
+    (40,25), #RightAttackFront
+    (17,8), #RightAttackUp
+    (39,12), #RightAttackFrontUp
+    (31,40), #RightAttackFrontDown
+    (15,41), #RightAttackDown
+    (12,25), #LeftAttackFront
+    (32,8), #LeftAttackUp
+    (11,12), #LeftAttackFrontUp
+    (18,40), #LeftAttackFrontDown
+    (33,41)  #LeftAttackDown
     ]
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
@@ -6300,7 +6234,7 @@ class EarthElemental():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_animation[self.cur_key]
@@ -6313,7 +6247,7 @@ class EarthElemental():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_up_animation[self.cur_key]
@@ -6326,7 +6260,7 @@ class EarthElemental():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_front_down_animation[self.cur_key]
@@ -6339,7 +6273,7 @@ class EarthElemental():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_up_animation[self.cur_key]
@@ -6352,7 +6286,7 @@ class EarthElemental():
                 self.cur_key = 0
                 self.anim_clock = -1
             else: 
-                if self.anim_clock > self.atk_speed:
+                if self.anim_clock > 3:
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.attack_down_animation[self.cur_key]
@@ -6536,6 +6470,7 @@ rules_buttons = [(840, 570, 140, 55), (390, 194, 160, 32), (190, 194, 164, 32)]
 rules_sel = 0
 
 rules_screen = 0
+#TODO: rules
 def rules():
     global rules_sel
     screen.blit(title_background, (0,0))
@@ -6735,22 +6670,58 @@ def options():
     #DRAW
     screen.fill((255, 255, 255))
     screen.blit(go_back_button, (860, 580))
-    screen.blit(controls, (300, 70))
-    screen.blit(pygame.transform.scale(keyboard, (724, 224)), (50, 100))
+    screen.blit(controls, (300, 60))
+    screen.blit(pygame.transform.scale(keyboard, (724, 204)), (50, 100))
     screen.blit(volume, (830, 280))
     pygame.draw.polygon(screen, (0,0,0), [(877, 270), (907, 245), (937, 270)])
     pygame.draw.polygon(screen, (0,0,0), [(877, 312), (907, 337), (937, 312)])
     pygame.draw.rect(screen, (0,0,0) , Rect(opts_buttons[opts_sel][0], opts_buttons[opts_sel][1], opts_buttons[opts_sel][2], opts_buttons[opts_sel][3]), 4)
-    screen.blit(keys, (200, 340))
-    screen.blit(keysawsd, (10, 380))
-    screen.blit(keysshift, (10, 420))
-    screen.blit(keysarrows, (10, 460))
-    screen.blit(keysenter, (10, 500))
-    screen.blit(keysmute, (10, 540))
-    screen.blit(keysnj, (10, 580))
+    screen.blit(keys, (200, 320))
+    screen.blit(keysawsd, (7, 360))
+    screen.blit(keysshift, (7, 400))
+    screen.blit(keysarrows, (7, 440))
+    screen.blit(keysenter, (7, 480))
+    screen.blit(keysmute, (7, 520))
+    screen.blit(keysnj, (7, 560))
 
+end_clock = 0
+end_clock_max = 1000
 
+def game_ending():
+    global end_clock, end_clock_max, _MAIN_BOARD
+    end_clock += 1
+    if end_clock > end_clock_max:
+        _MAIN_BOARD = GameBoard()
+        switch_scene("menu")
+    if _MAIN_BOARD.game_finished == 0:
+        screen.fill((164, 200, 252))
+    elif _MAIN_BOARD.game_finished == 1:
+        screen.fill((0, 44, 92))
+    elif _MAIN_BOARD.game_finished == 2:
+        screen.blit(title_background, (0,0))
+    
+    #TEXT
+    game_end_txt = "GAME IS ENDED"
+    winner_txt = ""
+    game_end = medium_gm_font.render(game_end_txt, 1, (0,0,0))
+    winner = medium_gm_font.render(winner_txt, 1, (0,0,0))
 
+    if _MAIN_BOARD.game_finished == 0:
+        winner_txt = "LIGHT SIDE WINS"
+        game_end = medium_gm_font.render(game_end_txt, 1, (0, 44, 92))
+        winner = medium_gm_font.render(winner_txt, 1, (0, 44, 92))
+    elif _MAIN_BOARD.game_finished == 1:
+        winner_txt = "DARK SIDE WINS"
+        game_end = medium_gm_font.render(game_end_txt, 1, (164, 200, 252))
+        winner = medium_gm_font.render(winner_txt, 1, (164, 200, 252))
+    elif _MAIN_BOARD.game_finished == 2:
+        winner_txt = "TIE"
+        game_end = medium_gm_font.render(game_end_txt, 1, (0, 0, 0))
+        winner = medium_gm_font.render(winner_txt, 1, (0, 0, 0))
+    
+    #DRAW
+    screen.blit(game_end, ((width/2) - (medium_gm_font.size(game_end_txt)[0] /2), 200))
+    screen.blit(winner, ((width/2) - (medium_gm_font.size(winner_txt)[0] /2), 400))
 """ 
 ~~~~~~~~GAME~~~~~~~~
 In this page the player will learn the game's basics, it will also be
@@ -6806,6 +6777,7 @@ class GameBoard:
     player_turn = None
     first_player = None
     turn = 0
+    game_finished = None
     moving = (0, 0)
     choosing_action = (False, None)
     choosen_spell = 0
@@ -6925,6 +6897,7 @@ class GameBoard:
         pass
 
     def next_turn(self):
+        self.win_condition()
         if self.player_turn == None:
             self.player_turn = self.first_player
         elif self.player_turn:
@@ -6950,6 +6923,51 @@ class GameBoard:
             pass
         self.update_board()
         self.board_warn =  "It is " + ("dark's" if self.player_turn == 1 else "light's") +  " turn!"
+
+    def win_condition(self):
+        game_ended = False
+        ##5 power points control
+        t0_controlled = 0
+        t1_controlled = 0
+        for power_p in self._ENERGY_SQUARES:
+            if self.board_data[power_p[0]][power_p[1]] != None:
+                if self.board_data[power_p[0]][power_p[1]][0].team == 1:
+                    t1_controlled += 1
+                elif self.board_data[power_p[0]][power_p[1]][0].team == 0:
+                    t0_controlled += 1
+        if t0_controlled == 5:
+            game_ended = True
+            self.game_finished = 0
+        elif t1_controlled == 5:
+            game_ended = True
+            self.game_finished = 1
+        ##6 icons alive
+        if not game_ended:
+            t0_alive = 0
+            t1_alive = 0
+            for i in range(0, 9):
+                for j in range(0,9):
+                    if self.board_data[i][j] != None:
+                        if self.board_data[i][j][0].team:
+                            if self.board_data[i][j][0].alive == 1:
+                                t1_alive += 1
+                        elif self.board_data[i][j][0].team == 0:
+                            if self.board_data[i][j][0].alive:
+                                t0_alive += 1
+                
+            if t0_alive == 0 and t1_alive == 0:
+                game_ended = True
+                self.game_finished = 2
+            elif t0_alive == 0:
+                game_ended = True
+                self.game_finished = 1
+            elif t1_alive == 0:
+                game_ended = True
+                self.game_finished = 0
+        
+        if game_ended:
+            switch_scene("ending")
+                        
 
     def select(self):
         if not self.choosing_action[0]:
@@ -7379,7 +7397,6 @@ class GameBoard:
 
     def check_charmed(self, opt=0):
         if opt == 0:
-            print(self.player_board_y, self.board_data[self.player_board_y][self.player_board_x], self.board_data[self.player_board_y + 1][self.player_board_x])
             if self.player_board_x > 0:
                 if self.board_data[self.player_board_y][self.player_board_x - 1] == None:
                     return True
@@ -7444,7 +7461,6 @@ class GameBoard:
 _MAIN_BOARD = GameBoard()
 
 def board():
-
     #LOGIC
     turn_number = medium_gm_font.render(f'Turn: {_MAIN_BOARD.turn}', 1, (00, 00, 00))
     player_info = small_gm_font.render(_MAIN_BOARD.get_info(), 1, (00, 00, 00))
@@ -7463,7 +7479,6 @@ def board():
     _MAIN_BOARD.draw_board()
     if _MAIN_BOARD.reviving:
         for i in range(0, len(_MAIN_BOARD.chars2revive)):
-            #print(len(_MAIN_BOARD.chars2revive))
             if _MAIN_BOARD.chars2revive[i][0].team:
                 pygame.draw.rect(screen, (0, 44, 92), Rect(960, _MAIN_BOARD.board_y + 56*i + 4*i, 56, 56), 0)
                 screen.blit(_MAIN_BOARD.chars2revive[i][1], (960 - _MAIN_BOARD.chars2revive[i][0].char_x_offset, _MAIN_BOARD.board_y + 56*i - _MAIN_BOARD.chars2revive[i][0].char_y_offset))
@@ -7574,7 +7589,7 @@ def start_duel(fighter1, fighter2, pos):
     arena_collisions.append(dueler1)
     arena_collisions.append(dueler0)
     for _ in range(0, random.randint(4, 9)):
-        arena_collisions.append(Barrier(random.randint(150, 640), random.randint(-88, 480), random.randint(0, 2)))
+        arena_collisions.append(Barrier(random.randint(200, 640), random.randint(0, 480), random.randint(0, 2)))
 
 def finish_duel(winner):
     global current_scene, dueler1, dueler0
@@ -7719,6 +7734,9 @@ def switch_scene(scene, board = False):
         elif scene == "arena":
             pygame.mixer.music.load(arena_music)
             pygame.mixer.music.play(-1)
+        elif scene == "ending":
+            pygame.mixer.music.load(end_music)
+            pygame.mixer.music.play(0)
         current_scene = scene
     elif board:
         pygame.mixer.music.load(board_music)
@@ -7832,7 +7850,6 @@ while running:
                             if event.key == right_key[_MAIN_BOARD.player_turn]:
                                 if not _MAIN_BOARD.reviving:
                                     _MAIN_BOARD.move_on_board((0,1), False)
-
             #rules keys
             elif current_scene == 'rules':
                 if event.type == pygame.KEYDOWN:
@@ -7926,8 +7943,7 @@ while running:
                             rules_screen = 1
                         else:
                             rules_screen = 3
-
-
+            #options keys
             elif current_scene == 'options':
                 if event.type == pygame.KEYDOWN:
                     if event.key == sel_key[0] or event.key == sel_key[1]:
@@ -7947,7 +7963,7 @@ while running:
                         opts_sel += 1
                     elif event.key == down_key[0] or event.key == down_key[1]:
                         opts_sel -= 1
-            
+
     if current_scene == "":
         switch_scene("menu")
     #SCENE MANAGEMENT
@@ -7960,6 +7976,9 @@ while running:
             if _MAIN_BOARD.choosing_action[0] and _MAIN_BOARD.spell_selection == '':
                 _MAIN_BOARD.show_spells()
             board()
+    elif current_scene == "ending":
+        playing = False
+        game_ending()
     elif current_scene == "rules":
         if rules_screen == 0:
             rules()
