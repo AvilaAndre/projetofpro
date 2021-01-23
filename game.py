@@ -367,8 +367,13 @@ class Knight():
     (12,9), #LeftAttackUp
     (5,14), #LeftAttackFrontUp
     (7,38), #LeftAttackFrontDown
-    (16,42)  #LeftAttackDown
+    (16,42)  #LeftAttackDown 
     ]
+
+    ##AUDIO
+    run_sound = [pygame.mixer.Sound(r'Resources\Sound\audio\human_steps1.wav'), pygame.mixer.Sound(r'Resources\Sound\audio\human_steps2.wav'), pygame.mixer.Sound(r'Resources\Sound\audio\human_steps3.wav'), pygame.mixer.Sound(r'Resources\Sound\audio\human_steps3.wav')]
+    fire_sound = pygame.mixer.Sound( r'Resources\Sound\audio\sword_swing.wav')
+
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
     
@@ -392,8 +397,6 @@ class Knight():
     anim_clock = -1
     can_attack_cycle = 0
 
-    #Masks use the opaque pixels, ignoring the transparent
-    #hitbox = pygame.mask.from_surface(texture, 127)
     def handle_animation(self):
         if self.animation_change != self.current_animation:
             self.cur_key = -1
@@ -417,6 +420,10 @@ class Knight():
                 self.anim_clock = -1
             else: 
                 if self.anim_clock > 4:
+                    if not self.cur_key %3:
+                        sound = random.randint(0, len(self.run_sound) -1)
+                        self.run_sound[sound].set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
+                        self.run_sound[sound].play()
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.run_animation[self.cur_key]
@@ -530,15 +537,13 @@ class Knight():
         self.current_animation = attack_anim
     
     def shoot(self):
+        self.fire_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
+        self.fire_sound.play()
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
-    
-    
-    
-
 
     def take_damage(self, damage):
         if self.alive:
-            hurt_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+            hurt_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
             hurt_sound.play()
         if damage <= self.extra_hp:
             self.extra_hp -= damage
@@ -684,6 +689,10 @@ class Unicorn():
     (9,30), #LeftAttackFrontDown
     (13,34)  #LeftAttackDown 
     ]
+
+    ##AUDIO
+    run_sound = [pygame.mixer.Sound(r'Resources\Sound\audio\horse_steps1.wav'), pygame.mixer.Sound(r'Resources\Sound\audio\horse_steps2.wav')]
+    fire_sound = pygame.mixer.Sound( r'Resources\Sound\audio\unicorn_magic_attack.wav')
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
     run_animation = get_sprites(name, 'Run')
@@ -729,6 +738,10 @@ class Unicorn():
                 self.anim_clock = -1
             else: 
                 if self.anim_clock > 4:
+                    if not self.cur_key %6:
+                        sound = random.randint(0, len(self.run_sound) -1)
+                        self.run_sound[sound].set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
+                        self.run_sound[sound].play()
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.run_animation[self.cur_key]
@@ -842,13 +855,15 @@ class Unicorn():
         self.current_animation = attack_anim
     
     def shoot(self):
+        self.fire_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
+        self.fire_sound.play()
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
     
     
     def take_damage(self, damage):
         if self.alive:
-            hurt_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+            hurt_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
             hurt_sound.play()
         if damage <= self.extra_hp:
             self.extra_hp -= damage
@@ -994,6 +1009,10 @@ class Valkyrie():
     (10,29), #LeftAttackFrontDown
     (15,38)  #LeftAttackDown 
     ]
+
+    ##AUDIO
+    fire_sound = pygame.mixer.Sound( r'Resources\Sound\audio\spear_swing.wav')
+
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
     run_animation = get_sprites(name, 'Run')
@@ -1152,13 +1171,15 @@ class Valkyrie():
         self.current_animation = attack_anim
     
     def shoot(self):
+        self.fire_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
+        self.fire_sound.play()
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
     
 
     def take_damage(self, damage):
         if self.alive:
-            hurt_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+            hurt_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
             hurt_sound.play()
         if damage <= self.extra_hp:
             self.extra_hp -= damage
@@ -1304,6 +1325,9 @@ class Djinni():
     (8,37), #LeftAttackFrontDown
     (16,38)  #LeftAttackDown 
     ]
+
+    ##AUDIO
+    fire_sound = pygame.mixer.Sound( r'Resources\Sound\audio\wizard_spell.wav')
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
     run_animation = get_sprites(name, 'Run')
@@ -1462,13 +1486,15 @@ class Djinni():
         self.current_animation = attack_anim
     
     def shoot(self):
+        self.fire_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
+        self.fire_sound.play()
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
     
 
     def take_damage(self, damage):
         if self.alive:
-            hurt_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+            hurt_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
             hurt_sound.play()
         if damage <= self.extra_hp:
             self.extra_hp -= damage
@@ -1614,6 +1640,11 @@ class Archer():
     (10,41), #LeftAttackFrontDown
     (16,38)  #LeftAttackDown
     ]
+
+    ##AUDIO
+    run_sound = [pygame.mixer.Sound(r'Resources\Sound\audio\human_steps1.wav'), pygame.mixer.Sound(r'Resources\Sound\audio\human_steps2.wav'), pygame.mixer.Sound(r'Resources\Sound\audio\human_steps3.wav'), pygame.mixer.Sound(r'Resources\Sound\audio\human_steps3.wav')]
+    fire_sound = pygame.mixer.Sound( r'Resources\Sound\audio\bow_arrow_fire.wav')
+
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
     
@@ -1662,6 +1693,10 @@ class Archer():
                 self.anim_clock = -1
             else: 
                 if self.anim_clock > 4:
+                    if not self.cur_key %3:
+                        sound = random.randint(0, len(self.run_sound) -1)
+                        self.run_sound[sound].set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
+                        self.run_sound[sound].play()
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.run_animation[self.cur_key]
@@ -1775,13 +1810,15 @@ class Archer():
         self.current_animation = attack_anim
     
     def shoot(self):
+        self.fire_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
+        self.fire_sound.play()
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
     
 
     def take_damage(self, damage):
         if self.alive:
-            hurt_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+            hurt_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
             hurt_sound.play()
         if damage <= self.extra_hp:
             self.extra_hp -= damage
@@ -1886,7 +1923,6 @@ class Golem():
     #STAT NUMBERS
     team = 0
     ranged = True
-        #type: teleport0 air1 ground2
     move_type = 2
     move_limit = 3
     speed = 4
@@ -1928,6 +1964,11 @@ class Golem():
     (14,33), #LeftAttackFrontDown
     (16,33)  #LeftAttackDown 
     ]
+
+    ##AUDIO
+    run_sound = [pygame.mixer.Sound(r'Resources\Sound\audio\scrape_movement_2.wav')]
+    fire_sound = pygame.mixer.Sound( r'Resources\Sound\audio\scrape_movement_throw.wav')
+
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
     run_animation = get_sprites(name, 'Run')
@@ -1973,6 +2014,10 @@ class Golem():
                 self.anim_clock = -1
             else: 
                 if self.anim_clock > 4:
+                    if not self.cur_key %4:
+                        sound = random.randint(0, len(self.run_sound) -1)
+                        self.run_sound[sound].set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
+                        self.run_sound[sound].play()
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.run_animation[self.cur_key]
@@ -2086,13 +2131,15 @@ class Golem():
         self.current_animation = attack_anim
     
     def shoot(self):
+        self.fire_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
+        self.fire_sound.play()
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
     
 
     def take_damage(self, damage):
         if self.alive:
-            hurt_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+            hurt_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
             hurt_sound.play()
         if damage <= self.extra_hp:
             self.extra_hp -= damage
@@ -2267,7 +2314,7 @@ class Phoenix():
                     self.current_sprite = self.idle_animation[self.cur_key]
         elif self.current_animation == "moving":
             if self.cur_key == 2 and self.anim_clock == 2:
-                self.run_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+                self.run_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
                 self.run_sound.play()
             if self.cur_key+2 > len(self.run_animation):
                 self.cur_key = 0
@@ -2331,7 +2378,9 @@ class Phoenix():
         self.finished_attack = False
     
     def shoot(self):
-        self.explosion_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+        self.fire_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
+        self.fire_sound.play()
+        self.explosion_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
         self.explosion_sound.play()
         self.my_area = DamageArea(self)
     
@@ -2339,7 +2388,7 @@ class Phoenix():
 
     def take_damage(self, damage):
         if self.alive:
-            hurt_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+            hurt_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
             hurt_sound.play()
         if self.current_animation != "Attack":
             if damage <= self.extra_hp:
@@ -2483,6 +2532,10 @@ class Wizard():
     (16,35)  #LeftAttackDown 
     ]
 
+    ##AUDIO
+    run_sound = [pygame.mixer.Sound(r'Resources\Sound\audio\human_steps1.wav'), pygame.mixer.Sound(r'Resources\Sound\audio\human_steps2.wav'), pygame.mixer.Sound(r'Resources\Sound\audio\human_steps3.wav'), pygame.mixer.Sound(r'Resources\Sound\audio\human_steps3.wav')]
+    fire_sound = pygame.mixer.Sound( r'Resources\Sound\audio\fire_spell.wav')
+
 
     ##SPELLS
     spells = ["Teleport", "Heal", "Revive", "Exchange", "Shift Time", "Summon Elemental", "Imprison", "Cease Conjuring"]
@@ -2547,6 +2600,10 @@ class Wizard():
                 self.anim_clock = -1
             else: 
                 if self.anim_clock > 4:
+                    if not self.cur_key %3:
+                        sound = random.randint(0, len(self.run_sound) -1)
+                        self.run_sound[sound].set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
+                        self.run_sound[sound].play()
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.run_animation[self.cur_key]
@@ -2660,13 +2717,15 @@ class Wizard():
         self.current_animation = attack_anim
     
     def shoot(self):
+        self.fire_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
+        self.fire_sound.play()
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
     
 
     def take_damage(self, damage):
         if self.alive:
-            hurt_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+            hurt_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
             hurt_sound.play()
         if damage <= self.extra_hp:
             self.extra_hp -= damage
@@ -2803,7 +2862,7 @@ class Sorceress():
     proj_dir = (0,0)
     proj_width = 10
     proj_height = 4
-                    #Corrections 
+    #Corrections 
     proj_correction = [
     (34,26), #RightAttackFront
     (33,17), #RightAttackUp
@@ -2817,6 +2876,10 @@ class Sorceress():
     (16,35)  #LeftAttackDown 
     ]
 
+    ##AUDIO
+    run_sound = [pygame.mixer.Sound(r'Resources\Sound\audio\human_steps1.wav'), pygame.mixer.Sound(r'Resources\Sound\audio\human_steps2.wav'), pygame.mixer.Sound(r'Resources\Sound\audio\human_steps3.wav'), pygame.mixer.Sound(r'Resources\Sound\audio\human_steps3.wav')]
+    fire_sound = pygame.mixer.Sound( r'Resources\Sound\audio\dark_spell_shoot.wav')
+    
 
     ##SPELLS
     spells = ["Teleport", "Heal", "Revive", "Exchange", "Shift Time", "Summon Elemental", "Imprison", "Cease Conjuring"]
@@ -2882,6 +2945,10 @@ class Sorceress():
                 self.anim_clock = -1
             else: 
                 if self.anim_clock > 4:
+                    if not self.cur_key %3:
+                        sound = random.randint(0, len(self.run_sound) -1)
+                        self.run_sound[sound].set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
+                        self.run_sound[sound].play()
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.run_animation[self.cur_key]
@@ -2995,6 +3062,8 @@ class Sorceress():
         self.current_animation = attack_anim
     
     def shoot(self):
+        self.fire_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
+        self.fire_sound.play()
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
     
@@ -3002,7 +3071,7 @@ class Sorceress():
 
     def take_damage(self, damage):
         if self.alive:
-            hurt_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+            hurt_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
             hurt_sound.play()
         if damage <= self.extra_hp:
             self.extra_hp -= damage
@@ -3134,7 +3203,7 @@ class Manticore():
     proj_dir = (0,0)
     proj_width = 10
     proj_height = 4
-                    #Corrections 
+    #Corrections 
     proj_correction = [
     (27,22), #RightAttackFront
     (23,15), #RightAttackUp
@@ -3147,6 +3216,10 @@ class Manticore():
     (24,28), #LeftAttackFrontDown
     (26,32)  #LeftAttackDown 
     ]
+
+    ##AUDIO
+    run_sound = [pygame.mixer.Sound(r'Resources\Sound\audio\manticore_move1.wav'), pygame.mixer.Sound(r'Resources\Sound\audio\manticore_move2.wav')]
+    fire_sound = pygame.mixer.Sound( r'Resources\Sound\audio\manticore_spike.wav')
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
     run_animation = get_sprites(name, 'Run')
@@ -3192,6 +3265,10 @@ class Manticore():
                 self.anim_clock = -1
             else: 
                 if self.anim_clock > 4:
+                    if not self.cur_key %3:
+                        sound = random.randint(0, len(self.run_sound) -1)
+                        self.run_sound[sound].set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
+                        self.run_sound[sound].play()
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.run_animation[self.cur_key]
@@ -3305,13 +3382,15 @@ class Manticore():
         self.current_animation = attack_anim
     
     def shoot(self):
+        self.fire_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
+        self.fire_sound.play()
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
     
 
     def take_damage(self, damage):
         if self.alive:
-            hurt_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+            hurt_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
             hurt_sound.play()
         if damage <= self.extra_hp:
             self.extra_hp -= damage
@@ -3416,7 +3495,6 @@ class Troll():
     #STAT NUMBERS
     team = 1
     ranged = True
-        #type: teleport0 air1 ground2
     move_type = 2
     move_limit = 3
     speed = 4
@@ -3458,6 +3536,11 @@ class Troll():
     (14,33), #LeftAttackFrontDown
     (16,33)  #LeftAttackDown 
     ]
+
+    ##AUDIO
+    run_sound = [pygame.mixer.Sound(r'Resources\Sound\audio\troll_step1.wav'), pygame.mixer.Sound(r'Resources\Sound\audio\troll_step2.wav')]
+    fire_sound = pygame.mixer.Sound( r'Resources\Sound\audio\troll_throw.wav')
+
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
     run_animation = get_sprites(name, 'Run')
@@ -3503,6 +3586,10 @@ class Troll():
                 self.anim_clock = -1
             else: 
                 if self.anim_clock > 4:
+                    if not self.cur_key %5:
+                        sound = random.randint(0, len(self.run_sound) -1)
+                        self.run_sound[sound].set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
+                        self.run_sound[sound].play()
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.run_animation[self.cur_key]
@@ -3616,13 +3703,15 @@ class Troll():
         self.current_animation = attack_anim
     
     def shoot(self):
+        self.fire_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
+        self.fire_sound.play()
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
     
 
     def take_damage(self, damage):
         if self.alive:
-            hurt_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+            hurt_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
             hurt_sound.play()
         if damage <= self.extra_hp:
             self.extra_hp -= damage
@@ -3727,7 +3816,6 @@ class Goblin():
     #STAT NUMBERS
     team = 1
     ranged = False
-        #type: teleport0 air1 ground2
     move_type = 2
     move_limit = 3
     speed = 5
@@ -3756,7 +3844,7 @@ class Goblin():
     proj_dir = (0,0)
     proj_width = 6
     proj_height = 6
-                    #Corrections 
+    #Corrections 
     proj_correction = [
     (40,27), #RightAttackFront
     (30,9), #RightAttackUp
@@ -3769,6 +3857,11 @@ class Goblin():
     (7,38), #LeftAttackFrontDown
     (16,42)  #LeftAttackDown
     ]
+
+    ##AUDIO
+    run_sound = [pygame.mixer.Sound(r'Resources\Sound\audio\human_steps1.wav'), pygame.mixer.Sound(r'Resources\Sound\audio\human_steps2.wav'), pygame.mixer.Sound(r'Resources\Sound\audio\human_steps3.wav'), pygame.mixer.Sound(r'Resources\Sound\audio\human_steps3.wav')]
+    fire_sound = pygame.mixer.Sound( r'Resources\Sound\audio\sword_swing.wav')
+
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
     
@@ -3817,6 +3910,10 @@ class Goblin():
                 self.anim_clock = -1
             else: 
                 if self.anim_clock > 4:
+                    if not self.cur_key %3:
+                        sound = random.randint(0, len(self.run_sound) -1)
+                        self.run_sound[sound].set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
+                        self.run_sound[sound].play()
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.run_animation[self.cur_key]
@@ -3930,6 +4027,8 @@ class Goblin():
         self.current_animation = attack_anim
     
     def shoot(self):
+        self.fire_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
+        self.fire_sound.play()
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
     
@@ -3937,7 +4036,7 @@ class Goblin():
 
     def take_damage(self, damage):
         if self.alive:
-            hurt_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+            hurt_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
             hurt_sound.play()
         if damage <= self.extra_hp:
             self.extra_hp -= damage
@@ -4069,6 +4168,9 @@ class Banshee():
     my_area = None
     area_radius = 28
 
+    #AUDIO
+    fire_sound = pygame.mixer.Sound(r'Resources\Sound\audio\banshee_area.wav')
+
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
     run_animation = get_sprites(name, 'Run')
@@ -4167,13 +4269,15 @@ class Banshee():
         self.finished_atack = False
     
     def shoot(self):
+        self.fire_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
+        self.fire_sound.play()
         self.my_area = DamageArea(self)
     
     
 
     def take_damage(self, damage):
         if self.alive:
-            hurt_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+            hurt_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
             hurt_sound.play()
         if damage <= self.extra_hp:
             self.extra_hp -= damage
@@ -4319,6 +4423,7 @@ class Dragon():
     ##AUDIO
     run_sound = pygame.mixer.Sound(r'Resources\Sound\audio\dragon_wing_flap.wav')
     fire_sound = pygame.mixer.Sound( r'Resources\Sound\audio\dragon_howl.wav')
+
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
     run_animation = get_sprites(name, 'Run')
@@ -4360,7 +4465,7 @@ class Dragon():
                     self.current_sprite = self.idle_animation[self.cur_key]
         elif self.current_animation == "moving":
             if self.cur_key == 2 and self.anim_clock == 2:
-                self.run_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+                self.run_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
                 self.run_sound.play()
             if self.cur_key+2 > len(self.run_animation):
                 self.cur_key = 0
@@ -4480,7 +4585,7 @@ class Dragon():
         self.current_animation = attack_anim
     
     def shoot(self):
-        self.fire_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+        self.fire_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
         self.fire_sound.play()
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
@@ -4488,7 +4593,7 @@ class Dragon():
 
     def take_damage(self, damage):
         if self.alive:
-            hurt_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+            hurt_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
             hurt_sound.play()
         if damage <= self.extra_hp:
             self.extra_hp -= damage
@@ -4792,7 +4897,7 @@ class Shapeshifter():
 
     def take_damage(self, damage):
         if self.alive:
-            hurt_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+            hurt_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
             hurt_sound.play()
         if damage <= self.extra_hp:
             self.extra_hp -= damage
@@ -4924,7 +5029,7 @@ class Basilisk():
     proj_dir = (0,0)
     proj_width = 10
     proj_height = 4
-                    #Corrections 
+    #Corrections 
     proj_correction = [
     (38,28), #RightAttackFront
     (34,20), #RightAttackUp
@@ -4937,6 +5042,11 @@ class Basilisk():
     (10,35), #LeftAttackFrontDown
     (12,36)  #LeftAttackDown 
     ]
+
+    ##AUDIO
+    run_sound = [pygame.mixer.Sound(r'Resources\Sound\audio\crawl.wav')]
+    fire_sound = pygame.mixer.Sound( r'Resources\Sound\audio\laser.wav')
+
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
     run_animation = get_sprites(name, 'Run')
@@ -4958,8 +5068,6 @@ class Basilisk():
     anim_clock = -1
     can_attack_cycle = 0
 
-    #Masks use the opaque pixels, ignoring the transparent
-    #hitbox = pygame.mask.from_surface(texture, 127)
     def handle_animation(self):
         if self.animation_change != self.current_animation:
             self.cur_key = -1
@@ -4982,6 +5090,10 @@ class Basilisk():
                 self.anim_clock = -1
             else: 
                 if self.anim_clock > 4:
+                    if not self.cur_key %3:
+                        sound = random.randint(0, len(self.run_sound) -1)
+                        self.run_sound[sound].set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
+                        self.run_sound[sound].play()
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.run_animation[self.cur_key]
@@ -5095,6 +5207,8 @@ class Basilisk():
         self.current_animation = attack_anim
     
     def shoot(self):
+        self.fire_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
+        self.fire_sound.play()
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
     
@@ -5102,7 +5216,7 @@ class Basilisk():
 
     def take_damage(self, damage):
         if self.alive:
-            hurt_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+            hurt_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
             hurt_sound.play()
         if damage <= self.extra_hp:
             self.extra_hp -= damage
@@ -5240,6 +5354,9 @@ class AirElemental():
     (5,36), #LeftAttackFrontDown
     (14,39)  #LeftAttackDown 
     ]
+
+    ##AUDIO
+    fire_sound = pygame.mixer.Sound( r'Resources\Sound\audio\air_spray.wav')
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
     
@@ -5401,13 +5518,15 @@ class AirElemental():
         self.current_animation = attack_anim
     
     def shoot(self):
+        self.fire_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
+        self.fire_sound.play()
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
     
 
     def take_damage(self, damage):
         if self.alive:
-            hurt_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+            hurt_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
             hurt_sound.play()
         if damage <= self.extra_hp:
             self.extra_hp -= damage
@@ -5506,7 +5625,6 @@ class WaterElemental():
     #STAT NUMBERS
     team = 0
     ranged = True
-        #type: teleport0 air1 ground2
     move_type = 3
     move_limit = 20
     speed = 5
@@ -5548,6 +5666,10 @@ class WaterElemental():
     (12,34), #LeftAttackFrontDown
     (15,36)  #LeftAttackDown 
     ]
+
+    ##AUDIO
+    run_sound = [pygame.mixer.Sound(r'Resources\Sound\audio\water_move.wav')]
+    fire_sound = pygame.mixer.Sound( r'Resources\Sound\audio\water_splash.wav')
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
     
@@ -5596,6 +5718,10 @@ class WaterElemental():
                 self.anim_clock = -1
             else: 
                 if self.anim_clock > 4:
+                    if not self.cur_key %3:
+                        sound = random.randint(0, len(self.run_sound) -1)
+                        self.run_sound[sound].set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
+                        self.run_sound[sound].play()
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.run_animation[self.cur_key]
@@ -5690,7 +5816,6 @@ class WaterElemental():
             if rect != self and rect.obj_type != "player":
                 if self.hitbox().colliderect(rect.hitbox()):
                     colliding = True
-
         return colliding
     
     def attack(self, x, y):
@@ -5709,13 +5834,15 @@ class WaterElemental():
         self.current_animation = attack_anim
     
     def shoot(self):
+        self.fire_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
+        self.fire_sound.play()
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
     
 
     def take_damage(self, damage):
         if self.alive:
-            hurt_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+            hurt_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
             hurt_sound.play()
         if damage <= self.extra_hp:
             self.extra_hp -= damage
@@ -5813,7 +5940,6 @@ class FireElemental():
     #STAT NUMBERS
     team = 0
     ranged = True
-        #type: teleport0 air1 ground2
     move_type = 3
     move_limit = 20
     speed = 5
@@ -5855,6 +5981,11 @@ class FireElemental():
     (16,42), #LeftAttackFrontDown
     (20,44)  #LeftAttackDown
     ]
+
+    ##AUDIO
+    run_sound = [pygame.mixer.Sound(r'Resources\Sound\audio\fire_move1.wav'), pygame.mixer.Sound(r'Resources\Sound\audio\fire_move2.wav')]
+    fire_sound = pygame.mixer.Sound( r'Resources\Sound\audio\fire_whoosh.wav')
+
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
     
@@ -5903,6 +6034,10 @@ class FireElemental():
                 self.anim_clock = -1
             else: 
                 if self.anim_clock > 4:
+                    if not self.cur_key %3:
+                        sound = random.randint(0, len(self.run_sound) -1)
+                        self.run_sound[sound].set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
+                        self.run_sound[sound].play()
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.run_animation[self.cur_key]
@@ -6016,13 +6151,13 @@ class FireElemental():
         self.current_animation = attack_anim
     
     def shoot(self):
+        self.fire_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
+        self.fire_sound.play()
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
-    
-    
 
     def take_damage(self, damage):
         if self.alive:
-            hurt_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+            hurt_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
             hurt_sound.play()
         if damage <= self.extra_hp:
             self.extra_hp -= damage
@@ -6163,6 +6298,11 @@ class EarthElemental():
     (18,40), #LeftAttackFrontDown
     (33,41)  #LeftAttackDown
     ]
+
+    ##AUDIO 
+    run_sound = [pygame.mixer.Sound(r'Resources\Sound\audio\earth_move.wav')]
+    fire_sound = pygame.mixer.Sound( r'Resources\Sound\audio\earth_throw.wav')
+
     ##SPRITES
     idle_animation = get_sprites(name, 'Idle')
     
@@ -6211,6 +6351,10 @@ class EarthElemental():
                 self.anim_clock = -1
             else: 
                 if self.anim_clock > 4:
+                    if not self.cur_key %3:
+                        sound = random.randint(0, len(self.run_sound) -1)
+                        self.run_sound[sound].set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
+                        self.run_sound[sound].play()
                     self.cur_key += 1
                     self.anim_clock = -1
                     self.current_sprite = self.run_animation[self.cur_key]
@@ -6324,13 +6468,15 @@ class EarthElemental():
         self.current_animation = attack_anim
     
     def shoot(self):
+        self.fire_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
+        self.fire_sound.play()
         Projectile((self.proj_dir[0], self.proj_dir[1]), self)
     
     
 
     def take_damage(self, damage):
         if self.alive:
-            hurt_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+            hurt_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
             hurt_sound.play()
         if damage <= self.extra_hp:
             self.extra_hp -= damage
@@ -6470,6 +6616,7 @@ rules_buttons = [(840, 570, 140, 55), (390, 194, 160, 32), (190, 194, 164, 32)]
 rules_sel = 0
 
 rules_screen = 0
+rules_txt = "Archon is a chess like game where it's pieces (called icons) duel each other in order to conquer a position, there are two sides, the Light side and the Dark side, each have their own unique icons, the game's objective is to conquer all the power points or defeat all the opponent's icons. Duels are fast-paced combats where icons try to defeat each other, icons get extra health depending on the tile's color where the duel takes place, health does not accumulate after the duel so strategy is very important"
 #TODO: rules
 def rules():
     global rules_sel
@@ -6863,8 +7010,6 @@ class GameBoard:
         if self.es_cur_anim == 0 or self.es_cur_anim == len(self.energy_square_frames)-1:
             self.es_anim_cycle *= -1
 
-    _start = True
-
     def draw_board(self):
         for i in range(0, 9):
             for j in range(0,9):
@@ -6999,15 +7144,16 @@ class GameBoard:
                         self.board_warn = ''
                     elif not self.board_data[self.player_board_y][self.player_board_x] == self.selected_sq[0]:
                         if is_elemental and not (self.player_board_y, self.player_board_x) in self._ENERGY_SQUARES:
-                            if self.board_data[self.player_board_y][self.player_board_x][0].team == 0:
-                                self.light_fighter = (self.board_data[self.player_board_y][self.player_board_x], (self.player_board_y, self.player_board_x))
-                                self.dark_fighter = self.selected_sq
-                            else:
-                                self.light_fighter = self.selected_sq
-                                self.dark_fighter = (self.board_data[self.player_board_y][self.player_board_x], (self.player_board_y, self.player_board_x))
-                            start_duel(self.selected_sq[0][0], self.board_data[self.player_board_y][self.player_board_x][0], (self.player_board_x, self.player_board_y))
-                            self.board_warn =  ''
-                            self.selected_sq = ()
+                            if self.board_data[self.player_board_y][self.player_board_x][0].team != self.selected_sq[0][0].team:
+                                if self.board_data[self.player_board_y][self.player_board_x][0].team == 0:
+                                    self.light_fighter = (self.board_data[self.player_board_y][self.player_board_x], (self.player_board_y, self.player_board_x))
+                                    self.dark_fighter = self.selected_sq[0]
+                                else:
+                                    self.light_fighter = self.selected_sq
+                                    self.dark_fighter = (self.board_data[self.player_board_y][self.player_board_x], (self.player_board_y, self.player_board_x))
+                                start_duel(self.selected_sq[0][0], self.board_data[self.player_board_y][self.player_board_x][0], (self.player_board_x, self.player_board_y))
+                                self.board_warn =  ''
+                                self.selected_sq = ()
                         elif is_elemental: 
                             self.spell_text = 'power points are spell proof'
                         else:
@@ -7074,10 +7220,12 @@ class GameBoard:
                     self.teleporter_placeholder = None
         else:
             if piece == 0:
-                self.board_data[self.light_fighter[1][1]][self.light_fighter[1][0]] = None
+                if not "Elemental" in self.light_fighter[0][0].name:
+                    self.board_data[self.light_fighter[1][1]][self.light_fighter[1][0]] = None
                 self.board_data[position[1]][position[0]] = self.light_fighter[0]
             elif piece == 1:
-                self.board_data[self.dark_fighter[1][1]][self.dark_fighter[1][0]] = None
+                if not "Elemental" in self.dark_fighter[0][0].name:
+                    self.board_data[self.dark_fighter[1][1]][self.dark_fighter[1][0]] = None
                 self.board_data[position[1]][position[0]] = self.dark_fighter[0]
         self.light_fighter = None
         self.dark_fighter = None
@@ -7150,7 +7298,6 @@ class GameBoard:
             self.board_warn = "Heal"
             self.spell_text = "Which icon will you heal?" 
         elif self.choosing_action[1].spells[self.choosen_spell] == "Teleport":
-            self.choosing_action[1].spells.remove("Teleport")
             self.choosing_action[1].casting_spell = True
             self.spell_selection = 'teleport'
             self.board_warn = "Teleport"
@@ -7298,6 +7445,7 @@ class GameBoard:
         elif self.teleporter_placeholder != None:
             if self.board_data[self.player_board_y][self.player_board_x] == None and not (self.player_board_y, self.player_board_x) in self._ENERGY_SQUARES:
                 if (self.player_board_y, self.player_board_x) != self.teleporter_placeholder[1]:
+                    self.choosing_action[1].spells.remove("Teleport")
                     self.board_data[self.player_board_y][self.player_board_x] = self.teleporter_placeholder[0]
                     self.board_data[self.teleporter_placeholder[1][0]][self.teleporter_placeholder[1][1]] = None
                     self.spell_selection = ''
@@ -7313,6 +7461,7 @@ class GameBoard:
                 if (self.player_board_y, self.player_board_x) in self._ENERGY_SQUARES:
                     self.spell_text = "power points are spell proof"
                 elif self.board_data[self.player_board_y][self.player_board_x][0].team != self.selected_sq[0][0].team:
+                    self.choosing_action[1].spells.remove("Teleport")
                     if self.board_data[self.player_board_y][self.player_board_x][0].team == 0:
                         self.light_fighter = (self.board_data[self.player_board_y][self.player_board_x], (self.player_board_y, self.player_board_x))
                         self.dark_fighter = self.teleporter_placeholder
@@ -7325,7 +7474,6 @@ class GameBoard:
                     self.choosing_action = (False, None)
                     self.selected_sq = ()
                     self.choosen_spell = 0
-                    self.next_turn()
                     self.teleporter_placeholder = self.teleporter_placeholder[0][0].team
 
     def exchange(self):
@@ -7677,15 +7825,15 @@ def arena():
         screen.blit(area.sprite, (area.x, area.y))
         if _DEBUG:
             pygame.draw.rect(screen, (0,0,0), area.hitbox(), 0)
-    if dueler1.alive:
-        screen.blit(pygame.transform.flip(dueler1.texture, dueler1.orientation, False), (dueler1.x, dueler1.y))
-    if dueler0.alive:
-        screen.blit(pygame.transform.flip(dueler0.texture, dueler0.orientation, False), (dueler0.x, dueler0.y))
     for obst in arena_collisions:
         if obst.obj_type == "barrier":
             screen.blit(obst.sprite, (obst.x, obst.y))
             if _DEBUG:
                 pygame.draw.rect(screen, (0,0,0), obst.hitbox(), 0)
+    if dueler1.alive:
+        screen.blit(pygame.transform.flip(dueler1.texture, dueler1.orientation, False), (dueler1.x, dueler1.y))
+    if dueler0.alive:
+        screen.blit(pygame.transform.flip(dueler0.texture, dueler0.orientation, False), (dueler0.x, dueler0.y))
     for proj in light_projectiles:
         if proj.ranged:
             screen.blit(proj.sprite, (proj.x, proj.y))
@@ -7771,7 +7919,7 @@ while running:
                     elif event.key == down_key[0] or event.key == down_key[1]:
                         key_selected += 1
                     if event.key == sel_key[0] or event.key == sel_key[1]:
-                        sel_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+                        sel_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
                         sel_sound.play()
                         if key_selected == 0:
                             switch_scene("game")
@@ -7856,7 +8004,7 @@ while running:
                     if rules_screen == 0 or rules_screen > 4:
                         if event.key == sel_key[0] or event.key == sel_key[1]:
                             if rules_sel == 0:
-                                sel_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+                                sel_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
                                 sel_sound.play()
                                 switch_scene("menu")
                             if rules_sel == 1:
@@ -7869,7 +8017,7 @@ while running:
                             rules_sel -= 1
                     elif rules_screen == 1:
                         if event.key == sel_key[0] or event.key == sel_key[1]:
-                            sel_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+                            sel_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
                             sel_sound.play()
                             if char_view_sel == 0:
                                 rules_screen = 0
@@ -7905,7 +8053,7 @@ while running:
 
                     elif rules_screen == 3:
                         if event.key == sel_key[0] or event.key == sel_key[1]:
-                            sel_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+                            sel_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
                             sel_sound.play()
                             if char_view_sel == 0:
                                 rules_screen = 0
@@ -7948,7 +8096,7 @@ while running:
                 if event.type == pygame.KEYDOWN:
                     if event.key == sel_key[0] or event.key == sel_key[1]:
                         if opts_sel == 0:
-                            sel_sound.set_volume(game_volume+0.5 if (pygame.mixer_music.get_volume() != 0) else 0)
+                            sel_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
                             sel_sound.play()
                             current_scene = 'menu'
                         if opts_sel == 1:
