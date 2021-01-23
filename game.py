@@ -7207,7 +7207,9 @@ class GameBoard:
         if not self.selected_sq[0][0].name in ["Wizard", "Sorceress"]:
             screen.blit(pygame.transform.flip(self.selected_sq[0][1],self.selected_sq[0][0].orientation, False), (self.board_x + (56*self.player_board_y) - self.selected_sq[0][0].char_x_offset, self.board_y + (56*self.player_board_x) - self.selected_sq[0][0].char_y_offset))
 
-    def finished_fight(self, piece, position):
+    def finished_fight(self, piece, position, shapeshifter = False):
+        if shapeshifter:
+            self.dark_fighter[0][0].alive = False
         if self.teleporter_placeholder != None:
             if self.teleporter_placeholder == piece:
                 if piece == 0:
@@ -7657,9 +7659,10 @@ dead = []
 arena_finish_clock = 0
 arena_finish_var = 0
 fighting_pos = (0,0)
+shapeshifter_battle = False
 
 def start_duel(fighter1, fighter2, pos):
-    global current_scene, dueler1, dueler0, arena_finish_clock, arena_finish_var, fighting_pos, transition
+    global current_scene, dueler1, dueler0, arena_finish_clock, arena_finish_var, fighting_pos, transition, shapeshifter_battle
     transition = 3
     arena_collisions.clear()
     dead.clear()
@@ -7674,6 +7677,7 @@ def start_duel(fighter1, fighter2, pos):
         dueler1 = fighter2
         dueler0 = fighter1
     if dueler1.name == "Shapeshifter":
+        shapeshifter_battle = True
         if dueler0.name == "Knight":
             dueler1 = Knight(True, dueler0.base_hp)
         elif dueler0.name == "Archer":
@@ -7740,15 +7744,16 @@ def start_duel(fighter1, fighter2, pos):
         arena_collisions.append(Barrier(random.randint(200, 640), random.randint(0, 480), random.randint(0, 2)))
 
 def finish_duel(winner):
-    global current_scene, dueler1, dueler0
+    global current_scene, dueler1, dueler0, shapeshifter_battle
     dueler0.extra_hp = 0
     dueler1.extra_hp = 0
     dueler1 = None
     dueler0 = None
     if winner == 0:
-        _MAIN_BOARD.finished_fight(0, fighting_pos)
+        _MAIN_BOARD.finished_fight(0, fighting_pos, shapeshifter_battle)
     elif winner == 1:
-        _MAIN_BOARD.finished_fight(1, fighting_pos)
+        _MAIN_BOARD.finished_fight(1, fighting_pos, shapeshifter_battle)
+    shapeshifter_battle = False
     _MAIN_BOARD.next_turn()
     light_projectiles.clear()
     dark_projectiles.clear()
