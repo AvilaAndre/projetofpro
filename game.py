@@ -2,7 +2,7 @@ import pygame, sys, time, os, math, random
 from pygame.locals import *
 
 _DEBUG = False
-_GAMETITLE = 'Archon Type Game!'
+_GAMETITLE = 'Archon'
 pygame.init()
 pygame.font.init()
 pygame.mixer.init()
@@ -20,7 +20,6 @@ title_font = pygame.font.SysFont("Comic Sans MS", 80)
 option_font = pygame.font.SysFont("Comic Sans MS", 60)
 small_font = pygame.font.SysFont("Comic Sans MS", 15)
 debug_font = pygame.font.SysFont("lucidaconsole", 15)
-
 title_gm_font = pygame.font.Font(r'Resources\Fonts\Langar\Langar-Regular.ttf', 80)
 big_gm_font = pygame.font.Font(r'Resources\Fonts\Langar\Langar-Regular.ttf', 60)
 medium_gm_font = pygame.font.Font(r'Resources\Fonts\Langar\Langar-Regular.ttf', 40)
@@ -6612,12 +6611,11 @@ def menu():
 In this page the player will learn the game's basics, it will also be
 possible to check the different characters' stats and abilities.
 """
-rules_buttons = [(840, 570, 140, 55), (390, 194, 160, 32), (190, 194, 164, 32)]
+rules_buttons = [(840, 570, 140, 55), (800, 294, 160, 32), (800, 194, 164, 32)]
 rules_sel = 0
 
 rules_screen = 0
-rules_txt = "Archon is a chess like game where it's pieces (called icons) duel each other in order to conquer a position, there are two sides, the Light side and the Dark side, each have their own unique icons, the game's objective is to conquer all the power points or defeat all the opponent's icons. Duels are fast-paced combats where icons try to defeat each other, icons get extra health depending on the tile's color where the duel takes place, health does not accumulate after the duel so strategy is very important"
-#TODO: rules
+rules_txt = "Archon is a chess-like game where it's pieces (called icons) duel each other in order to conquer a position, there are two sides, the Light side and the Dark side, each have their own unique icons, the game's objective is to conquer all the power points or defeat all the opponent's icons. Duels are fast-paced combats where icons try to defeat each other, icons get extra health depending on the tile's color where the duel takes place, health does not accumulate after the duel so strategy is very important. The Wizard and the Sorceress can cast spells, select them two times to choose the spell, you can teleport, heal, revive, imprison, shift time, exchange icons' places and summon elementals (which disappear after attacking), use them to your advantage and have fun."
 def rules():
     global rules_sel
     screen.blit(title_background, (0,0))
@@ -6632,13 +6630,16 @@ def rules():
     light_chars_info_button = small_gm_font.render("See Light's Icons", 1, (00,00,00))
     dark_chars_info_button = small_gm_font.render("See Dark's Icons", 1, (00,00,00))
     go_back_button = medium_gm_font.render('Back', 1, (00,00,00))
+    rules_list = fit_in_box(rules_txt, 700, 400, (0,0,0))
+
 
     #DRAW
-
     screen.blit(rules_title, (50, 50))
+    for i in range(len(rules_list)):
+        screen.blit(rules_list[i], (50, 150 + 25*i))
     screen.blit(go_back_button, (860, 580))
-    screen.blit(light_chars_info_button, (200, 200))
-    screen.blit(dark_chars_info_button, (400, 200))
+    screen.blit(light_chars_info_button, (810, 200))
+    screen.blit(dark_chars_info_button, (810, 300))
     pygame.draw.rect(screen, (0,0,0) , Rect(rules_buttons[rules_sel][0], rules_buttons[rules_sel][1], rules_buttons[rules_sel][2], rules_buttons[rules_sel][3]), 4)
 
 """CHARACTER VIEWER"""
@@ -6680,7 +6681,7 @@ def see_light_chars():
 
 def see_dark_chars():
     global char_view_sel
-    screen.fill((0, 0, 77))
+    screen.fill((0, 44, 92))
     #LOGIC
     if char_view_sel > len(char_view_buttons) -1:
         char_view_sel = len(char_view_buttons) -1
@@ -6720,7 +6721,7 @@ def char_viewer(side):
         screen.fill((255, 255, 153))
         screen_info_c = (0,0,0)
     elif side == 4:
-        screen.fill((0,0,77))
+        screen.fill((0, 44, 92))
         screen_info_c = (255, 255, 255)
     else:
         screen.fill((255, 0, 0))
@@ -6769,7 +6770,7 @@ def fit_in_box(text, width, height, color):
     while len(split_text) > 0:
         test_line = line
         test_line += split_text[0] + " "
-        if not (small_gm_font.size(test_line)[0] > 500):
+        if not (small_gm_font.size(test_line)[0] > width):
             line += split_text[0] + " "
             split_text.pop(0)
         else:
@@ -6906,7 +6907,7 @@ def game_scene():
 
 class GameBoard:
     _PIECE_SIZE = 80
-    #Pieces
+    #Icons
  
     
     _PLAYERS_COLOR = [(255, 255, 255), (0,0,0)]
@@ -6957,49 +6958,49 @@ class GameBoard:
     revive_opt = 0
 
     def __init__(self):
-        Golem_Piece1 = (Golem(), pygame.transform.scale(pygame.image.load(Golem.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
-        Golem_Piece2 = (Golem(), pygame.transform.scale(pygame.image.load(Golem.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
-        Knight_Piece1 = (Knight(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
-        Knight_Piece2 = (Knight(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
-        Knight_Piece3 = (Knight(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
-        Knight_Piece4 = (Knight(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
-        Knight_Piece5 = (Knight(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
-        Knight_Piece6 = (Knight(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
-        Knight_Piece7 = (Knight(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
-        Archer_Piece1 = (Archer(), pygame.transform.scale(pygame.image.load(Archer.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
-        Archer_Piece2 = (Archer(), pygame.transform.scale(pygame.image.load(Archer.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
-        Djinni_Piece1 = (Djinni(), pygame.transform.scale(pygame.image.load(Djinni.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
-        Wizard_Piece1 = (Wizard(), pygame.transform.scale(pygame.image.load(Wizard.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
-        Unicorn_Piece1 = (Unicorn(), pygame.transform.scale(pygame.image.load(Unicorn.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
-        Unicorn_Piece2 = (Unicorn(), pygame.transform.scale(pygame.image.load(Unicorn.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
-        Phoenix_Piece1 = (Phoenix(), pygame.transform.scale(pygame.image.load(Phoenix.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
-        Valkyrie_Piece1 = (Valkyrie(), pygame.transform.scale(pygame.image.load(Valkyrie.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
-        Valkyrie_Piece2 = (Valkyrie(), pygame.transform.scale(pygame.image.load(Valkyrie.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
-        Troll_Piece1 = (Troll(), pygame.transform.scale(pygame.image.load(Troll.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
-        Troll_Piece2 = (Troll(), pygame.transform.scale(pygame.image.load(Troll.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
-        Sorceress_Piece1 = (Sorceress(), pygame.transform.scale(pygame.image.load(Sorceress.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
-        Manticore_Piece1 = (Manticore(), pygame.transform.scale(pygame.image.load(Manticore.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
-        Manticore_Piece2 = (Manticore(), pygame.transform.scale(pygame.image.load(Manticore.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
-        Goblin_Piece1 = (Goblin(), pygame.transform.scale(pygame.image.load(Goblin.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
-        Goblin_Piece2 = (Goblin(), pygame.transform.scale(pygame.image.load(Goblin.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
-        Goblin_Piece3 = (Goblin(), pygame.transform.scale(pygame.image.load(Goblin.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
-        Goblin_Piece4 = (Goblin(), pygame.transform.scale(pygame.image.load(Goblin.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
-        Goblin_Piece5 = (Goblin(), pygame.transform.scale(pygame.image.load(Goblin.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
-        Goblin_Piece6 = (Goblin(), pygame.transform.scale(pygame.image.load(Goblin.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
-        Goblin_Piece7 = (Goblin(), pygame.transform.scale(pygame.image.load(Goblin.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
-        Banshee_Piece1 = (Banshee(), pygame.transform.scale(pygame.image.load(Banshee.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
-        Banshee_Piece2 = (Banshee(), pygame.transform.scale(pygame.image.load(Banshee.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
-        Dragon_Piece1 = (Dragon(), pygame.transform.scale(pygame.image.load(Dragon.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
-        Basilisk_Piece1 = (Basilisk(), pygame.transform.scale(pygame.image.load(Basilisk.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
-        Basilisk_Piece2 = (Basilisk(), pygame.transform.scale(pygame.image.load(Basilisk.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
-        Shapeshifter_Piece1 = (Shapeshifter(), pygame.transform.scale(pygame.image.load(Shapeshifter.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
-        EarthElemental_Piece = (EarthElemental(), pygame.transform.scale(pygame.image.load(EarthElemental.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
-        AirElemental_Piece = (AirElemental(), pygame.transform.scale(pygame.image.load(AirElemental.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
-        WaterElemental_Piece = (WaterElemental(), pygame.transform.scale(pygame.image.load(WaterElemental.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
-        FireElemental_Piece = (FireElemental(), pygame.transform.scale(pygame.image.load(FireElemental.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Golem_Icon1 = (Golem(), pygame.transform.scale(pygame.image.load(Golem.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Golem_Icon2 = (Golem(), pygame.transform.scale(pygame.image.load(Golem.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Knight_Icon1 = (Knight(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Knight_Icon2 = (Knight(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Knight_Icon3 = (Knight(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Knight_Icon4 = (Knight(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Knight_Icon5 = (Knight(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Knight_Icon6 = (Knight(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Knight_Icon7 = (Knight(), pygame.transform.scale(pygame.image.load(Knight.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Archer_Icon1 = (Archer(), pygame.transform.scale(pygame.image.load(Archer.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Archer_Icon2 = (Archer(), pygame.transform.scale(pygame.image.load(Archer.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Djinni_Icon1 = (Djinni(), pygame.transform.scale(pygame.image.load(Djinni.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Wizard_Icon1 = (Wizard(), pygame.transform.scale(pygame.image.load(Wizard.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Unicorn_Icon1 = (Unicorn(), pygame.transform.scale(pygame.image.load(Unicorn.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Unicorn_Icon2 = (Unicorn(), pygame.transform.scale(pygame.image.load(Unicorn.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Phoenix_Icon1 = (Phoenix(), pygame.transform.scale(pygame.image.load(Phoenix.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Valkyrie_Icon1 = (Valkyrie(), pygame.transform.scale(pygame.image.load(Valkyrie.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Valkyrie_Icon2 = (Valkyrie(), pygame.transform.scale(pygame.image.load(Valkyrie.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Troll_Icon1 = (Troll(), pygame.transform.scale(pygame.image.load(Troll.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Troll_Icon2 = (Troll(), pygame.transform.scale(pygame.image.load(Troll.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Sorceress_Icon1 = (Sorceress(), pygame.transform.scale(pygame.image.load(Sorceress.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Manticore_Icon1 = (Manticore(), pygame.transform.scale(pygame.image.load(Manticore.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Manticore_Icon2 = (Manticore(), pygame.transform.scale(pygame.image.load(Manticore.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Goblin_Icon1 = (Goblin(), pygame.transform.scale(pygame.image.load(Goblin.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Goblin_Icon2 = (Goblin(), pygame.transform.scale(pygame.image.load(Goblin.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Goblin_Icon3 = (Goblin(), pygame.transform.scale(pygame.image.load(Goblin.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Goblin_Icon4 = (Goblin(), pygame.transform.scale(pygame.image.load(Goblin.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Goblin_Icon5 = (Goblin(), pygame.transform.scale(pygame.image.load(Goblin.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Goblin_Icon6 = (Goblin(), pygame.transform.scale(pygame.image.load(Goblin.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Goblin_Icon7 = (Goblin(), pygame.transform.scale(pygame.image.load(Goblin.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Banshee_Icon1 = (Banshee(), pygame.transform.scale(pygame.image.load(Banshee.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Banshee_Icon2 = (Banshee(), pygame.transform.scale(pygame.image.load(Banshee.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Dragon_Icon1 = (Dragon(), pygame.transform.scale(pygame.image.load(Dragon.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Basilisk_Icon1 = (Basilisk(), pygame.transform.scale(pygame.image.load(Basilisk.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Basilisk_Icon2 = (Basilisk(), pygame.transform.scale(pygame.image.load(Basilisk.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        Shapeshifter_Icon1 = (Shapeshifter(), pygame.transform.scale(pygame.image.load(Shapeshifter.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        EarthElemental_Icon = (EarthElemental(), pygame.transform.scale(pygame.image.load(EarthElemental.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        AirElemental_Icon = (AirElemental(), pygame.transform.scale(pygame.image.load(AirElemental.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        WaterElemental_Icon = (WaterElemental(), pygame.transform.scale(pygame.image.load(WaterElemental.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
+        FireElemental_Icon = (FireElemental(), pygame.transform.scale(pygame.image.load(FireElemental.current_sprite),  (self._PIECE_SIZE, self._PIECE_SIZE)))
 
-        self.board_data = [[Valkyrie_Piece1 , Golem_Piece1, Unicorn_Piece2, Djinni_Piece1, Wizard_Piece1, Phoenix_Piece1, Unicorn_Piece1, Golem_Piece2, Valkyrie_Piece2], [Archer_Piece1, Knight_Piece1 , Knight_Piece2, Knight_Piece3, Knight_Piece4, Knight_Piece5, Knight_Piece6, Knight_Piece7, Archer_Piece2], [None , None, None, None, None, None, None, None, None], [None, None, None, None, None, None, None, None, None], [None, None, None, None, None, None, None, None, None], [None , None, None, None, None, None, None, None, None], [None ,None ,None, None, None, None, None, None, None], [Manticore_Piece1 , Goblin_Piece1, Goblin_Piece2, Goblin_Piece3, Goblin_Piece4, Goblin_Piece5, Goblin_Piece6, Goblin_Piece7, Manticore_Piece2], [Banshee_Piece1 , Troll_Piece1, Basilisk_Piece1, Shapeshifter_Piece1, Sorceress_Piece1, Dragon_Piece1, Basilisk_Piece2, Troll_Piece2, Banshee_Piece2]]
-        self.elementals = [EarthElemental_Piece, AirElemental_Piece, WaterElemental_Piece, FireElemental_Piece]
+        self.board_data = [[Valkyrie_Icon1 , Golem_Icon1, Unicorn_Icon2, Djinni_Icon1, Wizard_Icon1, Phoenix_Icon1, Unicorn_Icon1, Golem_Icon2, Valkyrie_Icon2], [Archer_Icon1, Knight_Icon1 , Knight_Icon2, Knight_Icon3, Knight_Icon4, Knight_Icon5, Knight_Icon6, Knight_Icon7, Archer_Icon2], [None , None, None, None, None, None, None, None, None], [None, None, None, None, None, None, None, None, None], [None, None, None, None, None, None, None, None, None], [None , None, None, None, None, None, None, None, None], [None ,None ,None, None, None, None, None, None, None], [Manticore_Icon1 , Goblin_Icon1, Goblin_Icon2, Goblin_Icon3, Goblin_Icon4, Goblin_Icon5, Goblin_Icon6, Goblin_Icon7, Manticore_Icon2], [Banshee_Icon1 , Troll_Icon1, Basilisk_Icon1, Shapeshifter_Icon1, Sorceress_Icon1, Dragon_Icon1, Basilisk_Icon2, Troll_Icon2, Banshee_Icon2]]
+        self.elementals = [EarthElemental_Icon, AirElemental_Icon, WaterElemental_Icon, FireElemental_Icon]
 
     ##ENERGY SQUARE ANIMATION##
     def es_handle_animation(self):
@@ -8152,7 +8153,10 @@ while running:
         menu()
         
     build_warning = debug_font.render("UNDER DEVELOPMENT", 1, (255, 00, 00))
-    screen.blit(build_warning, (0,0))
+    #screen.blit(build_warning, (0,0))
+    if current_scene != "game" and current_scene != "arena":
+        mark = small_font.render('By: André Ávila, up202006767', 1, (00,00,00))
+        screen.blit(mark, (5, 620))
     pygame.display.update()
     _MAIN_BOARD.es_handle_animation()
     dt = clock.tick(60)
