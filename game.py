@@ -6615,7 +6615,7 @@ rules_buttons = [(840, 570, 140, 55), (800, 294, 160, 32), (800, 194, 164, 32)]
 rules_sel = 0
 
 rules_screen = 0
-rules_txt = "Archon is a chess-like game where it's pieces (called icons) duel each other in order to conquer a position, there are two sides, the Light side and the Dark side, each have their own unique icons, the game's objective is to conquer all the power points or defeat all the opponent's icons. Duels are fast-paced combats where icons try to defeat each other, icons get extra health depending on the tile's color where the duel takes place, health does not accumulate after the duel so strategy is very important. The Wizard and the Sorceress can cast spells, select them two times to choose the spell, you can teleport, heal, revive, imprison, shift time, exchange icons' places and summon elementals (which disappear after attacking), use them to your advantage and have fun."
+rules_txt = "Archon is a chess-like game where it's pieces (called icons) duel each other in order to conquer a position, there are two sides, the Light side and the Dark side, each have their own unique icons, the game's objective is to conquer all the power points or defeat all the opponent's icons, no battles or spells during two full light cycles finishes the game in a tie. Duels are fast-paced combats where icons try to defeat each other, icons get extra health depending on the tile's color where the duel takes place, health does not accumulate after the duel so strategy is very important. The Wizard and the Sorceress can cast spells, select them two times to choose the spell, you can teleport, heal, revive, imprison, shift time, exchange icons' places and summon elementals (which disappear after attacking), use them to your advantage and have fun."
 def rules():
     global rules_sel
     screen.blit(title_background, (0,0))
@@ -6928,6 +6928,7 @@ class GameBoard:
     game_finished = None
     moving = (0, 0)
     choosing_action = (False, None)
+    no_moves = 0
     choosen_spell = 0
     spell_text = ''
     
@@ -7043,6 +7044,7 @@ class GameBoard:
         pass
 
     def next_turn(self):
+        print(self.no_moves, self.cur_color, self.cycle)
         self.win_condition()
         if self.player_turn == None:
             self.player_turn = self.first_player
@@ -7072,21 +7074,31 @@ class GameBoard:
 
     def win_condition(self):
         game_ended = False
+        if self.no_moves == 0:
+            self.no_moves = (0, self.cur_color, self.cycle)
+        elif type(self.no_moves) == tuple:
+            if self.cur_color == self.no_moves[1] and self.cycle == self.no_moves[2]:
+                self.no_moves = (self.no_moves[0]+1, self.no_moves[1], self.no_moves[2])
+                if self.no_moves[0] >= 4:
+                    game_ended = True
+                    self.game_finished = 2
+            
         ##5 power points control
         t0_controlled = 0
         t1_controlled = 0
-        for power_p in self._ENERGY_SQUARES:
-            if self.board_data[power_p[0]][power_p[1]] != None:
-                if self.board_data[power_p[0]][power_p[1]][0].team == 1:
-                    t1_controlled += 1
-                elif self.board_data[power_p[0]][power_p[1]][0].team == 0:
-                    t0_controlled += 1
-        if t0_controlled == 5:
-            game_ended = True
-            self.game_finished = 0
-        elif t1_controlled == 5:
-            game_ended = True
-            self.game_finished = 1
+        if not game_ended:
+            for power_p in self._ENERGY_SQUARES:
+                if self.board_data[power_p[0]][power_p[1]] != None:
+                    if self.board_data[power_p[0]][power_p[1]][0].team == 1:
+                        t1_controlled += 1
+                    elif self.board_data[power_p[0]][power_p[1]][0].team == 0:
+                        t0_controlled += 1
+            if t0_controlled == 5:
+                game_ended = True
+                self.game_finished = 0
+            elif t1_controlled == 5:
+                game_ended = True
+                self.game_finished = 1
         ##6 icons alive
         if not game_ended:
             t0_alive = 0
@@ -7266,6 +7278,7 @@ class GameBoard:
                 elemental = self.elementals[random.randint(0, len(self.elementals) -1)]
                 self.spawn_anywhere(elemental, 0)
                 self.choosing_action[1].spells.remove("Summon Elemental")
+                self.no_moves = 0
                 self.choosing_action[1].casting_spell = True
                 self.board_warn = ("An " if elemental[0].name[0] in "A E" else "A ") + elemental[0].name + " appears!"
                 self.spell_text = "Send it to the target"
@@ -7273,6 +7286,7 @@ class GameBoard:
                 elemental = self.elementals[random.randint(0, len(self.elementals) -1)]
                 self.spawn_anywhere(elemental, 1)
                 self.choosing_action[1].spells.remove("Summon Elemental")
+                self.no_moves = 0
                 self.choosing_action[1].casting_spell = True
                 self.board_warn = ("An " if elemental[0].name[0] in "A E" else "A ") + elemental[0].name + " appears!"
                 self.spell_text = "Send it to the target"
@@ -7280,6 +7294,7 @@ class GameBoard:
             self.choosen_spell = 0
         elif self.choosing_action[1].spells[self.choosen_spell] == "Shift Time":
             self.choosing_action[1].spells.remove("Shift Time")
+            self.no_moves = 0
             self.choosing_action[1].casting_spell = True
             self.board_warn = "Shift Time"
             self.spell_text = "The flow of time is reversed"
@@ -7290,12 +7305,14 @@ class GameBoard:
             self.next_turn()
         elif self.choosing_action[1].spells[self.choosen_spell] == "Imprison":
             self.choosing_action[1].spells.remove("Imprison")
+            self.no_moves = 0
             self.choosing_action[1].casting_spell = True
             self.spell_selection = 'imprison'
             self.board_warn = "Imprison"
             self.spell_text = "Which foe will you imprison?" 
         elif self.choosing_action[1].spells[self.choosen_spell] == "Heal":
             self.choosing_action[1].spells.remove("Heal")
+            self.no_moves = 0
             self.choosing_action[1].casting_spell = True
             self.spell_selection = 'heal'
             self.board_warn = "Heal"
@@ -7307,6 +7324,7 @@ class GameBoard:
             self.spell_text = "Which icon will you teleport?"
         elif self.choosing_action[1].spells[self.choosen_spell] == "Exchange":
             self.choosing_action[1].spells.remove("Exchange")
+            self.no_moves = 0
             self.choosing_action[1].casting_spell = True
             self.spell_selection = 'exchange'
             self.board_warn = "Exchange"
@@ -7331,6 +7349,7 @@ class GameBoard:
                     self.spell_selection = ''
                     return
                 self.choosing_action[1].spells.remove("Revive")
+                self.no_moves = 0
                 self.choosing_action[1].casting_spell = True
                 self.reviving = True
                 for char in allies_dead:
@@ -7449,6 +7468,7 @@ class GameBoard:
             if self.board_data[self.player_board_y][self.player_board_x] == None and not (self.player_board_y, self.player_board_x) in self._ENERGY_SQUARES:
                 if (self.player_board_y, self.player_board_x) != self.teleporter_placeholder[1]:
                     self.choosing_action[1].spells.remove("Teleport")
+                    self.no_moves = 0
                     self.board_data[self.player_board_y][self.player_board_x] = self.teleporter_placeholder[0]
                     self.board_data[self.teleporter_placeholder[1][0]][self.teleporter_placeholder[1][1]] = None
                     self.spell_selection = ''
@@ -7465,6 +7485,7 @@ class GameBoard:
                     self.spell_text = "power points are spell proof"
                 elif self.board_data[self.player_board_y][self.player_board_x][0].team != self.selected_sq[0][0].team:
                     self.choosing_action[1].spells.remove("Teleport")
+                    self.no_moves = 0
                     if self.board_data[self.player_board_y][self.player_board_x][0].team == 0:
                         self.light_fighter = (self.board_data[self.player_board_y][self.player_board_x], (self.player_board_y, self.player_board_x))
                         self.dark_fighter = self.teleporter_placeholder
@@ -7664,6 +7685,7 @@ shapeshifter_battle = False
 
 def start_duel(fighter1, fighter2, pos):
     global current_scene, dueler1, dueler0, arena_finish_clock, arena_finish_var, fighting_pos, transition, shapeshifter_battle
+    _MAIN_BOARD.no_moves = 0
     transition = 3
     arena_collisions.clear()
     dead.clear()
@@ -8151,12 +8173,13 @@ while running:
         arena()
     else:
         menu()
-        
+    """    
     build_warning = debug_font.render("UNDER DEVELOPMENT", 1, (255, 00, 00))
-    #screen.blit(build_warning, (0,0))
+    screen.blit(build_warning, (0,0))
     if current_scene != "game" and current_scene != "arena":
         mark = small_font.render('By: André Ávila, up202006767', 1, (00,00,00))
         screen.blit(mark, (5, 620))
+    """
     pygame.display.update()
     _MAIN_BOARD.es_handle_animation()
     dt = clock.tick(60)
