@@ -2377,8 +2377,6 @@ class Phoenix():
         self.finished_attack = False
     
     def shoot(self):
-        self.fire_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
-        self.fire_sound.play()
         self.explosion_sound.set_volume(game_volume+0.8 if (pygame.mixer_music.get_volume() != 0) else 0)
         self.explosion_sound.play()
         self.my_area = DamageArea(self)
@@ -7044,7 +7042,6 @@ class GameBoard:
         pass
 
     def next_turn(self):
-        print(self.no_moves, self.cur_color, self.cycle)
         self.win_condition()
         if self.player_turn == None:
             self.player_turn = self.first_player
