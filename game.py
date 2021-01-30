@@ -7772,7 +7772,7 @@ def finish_duel(winner):
     if winner == 0:
         _MAIN_BOARD.finished_fight(0, fighting_pos, shapeshifter_battle)
     elif winner == 1:
-        _MAIN_BOARD.finished_fight(1, fighting_pos, shapeshifter_battle)
+        _MAIN_BOARD.finished_fight(1, fighting_pos)
     shapeshifter_battle = False
     _MAIN_BOARD.next_turn()
     light_projectiles.clear()
@@ -8148,6 +8148,7 @@ while running:
         else:
             if _MAIN_BOARD.choosing_action[0] and _MAIN_BOARD.spell_selection == '':
                 _MAIN_BOARD.show_spells()
+            print(_MAIN_BOARD.board_data[5][5])
             board()
     elif current_scene == "ending":
         playing = False
