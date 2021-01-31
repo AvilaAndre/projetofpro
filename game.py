@@ -7161,7 +7161,7 @@ class GameBoard:
                                 else:
                                     self.light_fighter = self.selected_sq
                                     self.dark_fighter = (self.board_data[self.player_board_y][self.player_board_x], (self.player_board_y, self.player_board_x))
-                                start_duel(self.selected_sq[0][0], self.board_data[self.player_board_y][self.player_board_x][0], (self.player_board_x, self.player_board_y))
+                                start_duel(self.selected_sq[0][0], self.board_data[self.player_board_y][self.player_board_x][0], (self.player_board_y, self.player_board_x))
                                 self.board_warn =  ''
                                 self.selected_sq = ()
                         elif is_elemental: 
@@ -8148,7 +8148,6 @@ while running:
         else:
             if _MAIN_BOARD.choosing_action[0] and _MAIN_BOARD.spell_selection == '':
                 _MAIN_BOARD.show_spells()
-            print(_MAIN_BOARD.board_data[5][5])
             board()
     elif current_scene == "ending":
         playing = False
